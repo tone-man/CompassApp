@@ -1,5 +1,4 @@
-# CompassApp
-Project Description: CompassApp - React Native Educational Management App
+# CompassApp - React Native Educational Management App
 
 The CompassApp project is a React Native-based mobile application designed to facilitate educational management and enhance student engagement within the Compass educational program. The app aims to provide a centralized and intuitive platform for students and faculty to track and improve their academic progress, attendance, and study hours.
 
