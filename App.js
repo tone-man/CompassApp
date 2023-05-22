@@ -7,7 +7,7 @@ export default function App() {
   return (
     <View style={styles.container}>
       <Image
-        source={require('C:/Users/micha/OneDrive/Documents/Compass App/CompassApp/QR_Code.png')}
+        source={require('./assets/QR_Code.png')}
         style={{ resizeMode: 'center', paddingTop: 0, width: dimwidth/5, height:dimheight/5}}
       />
       <SafeAreaView>

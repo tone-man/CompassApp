@@ -6,7 +6,10 @@ const TableExample = () => {
   return (
     <DataTable style={styles.container}>
       <DataTable.Header style={styles.tableHeader}>
-        <DataTable.Title style={styles.tableTitle}>
+        <DataTable.Title 
+          numberOfLines={2}
+          style={styles.tableTitle}
+        >
           <Text style={styles.tableHeaderText}>Hours Logged</Text>
         </DataTable.Title>
         <DataTable.Title style={styles.tableTitle}>
@@ -57,15 +60,16 @@ const styles = StyleSheet.create({
   },
   tableHeader: {
     backgroundColor: "#0000FF",
+    flexWrap: 'wrap'
   },
   tableTitle: {
     flexGrow: 1,
+    flexWrap: 'wrap',
   },
   tableHeaderText: {
     color: "yellow",
     fontWeight: "bold",
     fontSize: 10,
-    includeFontPadding: false,
   },
   tableCellText: {
     color: "black",
