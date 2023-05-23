@@ -6,25 +6,22 @@ const TableExample = () => {
   return (
     <DataTable style={styles.container}>
       <DataTable.Header style={styles.tableHeader}>
-        <DataTable.Title 
-          numberOfLines={2}
-          style={styles.tableTitle}
-        >
+        <DataTable.Title numberOfLines={5} style={styles.tableTitle}>
           <Text style={styles.tableHeaderText}>Hours Logged</Text>
         </DataTable.Title>
-        <DataTable.Title style={styles.tableTitle}>
+        <DataTable.Title numberOfLines={5} style={styles.tableTitle}>
           <Text style={styles.tableHeaderText}>Missed Classes</Text>
         </DataTable.Title>
-        <DataTable.Title style={styles.tableTitle}>
+        <DataTable.Title numberOfLines={5} style={styles.tableTitle}>
           <Text style={styles.tableHeaderText}>Missed HW</Text>
         </DataTable.Title>
-        <DataTable.Title style={styles.tableTitle}>
+        <DataTable.Title numberOfLines={5} style={styles.tableTitle}>
           <Text style={styles.tableHeaderText}>Missed Coaching</Text>
         </DataTable.Title>
-        <DataTable.Title style={styles.tableTitle}>
+        <DataTable.Title numberOfLines={5} style={styles.tableTitle}>
           <Text style={styles.tableHeaderText}>Required Study</Text>
         </DataTable.Title>
-        <DataTable.Title style={styles.tableTitle}>
+        <DataTable.Title numberOfLines={5} style={styles.tableTitle}>
           <Text style={styles.tableHeaderText}>Hours Owed</Text>
         </DataTable.Title>
       </DataTable.Header>
@@ -60,11 +57,11 @@ const styles = StyleSheet.create({
   },
   tableHeader: {
     backgroundColor: "#0000FF",
-    flexWrap: 'wrap'
+    flexWrap: "wrap",
   },
   tableTitle: {
     flexGrow: 1,
-    flexWrap: 'wrap',
+    flexWrap: "wrap",
   },
   tableHeaderText: {
     color: "yellow",
