@@ -12,17 +12,6 @@ import Icon from "react-native-vector-icons/FontAwesome";
 export default function App() {
   const [index, setIndex] = React.useState(0);
 
-  const NavigationBar = () => (
-    <BottomNavigation
-      navigationState={{ index, routes }}
-      onIndexChange={setIndex}
-      renderScene={renderScene}
-      renderIcon={({ route, color }) => (
-        <Icon name={route.icon} size={24} color={color} />
-      )}
-    />
-  );
-
   const HeaderContent = () => (
     <View style={styles.headerContent}>
       <View style={styles.iconButtonContainer}>
@@ -34,6 +23,17 @@ export default function App() {
         style={styles.headerTitle}
       />
     </View>
+  );
+
+  const BottomNavigationBar = () => (
+    <BottomNavigation
+      navigationState={{ index, routes }}
+      onIndexChange={setIndex}
+      renderScene={renderScene}
+      renderIcon={({ route, color }) => (
+        <Icon name={route.icon} size={24} color={color} />
+      )}
+    />
   );
 
   const AnalyticsRoute = () => (
@@ -77,7 +77,7 @@ export default function App() {
             <HeaderContent />
           </Appbar.Header>
           <View style={styles.content}>{/* Your app content */}</View>
-          <NavigationBar />
+          <BottomNavigationBar />
         </View>
       </PaperProvider>
     </SafeAreaProvider>
