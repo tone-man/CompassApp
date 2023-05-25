@@ -17,6 +17,9 @@ export default function App() {
       navigationState={{ index, routes }}
       onIndexChange={setIndex}
       renderScene={renderScene}
+      renderIcon={({ route, color }) => (
+        <Icon name={route.icon} size={24} color={color} />
+      )}
     />
   );
 
@@ -55,7 +58,7 @@ export default function App() {
   );
 
   const routes = [
-    { key: "analytics", title: "Analytics", icon: "chart-bar" },
+    { key: "analytics", title: "Analytics", icon: "line-chart" },
     { key: "qrCode", title: "QR Code", icon: "qrcode" },
     { key: "addContent", title: "Add Content", icon: "plus-circle" },
   ];
