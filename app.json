@@ -4,10 +4,10 @@
     "slug": "CompassApp",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/compass.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/compassSplash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },

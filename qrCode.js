@@ -1,4 +1,4 @@
-import { Image } from "react-native-web";
+import { Image } from "react-native";
 
 export default function QRCode() {
   return (
