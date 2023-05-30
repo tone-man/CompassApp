@@ -1,12 +1,24 @@
 import React from "react";
-import { StyleSheet, View, Text } from "react-native";
+import { StyleSheet, View, Text, Dimensions } from "react-native";
+
 import {
   Appbar,
   DefaultTheme,
   Provider as PaperProvider,
   BottomNavigation,
 } from "react-native-paper";
+
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+
+import {
+  LineChart,
+  BarChart,
+  PieChart,
+  ProgressChart,
+  ContributionGraph,
+  StackedBarChart,
+} from "react-native-chart-kit";
+
 import Icon from "react-native-vector-icons/FontAwesome";
 
 export default function App() {
@@ -38,8 +50,50 @@ export default function App() {
 
   const AnalyticsRoute = () => (
     <View style={styles.routeContainer}>
-      <Text>Analytics Screen</Text>
-      {/* Add your analytics screen content here */}
+      <Text>Bezier Line Chart</Text>
+      <LineChart
+        data={{
+          labels: [1, 2, 3, 4, 5, 6],
+          datasets: [
+            {
+              data: [
+                Math.random() * 100,
+                Math.random() * 100,
+                Math.random() * 100,
+                Math.random() * 100,
+                Math.random() * 100,
+                Math.random() * 100,
+              ],
+            },
+          ],
+        }}
+        width={Dimensions.get("window").width} // from react-native
+        height={220}
+        yAxisLabel="$"
+        yAxisSuffix="k"
+        yAxisInterval={1} // optional, defaults to 1
+        chartConfig={{
+          backgroundColor: "#e26a00",
+          backgroundGradientFrom: "#fb8c00",
+          backgroundGradientTo: "#ffa726",
+          decimalPlaces: 2, // optional, defaults to 2dp
+          color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+          labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+          style: {
+            borderRadius: 16,
+          },
+          propsForDots: {
+            r: "6",
+            strokeWidth: "2",
+            stroke: "#ffa726",
+          },
+        }}
+        bezier
+        style={{
+          marginVertical: 8,
+          borderRadius: 16,
+        }}
+      />
     </View>
   );
 
@@ -89,7 +143,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
