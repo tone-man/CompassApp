@@ -123,7 +123,7 @@ SELECT
   users.user_id,
   skills.skill_id,
   ROUND(ABS(RANDOM() % 2)) AS mastery_status,
-  '2023-05-01' AS date_of_event
+  date('now', '-' || (ABS(RANDOM()) % 90) || ' day') AS date_of_event
 FROM
   users, skills
 ORDER BY
