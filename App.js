@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, View, Text, Dimensions } from "react-native";
+import { StyleSheet, View, Text, Dimensions, ScrollView } from "react-native";
 
 import {
   Appbar,
@@ -49,7 +49,7 @@ export default function App() {
   );
 
   const AnalyticsRoute = () => (
-    <View style={styles.routeContainer}>
+    <ScrollView>
       <Text>Bezier Line Chart</Text>
       <LineChart
         data={{
@@ -94,7 +94,7 @@ export default function App() {
           borderRadius: 16,
         }}
       />
-    </View>
+    </ScrollView>
   );
 
   const QrCodeRoute = () => (
@@ -130,7 +130,6 @@ export default function App() {
           <Appbar.Header>
             <HeaderContent />
           </Appbar.Header>
-          <View style={styles.content}>{/* Your app content */}</View>
           <BottomNavigationBar />
         </View>
       </PaperProvider>
