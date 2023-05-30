@@ -6,6 +6,8 @@ import {
   DefaultTheme,
   Provider as PaperProvider,
   BottomNavigation,
+  TextInput,
+  Button,
 } from "react-native-paper";
 
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
@@ -31,7 +33,7 @@ export default function App() {
       </View>
       <Appbar.Content
         title={<Icon name="compass" size={24} color="black" />}
-        titleStyle={{ marginLeft: 10 }}
+        titleStyle={{ marginLeft: 0 }}
         style={styles.headerTitle}
       />
     </View>
@@ -104,10 +106,17 @@ export default function App() {
     </View>
   );
 
-  const AddContentRoute = () => (
+  const UserInputRoute = () => (
     <View style={styles.routeContainer}>
-      <Text>Add Content Screen</Text>
-      {/* Add your add content screen content here */}
+      <Text>ADD A MASTERY SKILL</Text>
+
+      <TextInput label="Skill" style={{ width: "100%", margin: "5%" }} />
+
+      <TextInput label="Date" style={{ width: "100%", margin: "5%" }} />
+
+      <Button mode="contained" style={{ width: "100%", margin: "5%" }}>
+        Save
+      </Button>
     </View>
   );
 
@@ -120,7 +129,7 @@ export default function App() {
   const renderScene = BottomNavigation.SceneMap({
     analytics: AnalyticsRoute,
     qrCode: QrCodeRoute,
-    addContent: AddContentRoute,
+    addContent: UserInputRoute,
   });
 
   return (
