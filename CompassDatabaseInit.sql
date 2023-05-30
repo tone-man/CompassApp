@@ -55,7 +55,7 @@ CREATE TABLE skill_mastery_log (
   mastery_status INTEGER NOT NULL,
   date_of_event DATE NOT NULL,
   FOREIGN KEY (user_id) REFERENCES users(user_id),
-  FOREIGN KEY (skill_id) REFERENCES skill(skill_id)
+  FOREIGN KEY (skill_id) REFERENCES skills(skill_id)
 );
 
 CREATE TABLE student_study_hours (
