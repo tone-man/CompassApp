@@ -39,12 +39,12 @@ CREATE TABLE student_behavior_log (
 
 CREATE TABLE skill_types (
   skill_type_id INTEGER PRIMARY KEY AUTOINCREMENT,
-  skill_type TEXT NOT NULL
+  skill_type TEXT UNIQUE NOT NULL
 );
 
-CREATE TABLE skill (
+CREATE TABLE skills (
   skill_id INTEGER PRIMARY KEY AUTOINCREMENT,
-  skill_name TEXT NOT NULL,
+  skill_name TEXT UNIQUE NOT NULL,
   skill_type INTEGER,
   FOREIGN KEY (skill_type) REFERENCES skill_types(skill_type_id)
 );
