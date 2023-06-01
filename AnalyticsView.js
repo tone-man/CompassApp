@@ -1,53 +1,66 @@
-import { Text, ScrollView, Dimensions } from "react-native";
+import { Text, ScrollView, Dimensions, StyleSheet, View } from "react-native";
+
 import { LineChart } from "react-native-chart-kit";
 
 export default function AnalyticsView() {
   return (
-    <ScrollView>
-      <Text>Bezier Line Chart</Text>
-      <LineChart
-        data={{
-          labels: [1, 2, 3, 4, 5, 6],
-          datasets: [
-            {
-              data: [
-                Math.random() * 100,
-                Math.random() * 100,
-                Math.random() * 100,
-                Math.random() * 100,
-                Math.random() * 100,
-                Math.random() * 100,
-              ],
-            },
-          ],
-        }}
-        width={Dimensions.get("window").width} // from react-native
-        height={220}
-        yAxisLabel="$"
-        yAxisSuffix="k"
-        yAxisInterval={1} // optional, defaults to 1
-        chartConfig={{
-          backgroundColor: "#e26a00",
-          backgroundGradientFrom: "#fb8c00",
-          backgroundGradientTo: "#ffa726",
-          decimalPlaces: 2, // optional, defaults to 2dp
-          color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-          labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-          style: {
-            borderRadius: 16,
-          },
-          propsForDots: {
-            r: "6",
-            strokeWidth: "2",
-            stroke: "#ffa726",
-          },
-        }}
-        bezier
-        style={{
-          marginVertical: 8,
-          borderRadius: 16,
-        }}
-      />
+    <ScrollView contentContainerStyle={styles.container}>
+      <Text>ANALYTICS VIEW</Text>
+
+      <View style={[styles.container, styles.graph]}>
+        <Text>READING</Text>
+        <LineChart
+          data={{
+            labels: ["9/1", "9/8", "9/15", "9/22", "9/29", "10/5"],
+            datasets: [
+              {
+                data: [
+                  Math.round(Math.random() * 22),
+                  Math.round(Math.random() * 22),
+                  Math.round(Math.random() * 22),
+                  Math.round(Math.random() * 22),
+                  Math.round(Math.random() * 22),
+                  Math.round(Math.random() * 22),
+                ],
+              },
+            ],
+          }}
+          width={Dimensions.get("window").width} // from react-native
+          height={220}
+          yAxisInterval={1} // optional, defaults to 1
+          chartConfig={chartConfig}
+          style={styles.graph}
+          bezier
+        />
+      </View>
     </ScrollView>
   );
 }
+const chartConfig = {
+  backgroundGradientFromOpacity: 0,
+  backgroundGradientToOpacity: 0,
+  decimalPlaces: 0, // optional, defaults to 2dp
+  color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+  labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+  style: {
+    borderRadius: 16,
+  },
+  propsForDots: {
+    r: "6",
+    strokeWidth: "2",
+    stroke: "#ffa726",
+  },
+};
+
+const styles = StyleSheet.create({
+  container: {
+    alignItems: "center",
+  },
+
+  graph: {
+    marginVertical: "2.5%",
+    marginBottom: "2.5%",
+    borderRadius: 20,
+    backgroundColor: "#663399",
+  },
+});
