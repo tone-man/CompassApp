@@ -8,11 +8,12 @@ import {
   BottomNavigation,
   TextInput,
   Button,
+  IconButton,
 } from "react-native-paper";
 
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
-import Icon from "react-native-vector-icons/FontAwesome";
+import Icon from "react-native-vector-icons/FontAwesome"; /* TODO: Collapse this into material design icons @ https://pictogrammers.com/library/mdi/ */
 
 import AnalyticsView from "./AnalyticsView";
 import QRScannerView from "./QRScannerView";
@@ -20,11 +21,10 @@ import StudentMasteryInputView from "./StudentMasteryInputView";
 
 export default function App() {
   const [index, setIndex] = React.useState(0);
-
   const HeaderContent = () => (
     <View style={styles.headerContent}>
       <View style={styles.iconButtonContainer}>
-        <Icon name="user" size={24} color="black" />
+        <IconButton icon="account" size={24} color="black" />
       </View>
       <Appbar.Content
         title={<Icon name="compass" size={24} color="black" />}
