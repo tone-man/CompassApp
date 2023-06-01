@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, View, Text, Dimensions, ScrollView } from "react-native";
+import { StyleSheet, View, Text, ScrollView } from "react-native";
 
 import {
   Appbar,
@@ -12,16 +12,11 @@ import {
 
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
-import {
-  LineChart,
-  BarChart,
-  PieChart,
-  ProgressChart,
-  ContributionGraph,
-  StackedBarChart,
-} from "react-native-chart-kit";
-
 import Icon from "react-native-vector-icons/FontAwesome";
+
+import AnalyticsView from "./AnalyticsView";
+import QRScannerView from "./QRScannerView";
+import StudentMasteryInputView from "./StudentMasteryInputView";
 
 export default function App() {
   const [index, setIndex] = React.useState(0);
@@ -50,75 +45,11 @@ export default function App() {
     />
   );
 
-  const AnalyticsRoute = () => (
-    <ScrollView>
-      <Text>Bezier Line Chart</Text>
-      <LineChart
-        data={{
-          labels: [1, 2, 3, 4, 5, 6],
-          datasets: [
-            {
-              data: [
-                Math.random() * 100,
-                Math.random() * 100,
-                Math.random() * 100,
-                Math.random() * 100,
-                Math.random() * 100,
-                Math.random() * 100,
-              ],
-            },
-          ],
-        }}
-        width={Dimensions.get("window").width} // from react-native
-        height={220}
-        yAxisLabel="$"
-        yAxisSuffix="k"
-        yAxisInterval={1} // optional, defaults to 1
-        chartConfig={{
-          backgroundColor: "#e26a00",
-          backgroundGradientFrom: "#fb8c00",
-          backgroundGradientTo: "#ffa726",
-          decimalPlaces: 2, // optional, defaults to 2dp
-          color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-          labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-          style: {
-            borderRadius: 16,
-          },
-          propsForDots: {
-            r: "6",
-            strokeWidth: "2",
-            stroke: "#ffa726",
-          },
-        }}
-        bezier
-        style={{
-          marginVertical: 8,
-          borderRadius: 16,
-        }}
-      />
-    </ScrollView>
-  );
+  const AnalyticsRoute = () => <AnalyticsView />;
 
-  const QrCodeRoute = () => (
-    <View style={styles.routeContainer}>
-      <Text>QR Code Screen</Text>
-      {/* Add your QR code screen content here */}
-    </View>
-  );
+  const QrCodeRoute = () => <QRScannerView />;
 
-  const UserInputRoute = () => (
-    <View style={styles.routeContainer}>
-      <Text>ADD A MASTERY SKILL</Text>
-
-      <TextInput label="Skill" style={{ width: "100%", margin: "5%" }} />
-
-      <TextInput label="Date" style={{ width: "100%", margin: "5%" }} />
-
-      <Button mode="contained" style={{ width: "100%", margin: "5%" }}>
-        Save
-      </Button>
-    </View>
-  );
+  const UserInputRoute = () => <StudentMasteryInputView />;
 
   const routes = [
     { key: "analytics", title: "Analytics", icon: "line-chart" },
