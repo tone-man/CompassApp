@@ -1,6 +1,7 @@
 import { Text, ScrollView, Dimensions, StyleSheet, View } from "react-native";
 
-import { LineChart } from "react-native-chart-kit";
+import { LineChart, ProgressChart } from "react-native-chart-kit";
+import { DataTable } from "react-native-paper";
 
 export default function AnalyticsView() {
   return (
@@ -31,6 +32,41 @@ export default function AnalyticsView() {
           chartConfig={chartConfig}
           style={styles.graph}
           bezier
+        />
+      </View>
+      <DataTable style={styles.graph}>
+        <DataTable.Header>
+          <DataTable.Title>Behaviors</DataTable.Title>
+        </DataTable.Header>
+
+        <DataTable.Row>
+          <DataTable.Cell>Missed Classes</DataTable.Cell>
+          <DataTable.Cell numeric>5</DataTable.Cell>
+        </DataTable.Row>
+
+        <DataTable.Row>
+          <DataTable.Cell>Missed Coaching Meetings</DataTable.Cell>
+          <DataTable.Cell numeric>9</DataTable.Cell>
+        </DataTable.Row>
+
+        <DataTable.Row>
+          <DataTable.Cell>Missed Assignments</DataTable.Cell>
+          <DataTable.Cell numeric>3</DataTable.Cell>
+        </DataTable.Row>
+      </DataTable>
+
+      <View style={styles.graph}>
+        <ProgressChart
+          data={{
+            labels: ["Study Hours"], // optional
+            data: [0.1],
+          }}
+          width={Dimensions.get("window").width}
+          height={220}
+          strokeWidth={16}
+          radius={70}
+          chartConfig={chartConfig}
+          hideLegend={false}
         />
       </View>
     </ScrollView>
