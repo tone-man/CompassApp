@@ -5,6 +5,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import Analytics from "./analytics";
 import QRCode from "./qrCode";
 import Profile from "./Profile";
+import Scanner from "./scanner";
 import { useNavigation } from "@react-navigation/native";
 
 import Icon from "react-native-vector-icons/Octicons";
@@ -42,6 +43,16 @@ function TabNavigator() {
         options={{
           tabBarIcon: (props) => (
             <Icon1 name="ios-qr-code-outline" size={24} color={props.color} />
+          ),
+          headerLeft: () => <ProfileIcon navigation={navigation} />,
+        }}
+      />
+      <Tab.Screen
+        name="Scanner"
+        component={Scanner}
+        options={{
+          tabBarIcon: (props) => (
+            <Icon1 name="camera" size={24} color={props.color} />
           ),
           headerLeft: () => <ProfileIcon navigation={navigation} />,
         }}
