@@ -8,8 +8,8 @@ export default function QRcodeView() {
         style={{
           resizeMode: "center",
           paddingTop: 0,
-          width: 300,
-          height: 300,
+          width: "100%",
+          height: "100%",
         }}
       />
     </View>

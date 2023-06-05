@@ -1,4 +1,3 @@
-
 import { StatusBar } from "expo-status-bar";
 import { LineChart } from "react-native-chart-kit";
 
@@ -16,21 +15,21 @@ import TableExample from "./table";
 const ExampleGraph = () => {
   return (
     <LineChart
-    data={{
-      labels: ["9/1", "9/8", "9/15", "9/22", "9/29", "10/5"],
-      datasets: [
-        {
-          data: [
-            Math.round(Math.random() * 22),
-            Math.round(Math.random() * 22),
-            Math.round(Math.random() * 22),
-            Math.round(Math.random() * 22),
-            Math.round(Math.random() * 22),
-            Math.round(Math.random() * 22),
-          ],
-        },
-      ],
-    }}
+      data={{
+        labels: ["9/1", "9/8", "9/15", "9/22", "9/29", "10/5"],
+        datasets: [
+          {
+            data: [
+              Math.round(Math.random() * 22),
+              Math.round(Math.random() * 22),
+              Math.round(Math.random() * 22),
+              Math.round(Math.random() * 22),
+              Math.round(Math.random() * 22),
+              Math.round(Math.random() * 22),
+            ],
+          },
+        ],
+      }}
       width={Dimensions.get("window").width} // from react-native
       height={220}
       yAxisInterval={1} // optional, defaults to 1
@@ -56,7 +55,7 @@ const chartConfig = {
   propsForDots: {
     r: "6",
     strokeWidth: "2",
-    stroke: "#ffa726",
+    stroke: "#007bff",
   },
 };
 
@@ -65,25 +64,24 @@ const AnalyticsView = () => {
     <View style={styles.container}>
       <SafeAreaView>
         <ScrollView>
-          <View style={[styles.container, styles.graph]}>
-            <Text>Reading</Text>
+          <View style={[styles.container, styles.graphContainer]}>
+            <Text style={styles.graphText}>Reading</Text>
             <ExampleGraph />
           </View>
-          <View style={[styles.container, styles.graph]}>
-            <Text>Writing</Text>
+          <View style={[styles.container, styles.graphContainer]}>
+            <Text style={styles.graphText}>Writing</Text>
             <ExampleGraph />
           </View>
-          <View style={[styles.container, styles.graph]}>
-            <Text>Note-taking</Text>
+          <View style={[styles.container, styles.graphContainer]}>
+            <Text style={styles.graphText}>Note-taking</Text>
             <ExampleGraph />
           </View>
-          <View style={[styles.container, styles.graph]}>
-            <Text>Mindset</Text>
+          <View style={[styles.container, styles.graphContainer]}>
+            <Text style={styles.graphText}>Mindset</Text>
             <ExampleGraph />
           </View>
-          <View style={[styles.container, styles.graph]}>
-            <TableExample />
-          </View>
+
+          <TableExample />
         </ScrollView>
       </SafeAreaView>
     </View>
@@ -96,20 +94,21 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
     alignItems: "center",
-    justifyContent: "center"
+    justifyContent: "center",
   },
   graphContainer: {
-    height: 470,
     marginVertical: "2.5%",
     marginBottom: "2.5%",
     borderRadius: 20,
-  },
-  graph: {
-    paddingRight: 30,
+    backgroundColor: "#007AFF",
   },
   table: {
     container: {
       flex: 1,
     },
+  },
+  graphText: {
+    color: "#FFFFFF",
+    fontWeight: "bold",
   },
 });

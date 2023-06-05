@@ -39,10 +39,10 @@ const styles = StyleSheet.create({
     marginVertical: "2.5%",
     marginBottom: "2.5%",
     borderRadius: 20,
-    backgroundColor: "#00e6ff",
+    backgroundColor: "#007AFF",
   },
   tableHeader: {
-    backgroundColor: "#0000FF",
+    backgroundColor: "#007AFF",
     flexWrap: "wrap",
   },
   tableTitle: {

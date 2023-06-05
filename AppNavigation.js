@@ -10,17 +10,10 @@ import ProfileView from "./ProfileView";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import QRcodeNavigation from "./QRcodeNavigation";
 import QRcodeView from "./QRcodeView";
+import StudentMasteryInputView from "./StudentMasteryInputView";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
-
-const MasteryInputView = () => {
-  return (
-    <View style={styles.container}>
-      <Text>Mastery Input!</Text>
-    </View>
-  );
-};
 
 const ProfileIcon = ({ navigation }) => {
   return (
@@ -70,7 +63,7 @@ function TabNavigator() {
       />
       <Tab.Screen
         name="DataInput"
-        component={MasteryInputView}
+        component={StudentMasteryInputView}
         options={{
           tabBarIcon: (props) => (
             <Icon name="plus-circle-outline" size={24} color={props.color} />
