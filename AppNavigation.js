@@ -5,9 +5,11 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { useNavigation } from "@react-navigation/native";
 
 import AnalyticsView from "./AnalyticsView";
-import QRcodeView from "./QRcodeView";
+import ProfileView from "./ProfileView";
 
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import QRcodeNavigation from "./QRcodeNavigation";
+import QRcodeView from "./QRcodeView";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -16,14 +18,6 @@ const MasteryInputView = () => {
   return (
     <View style={styles.container}>
       <Text>Mastery Input!</Text>
-    </View>
-  );
-};
-
-const ProfileView = () => {
-  return (
-    <View style={styles.container}>
-      <Text>Profile!</Text>
     </View>
   );
 };
@@ -66,7 +60,7 @@ function TabNavigator() {
       />
       <Tab.Screen
         name="QRCode"
-        component={QRcodeView}
+        component={QRcodeNavigation}
         options={{
           tabBarIcon: (props) => (
             <Icon name="qrcode-scan" size={24} color={props.color} />
