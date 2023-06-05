@@ -50,7 +50,7 @@ function TabNavigator() {
   );
 }
 
-export default function Tabs() {
+export default function StackNavigator() {
   return (
     <Stack.Navigator>
       <Stack.Screen
