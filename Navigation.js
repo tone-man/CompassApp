@@ -4,26 +4,13 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
 import { useNavigation } from "@react-navigation/native";
 
+import AnalyticsView from "./AnalyticsView";
+import QRcodeView from "./QRcodeView";
+
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
-
-const AnalyticsView = () => {
-  return (
-    <View style={styles.container}>
-      <Text>Analytics!</Text>
-    </View>
-  );
-};
-
-const QRCodeView = () => {
-  return (
-    <View style={styles.container}>
-      <Text>QR Code!</Text>
-    </View>
-  );
-};
 
 const MasteryInputView = () => {
   return (
@@ -74,17 +61,17 @@ function TabNavigator() {
           tabBarIcon: (props) => (
             <Icon name="google-analytics" size={24} color={props.color} />
           ),
-          headerLeft: () => <ProfileIcon navigation={navigation} />,
+          headerRight: () => <ProfileIcon navigation={navigation} />,
         }}
       />
       <Tab.Screen
         name="QRCode"
-        component={QRCodeView}
+        component={QRcodeView}
         options={{
           tabBarIcon: (props) => (
             <Icon name="qrcode-scan" size={24} color={props.color} />
           ),
-          headerLeft: () => <ProfileIcon navigation={navigation} />,
+          headerRight: () => <ProfileIcon navigation={navigation} />,
         }}
       />
       <Tab.Screen
@@ -94,7 +81,7 @@ function TabNavigator() {
           tabBarIcon: (props) => (
             <Icon name="plus-circle-outline" size={24} color={props.color} />
           ),
-          headerLeft: () => <ProfileIcon navigation={navigation} />,
+          headerRight: () => <ProfileIcon navigation={navigation} />,
         }}
       />
     </Tab.Navigator>

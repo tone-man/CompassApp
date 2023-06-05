@@ -1,6 +1,6 @@
 import { Image } from "react-native";
 
-export default function QRCode() {
+export default function QRcodeView() {
   return (
     <Image
       source={require("./assets/QR_Code.png")}

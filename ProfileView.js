@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, Button } from "react-native";
 
-const Profile = () => {
+const ProfileView = () => {
   return (
     <View style={{ flex: 1, justifyContent: "flex-end", paddingBottom: 20 }}>
       <View style={{ backgroundColor: "#1300FF", borderRadius: 10 }}>
@@ -15,4 +15,4 @@ const Profile = () => {
   );
 };
 
-export default Profile;
+export default ProfileView;

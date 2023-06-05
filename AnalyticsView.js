@@ -22,7 +22,7 @@ import {
 
 import TableExample from "./table";
 
-const Analytics = () => {
+const AnalyticsView = () => {
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.graphContainer}>
@@ -211,7 +211,7 @@ const Analytics = () => {
     </View>
   );
 };
-export default Analytics;
+export default AnalyticsView;
 
 const styles = StyleSheet.create({
   container: {
