@@ -3,7 +3,7 @@ import { TouchableOpacity, View, StyleSheet, Text } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
 import { useNavigation } from "@react-navigation/native";
-
+import { useTheme } from "react-native-paper";
 import AnalyticsView from "./AnalyticsView";
 import ProfileView from "./ProfileView";
 
@@ -38,9 +38,13 @@ const StackNavigator = () => {
 
 function TabNavigator() {
   const navigation = useNavigation();
-
+  const { colors } = useTheme();
   return (
-    <Tab.Navigator>
+    <Tab.Navigator
+      tabBarOptions={{
+        activeTintColor: colors.primary,
+      }}
+    >
       <Tab.Screen
         name="Analytics"
         component={AnalyticsView}
