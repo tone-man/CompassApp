@@ -1,21 +1,14 @@
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { View, Text, StyleSheet } from "react-native";
 import QRcodeView from "./QRcodeView";
+import QRcodeScannerView from "./QRcodeScannerView";
 
 const Tab = createMaterialTopTabNavigator();
-
-const QrcodeScanner = () => {
-  return (
-    <View style={styles.container}>
-      <Text>Scanner!</Text>
-    </View>
-  );
-};
 
 function QRcodeNavigation() {
   return (
     <Tab.Navigator>
-      <Tab.Screen name="QRcodeScanner" component={QrcodeScanner} />
+      <Tab.Screen name="QRcodeScanner" component={QRcodeScannerView} />
       <Tab.Screen name="QRcodeView" component={QRcodeView} />
     </Tab.Navigator>
   );

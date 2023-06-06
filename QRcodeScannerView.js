@@ -12,7 +12,7 @@ import {
 
 import { BarCodeScanner } from "expo-barcode-scanner";
 
-export default function Scanner() {
+export default function QRcodeScannerView() {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
   const [data, setData] = useState("Not yet scanned");
