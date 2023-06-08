@@ -1,6 +1,5 @@
 import { StatusBar } from "expo-status-bar";
 import { LineChart } from "react-native-chart-kit";
-
 import {
   StyleSheet,
   Text,
@@ -11,8 +10,25 @@ import {
 } from "react-native";
 
 import TableExample from "./table";
+import { useTheme } from "react-native-paper";
 
-const ExampleGraph = () => {
+const ExampleGraph = ({ primaryColor }) => {
+  const chartConfig = {
+    backgroundGradientFromOpacity: 0,
+    backgroundGradientToOpacity: 0,
+    decimalPlaces: 0, // optional, defaults to 2dp
+    color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+    labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+    style: {
+      borderRadius: 16,
+    },
+    propsForDots: {
+      r: "6",
+      strokeWidth: "2",
+      stroke: primaryColor,
+    },
+  };
+
   return (
     <LineChart
       data={{
@@ -43,42 +59,52 @@ const ExampleGraph = () => {
   );
 };
 
-const chartConfig = {
-  backgroundGradientFromOpacity: 0,
-  backgroundGradientToOpacity: 0,
-  decimalPlaces: 0, // optional, defaults to 2dp
-  color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-  labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-  style: {
-    borderRadius: 16,
-  },
-  propsForDots: {
-    r: "6",
-    strokeWidth: "2",
-    stroke: "#007bff",
-  },
-};
-
 const AnalyticsView = () => {
+  const { colors } = useTheme();
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: "#fff",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    graphContainer: {
+      marginVertical: "2.5%",
+      marginBottom: "2.5%",
+      borderRadius: 20,
+      backgroundColor: colors.primary,
+    },
+    table: {
+      container: {
+        flex: 1,
+      },
+    },
+    graphText: {
+      color: "#FFFFFF",
+      fontWeight: "bold",
+    },
+  });
+
   return (
     <View style={styles.container}>
       <SafeAreaView>
         <ScrollView>
           <View style={[styles.container, styles.graphContainer]}>
             <Text style={styles.graphText}>Reading</Text>
-            <ExampleGraph />
+            <ExampleGraph primaryColor={colors.primary} />
           </View>
           <View style={[styles.container, styles.graphContainer]}>
             <Text style={styles.graphText}>Writing</Text>
-            <ExampleGraph />
+            <ExampleGraph primaryColor={colors.primary} />
           </View>
           <View style={[styles.container, styles.graphContainer]}>
             <Text style={styles.graphText}>Note-taking</Text>
-            <ExampleGraph />
+            <ExampleGraph primaryColor={colors.primary} />
           </View>
           <View style={[styles.container, styles.graphContainer]}>
             <Text style={styles.graphText}>Mindset</Text>
-            <ExampleGraph />
+            <ExampleGraph primaryColor={colors.primary} />
           </View>
 
           <TableExample />
@@ -88,27 +114,3 @@ const AnalyticsView = () => {
   );
 };
 export default AnalyticsView;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  graphContainer: {
-    marginVertical: "2.5%",
-    marginBottom: "2.5%",
-    borderRadius: 20,
-    backgroundColor: "#007AFF",
-  },
-  table: {
-    container: {
-      flex: 1,
-    },
-  },
-  graphText: {
-    color: "#FFFFFF",
-    fontWeight: "bold",
-  },
-});

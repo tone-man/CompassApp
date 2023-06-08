@@ -41,6 +41,9 @@ function TabNavigator() {
   const { colors } = useTheme();
   return (
     <Tab.Navigator
+      screenOptions={{
+        activeTintColor: colors.primary,
+      }}
       tabBarOptions={{
         activeTintColor: colors.primary,
       }}
