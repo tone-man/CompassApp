@@ -83,6 +83,23 @@ Retrieves a user's role given an distinct user_id.
 }
 ```
 
+#### Get Skill Categories
+
+Retrieves titles of all skill categories.
+
+- **HTTP Method:** GET
+- **URL:** `/api/skill_types`
+
+```json
+[
+  { "skill_type_id": 1, "skill_type": "Homework" },
+  { "skill_type_id": 2, "skill_type": "Reading" },
+  { "skill_type_id": 3, "skill_type": "Writing" },
+  { "skill_type_id": 4, "skill_type": "Notetaking" },
+  { "skill_type_id": 5, "skill_type": "Growth Mindset" }
+]
+```
+
 #### Get Mastery Log
 
 Retrieves all skill mastery activity for a specified user.

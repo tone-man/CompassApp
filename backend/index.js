@@ -42,6 +42,20 @@ app.get("/api/user_roles/:user_id", (req, res) => {
   );
 });
 
+/* Get Skill Categories */
+app.get("/api/skill_types/", (req, res) => {
+  db.all("SELECT * From skill_types", (err, row) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send("Internal Server Error");
+    } else if (row) {
+      res.json(row);
+    } else {
+      res.status(404).send("Skill Types Not Found");
+    }
+  });
+});
+
 /* Get Mastery Log */
 app.get("/api/skill_mastery/:user_id", (req, res) => {
   const userId = req.params.user_id;
