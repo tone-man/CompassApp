@@ -6,7 +6,7 @@ const port = 5000;
 /* Opens Database Connection */
 const db = new sqlite3.Database("database/CompassDatabase.db");
 
-/* User Queries */
+/* Get User Information */
 app.get("/api/users/:email", (req, res) => {
   const email = req.params.email;
 
@@ -22,6 +22,27 @@ app.get("/api/users/:email", (req, res) => {
   });
 });
 
+/* Get User Role */
+app.get("/api/user_roles/:user_id", (req, res) => {
+  const userId = req.params.user_id;
+
+  db.get(
+    `SELECT * FROM user_roles_mapping INNER JOIN user_roles ON user_roles_mapping.role_id=user_roles.role_id WHERE user_id = ?;`,
+    userId,
+    (err, row) => {
+      if (err) {
+        console.error(err);
+        res.status(500).send("Internal Server Error");
+      } else if (row) {
+        res.json(row);
+      } else {
+        res.status(404).send("The user specified does not have a role.");
+      }
+    }
+  );
+});
+
+/* Get Mastery Log */
 app.get("/api/skill_mastery/:user_id", (req, res) => {
   const userId = req.params.user_id;
 

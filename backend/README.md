@@ -60,6 +60,29 @@ Retrieves a user given an distinct email.
 - **HTTP Method:** GET
 - **URL:** '/api/users/{email}'
 
+```json
+{
+  "user_id": 3,
+  "name": "Michael Johnson",
+  "email": "michael.johnson@example.com"
+}
+```
+
+#### Get an User's Role
+
+Retrieves a user's role given an distinct user_id.
+
+- **HTTP Method:** GET
+- **URL:** '/api/user_roles/{user_id}'
+
+```json
+{
+  "user_id": 1,
+  "role_id": 1,
+  "role_name": "Student"
+}
+```
+
 #### Get Mastery Log
 
 Retrieves all skill mastery activity for a specified user.
