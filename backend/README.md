@@ -53,20 +53,23 @@ This is an API for the Compass App, which provides access to students educationa
 
 ### Endpoints
 
-Certainly! Here are the endpoints described in a README format:
+#### Get User Information
 
-### Endpoints
+Retrieves a user given an distinct email.
 
-#### Get Locations
+- **HTTP Method:** GET
+- **URL:** '/api/users/{email}'
 
-Retrieves a list of locations.
+#### Get Mastery Log
+
+Retrieves all skill mastery activity for a specified user.
 
 - **HTTP Method:** GET
 - **URL:** `/api/skill_mastery/{user_id}`
 
 Response:
 
-````json
+```json
 {
   "skill_mastery_log": [
     {
@@ -83,6 +86,7 @@ Response:
     }
   ]
 }
+```
 
 ### Authentication
 
@@ -96,7 +100,7 @@ When an error occurs, the API responds with an appropriate HTTP status code and 
 {
   "error": "Invalid API key"
 }
-````
+```
 
 ## Examples
 
