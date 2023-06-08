@@ -6,15 +6,23 @@ const port = 5000;
 /* Opens Database Connection */
 const db = new sqlite3.Database("database/CompassDatabase.db");
 
-app.get("/api/users", (req, res) => {
-  db.all("SELECT * FROM users", (err, rows) => {
-    if (err) {
-      console.error(err);
-      res.status(500).send("Internal Server Error");
-    } else {
-      res.json(rows);
+app.get("/api/skill_mastery/:user_id", (req, res) => {
+  const userId = req.params.user_id;
+
+  db.all(
+    "SELECT * FROM skill_mastery_log WHERE user_id = ?",
+    userId,
+    (err, row) => {
+      if (err) {
+        console.error(err);
+        res.status(500).send("Internal Server Error");
+      } else if (row) {
+        res.json(row);
+      } else {
+        res.status(404).send("Skill Mastery not found for the specified user");
+      }
     }
-  });
+  );
 });
 
 app.listen(port, () => {
