@@ -53,20 +53,63 @@ This is an API for the Compass App, which provides access to students educationa
 
 ### Endpoints
 
-Certainly! Here are the endpoints described in a README format:
+#### Get User Information
 
-### Endpoints
+Retrieves a user given an distinct email.
 
-#### Get Locations
+- **HTTP Method:** GET
+- **URL:** '/api/users/{email}'
 
-Retrieves a list of locations.
+```json
+{
+  "user_id": 3,
+  "name": "Michael Johnson",
+  "email": "michael.johnson@example.com"
+}
+```
+
+#### Get an User's Role
+
+Retrieves a user's role given an distinct user_id.
+
+- **HTTP Method:** GET
+- **URL:** '/api/user_roles/{user_id}'
+
+```json
+{
+  "user_id": 1,
+  "role_id": 1,
+  "role_name": "Student"
+}
+```
+
+#### Get Skill Categories
+
+Retrieves titles of all skill categories.
+
+- **HTTP Method:** GET
+- **URL:** `/api/skill_types`
+
+```json
+[
+  { "skill_type_id": 1, "skill_type": "Homework" },
+  { "skill_type_id": 2, "skill_type": "Reading" },
+  { "skill_type_id": 3, "skill_type": "Writing" },
+  { "skill_type_id": 4, "skill_type": "Notetaking" },
+  { "skill_type_id": 5, "skill_type": "Growth Mindset" }
+]
+```
+
+#### Get Mastery Log
+
+Retrieves all skill mastery activity for a specified user.
 
 - **HTTP Method:** GET
 - **URL:** `/api/skill_mastery/{user_id}`
 
 Response:
 
-````json
+```json
 {
   "skill_mastery_log": [
     {
@@ -83,6 +126,7 @@ Response:
     }
   ]
 }
+```
 
 ### Authentication
 
@@ -96,7 +140,7 @@ When an error occurs, the API responds with an appropriate HTTP status code and 
 {
   "error": "Invalid API key"
 }
-````
+```
 
 ## Examples
 
