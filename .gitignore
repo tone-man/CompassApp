@@ -21,3 +21,5 @@ web-build/
 
 # IntelligeJ config folder
 .idea/
+*.bkp
+*.dtmp
