@@ -15,8 +15,8 @@ AppRegistry.registerComponent("MyApp", () => Main);
 
 const App = () => {
   return (
-    //<NavigationContainer>
-    <NavigationContainer theme={DarkTheme}>
+    <NavigationContainer>
+      {/* <NavigationContainer theme={DarkTheme}> */}
       <StackNavigator />
     </NavigationContainer>
   );

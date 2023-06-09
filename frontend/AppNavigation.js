@@ -9,6 +9,7 @@ import ProfileView from "./ProfileView";
 
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import QRcodeNavigation from "./QRcodeNavigation";
+import facultyInputNavigation from "./facultyInputNavigation";
 import QRcodeView from "./QRcodeView";
 import StudentMasteryInputView from "./StudentMasteryInputView";
 
@@ -59,7 +60,7 @@ function TabNavigator() {
         }}
       />
       <Tab.Screen
-        name="QRCode"
+        name="QR Code"
         component={QRcodeNavigation}
         options={{
           tabBarIcon: (props) => (
@@ -69,8 +70,9 @@ function TabNavigator() {
         }}
       />
       <Tab.Screen
-        name="DataInput"
-        component={StudentMasteryInputView}
+        name="Data Input"
+        // component={StudentMasteryInputView} // for student view
+        component={facultyInputNavigation} // for faculty view
         options={{
           tabBarIcon: (props) => (
             <Icon name="plus-circle-outline" size={24} color={props.color} />
