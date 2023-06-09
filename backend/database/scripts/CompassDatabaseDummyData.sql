@@ -3,14 +3,8 @@
 INSERT INTO users (name, email) VALUES
   ('John Doe', 'john.doe@example.com'),
   ('Jane Smith', 'jane.smith@example.com'),
-  ('Michael Johnson', 'michael.johnson@example.com'),
-  ('Emily Brown', 'emily.brown@example.com'),
-  ('David Wilson', 'david.wilson@example.com'),
-  ('Olivia Davis', 'olivia.davis@example.com'),
-  ('James Anderson', 'james.anderson@example.com'),
-  ('Emma Taylor', 'emma.taylor@example.com'),
-  ('William Clark', 'william.clark@example.com'),
-  ('Sophia Lee', 'sophia.lee@example.com');
+  ('Michael Johnson', 'michael.johnson@example.com');
+
 
 INSERT INTO user_roles (role_name) VALUES
   ('Student'),
@@ -20,14 +14,7 @@ INSERT INTO user_roles (role_name) VALUES
 INSERT INTO user_roles_mapping (user_id, role_id) VALUES
   (1, 1),
   (2, 2),
-  (3, 3),
-  (4, 1),
-  (5, 1),
-  (6, 1),
-  (7, 1),
-  (8, 1),
-  (9, 1),
-  (10, 1);
+  (3, 3);
 
 INSERT INTO student_behaviors (behavior_name) VALUES
   ('Missed Class'),
@@ -49,19 +36,6 @@ FROM
 ORDER BY
   users.user_id, student_behaviors.behavior_id;
 
-INSERT INTO student_study_hours (user_id, study_hours_completed, hours_needed, base_study_hours) VALUES
-  (1, 20, 30, 40),
-  (2, 25, 35, 40),
-  (3, 18, 28, 40),
-  (4, 22, 32, 40),
-  (5, 15, 25, 40),
-  (6, 30, 40, 40),
-  (7, 28, 38, 40),
-  (8, 17, 27, 40),
-  (9, 23, 33, 40),
-  (10, 19, 29, 40);
-
-
 INSERT INTO skills (skill_name) VALUES
   ('Homework'),
   ('Reading'),
@@ -69,7 +43,6 @@ INSERT INTO skills (skill_name) VALUES
   ('Notetaking'),
   ('Growth Mindset');
 
-  
 
 -- Generate skill log for each student
 INSERT INTO skill_mastery_log (user_id, skill_id, mastery_status, date_of_event)
@@ -82,6 +55,19 @@ FROM
   users, skills
 ORDER BY
   users.user_id, skills.skill_id;
+
+INSERT INTO students (user_id, study_hours_completed, study_hours_required, base_study_hours)
+VALUES
+  (1, 13, 20, 20);
+
+INSERT INTO student_study_log (user_id, date_of_event, log_in_time, log_out_time, study_duration)
+VALUES
+  (1, date('now'), 9, 12, 180),
+  (1, date('now', '-1 day'), 14, 18, 240),
+  (1, date('now', '-2 days'), 10, 12, 120),
+  (1, date('now', '-3 days'), 15, 17, 120),
+  (1, date('now', '-4 days'), 13, 15, 120);
+
 
 
 
