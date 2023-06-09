@@ -37,22 +37,15 @@ CREATE TABLE student_behavior_log (
   FOREIGN KEY (behavior_id) REFERENCES student_behaviors(behavior_id)
 );
 
-CREATE TABLE skill_types (
-  skill_type_id INTEGER PRIMARY KEY AUTOINCREMENT,
-  skill_type TEXT UNIQUE NOT NULL
-);
-
 CREATE TABLE skills (
   skill_id INTEGER PRIMARY KEY AUTOINCREMENT,
-  skill_name TEXT UNIQUE NOT NULL,
-  skill_type INTEGER,
-  FOREIGN KEY (skill_type) REFERENCES skill_types(skill_type_id)
+  skill_name TEXT UNIQUE NOT NULL
 );
 
 CREATE TABLE skill_mastery_log (
   user_id INTEGER,
   skill_id INTEGER,
-  mastery_status INTEGER NOT NULL,
+  mastery_status DOUBLE(5, 4) NOT NULL,
   date_of_event DATE NOT NULL,
   FOREIGN KEY (user_id) REFERENCES users(user_id),
   FOREIGN KEY (skill_id) REFERENCES skills(skill_id)
