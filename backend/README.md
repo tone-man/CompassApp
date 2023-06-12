@@ -27,13 +27,13 @@ This is an API for the Compass App, which provides access to students educationa
 1. Clone the repository:
 
    ```shell
-   git clone https://github.com/yourusername/compass-app-api.git
+   git clone https://github.com/tone-man/CompassApp
    ```
 
 2. Install dependencies:
 
    ```shell
-   cd compass-app-api
+   cd backend
    npm install
    ```
 
@@ -58,7 +58,7 @@ This is an API for the Compass App, which provides access to students educationa
 Retrieves a user given an distinct email.
 
 - **HTTP Method:** GET
-- **URL:** '/api/users/{email}'
+- **URL:** `/api/users/{email}`
 
 ```json
 {
@@ -73,13 +73,29 @@ Retrieves a user given an distinct email.
 Retrieves a user's role given an distinct user_id.
 
 - **HTTP Method:** GET
-- **URL:** '/api/user_roles/{user_id}'
+- **URL:** `/api/user_roles/{user_id}`
 
 ```json
 {
   "user_id": 1,
   "role_id": 1,
   "role_name": "Student"
+}
+```
+
+#### Get a Student's Information
+
+Retrieves a student information role given an distinct user_id.
+
+- **HTTP Method:** GET
+- **URL:** `/api/students/{user_id}`
+
+```json
+{
+  "user_id": 1,
+  "study_hours_completed": 13,
+  "study_hours_required": 20,
+  "base_study_hours": 20
 }
 ```
 
@@ -100,7 +116,42 @@ Retrieves titles of all skill categories.
 ]
 ```
 
-#### Get Mastery Log
+#### Get Study Hours for a user
+
+Gets all study sessions given a disctinct user_id
+
+- **HTTP Method:** GET
+- **URL:** `/api/study_hours/{user_id}`
+
+Response:
+
+```json
+[
+  {
+    "user_id": 1,
+    "date_of_event": "2023-06-05",
+    "log_in_time": 13,
+    "log_out_time": 15,
+    "study_duration": 120
+  },
+  {
+    "user_id": 1,
+    "date_of_event": "2023-06-06",
+    "log_in_time": 15,
+    "log_out_time": 17,
+    "study_duration": 120
+  },
+  {
+    "user_id": 1,
+    "date_of_event": "2023-06-07",
+    "log_in_time": 10,
+    "log_out_time": 12,
+    "study_duration": 120
+  }
+]
+```
+
+#### Get Mastery Data for a User
 
 Retrieves all skill mastery activity for a specified user.
 
@@ -111,7 +162,7 @@ Response:
 
 ```json
 {
-  "skill_mastery": [
+  [
     {
       "user_id": 7,
       "skill_id": 1,
@@ -124,6 +175,60 @@ Response:
       "mastery_status": 0,
       "date_of_event": "2023-04-18"
     }
+  ]
+}
+```
+
+#### Get Behavior Categories
+
+Retrieves all student behaviors.
+
+- **HTTP Method** GET
+- **URL** `/api/behaviors`
+
+Response:
+
+```json
+{
+  [
+    {"behavior_id":1,"behavior_name":"Missed Class"},
+    {"behavior_id":2,"behavior_name":"Missed Coaching Meeting"},
+    {"behavior_id":3,"behavior_name":"Incomplete Assignment"}
+  ]
+}
+```
+
+#### Get Consequences for a Behavior
+
+Retrieves the penalties for a specific behavior.
+
+- **HTTP Method** GET
+- **URL** `/api/behavior_consequences/{behavior_id}`
+
+Response:
+
+```json
+{
+  "behavior_id": 2,
+  "additional_study_hours": 3
+}
+```
+
+#### Get User's Behaviors
+
+Retrieves all behaviors from a given user.
+
+- **HTTP Method** GET
+- **URL** `/api/behavior_events/{user_id}`
+
+Response:
+
+```json
+{
+  [
+    {"user_id":1,"behavior_id":1,"date_of_event":"2023-03-13"},
+    {"user_id":1,"behavior_id":3,"date_of_event":"2023-04-02"},
+    {"user_id":1,"behavior_id":2,"date_of_event":"2023-04-16"}
   ]
 }
 ```

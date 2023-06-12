@@ -61,7 +61,7 @@ app.get("/api/skill_mastery/:user_id", (req, res) => {
   const userId = req.params.user_id;
 
   db.all(
-    "SELECT * FROM skill_mastery_log WHERE user_id = ?",
+    "SELECT * FROM skill_mastery_log WHERE user_id = ? ORDER BY date_of_event",
     userId,
     (err, row) => {
       if (err) {
@@ -71,6 +71,100 @@ app.get("/api/skill_mastery/:user_id", (req, res) => {
         res.json(row);
       } else {
         res.status(404).send("Skill Mastery not found for the specified user");
+      }
+    }
+  );
+});
+
+/* Get Student Information */
+app.get("/api/students/:user_id", (req, res) => {
+  const userId = req.params.user_id;
+
+  db.get("SELECT * FROM students WHERE user_id = ?", userId, (err, row) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send("Internal Server Error");
+    } else if (row) {
+      res.json(row);
+    } else {
+      res
+        .status(404)
+        .send("Student Information not found for the specified user");
+    }
+  });
+});
+
+/* Get Student Study Hours */
+app.get("/api/study_hours/:user_id", (req, res) => {
+  const userId = req.params.user_id;
+
+  db.all(
+    "SELECT * FROM student_study_log WHERE user_id = ? ORDER BY date_of_event",
+    userId,
+    (err, row) => {
+      if (err) {
+        console.error(err);
+        res.status(500).send("Internal Server Error");
+      } else if (row) {
+        res.json(row);
+      } else {
+        res.status(404).send("Study Hours not found for the specified user");
+      }
+    }
+  );
+});
+
+/* Get Student Bad Behaviors */
+app.get("/api/behavior_events/:user_id", (req, res) => {
+  const userId = req.params.user_id;
+
+  db.all(
+    "SELECT * FROM student_behavior_log WHERE user_id = ? ORDER BY date_of_event",
+    userId,
+    (err, row) => {
+      if (err) {
+        console.error(err);
+        res.status(500).send("Internal Server Error");
+      } else if (row) {
+        res.json(row);
+      } else {
+        res
+          .status(404)
+          .send("Behavior events not found for the specified user");
+      }
+    }
+  );
+});
+
+/* Get Behavior Categories */
+app.get("/api/behaviors", (req, res) => {
+  db.all("SELECT * FROM student_behaviors", (err, row) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send("Internal Server Error");
+    } else if (row) {
+      res.json(row);
+    } else {
+      res.status(404).send("Behaviors not found.");
+    }
+  });
+});
+
+/* Get Behavior Consequences For Given Behavior */
+app.get("/api/behavior_consequences/:behavior_id", (req, res) => {
+  const behaviorId = req.params.behavior_id;
+
+  db.get(
+    "SELECT * FROM student_behavior_consequences WHERE behavior_id = ?",
+    behaviorId,
+    (err, row) => {
+      if (err) {
+        console.error(err);
+        res.status(500).send("Internal Server Error");
+      } else if (row) {
+        res.json(row);
+      } else {
+        res.status(404).send("Behaviors not found.");
       }
     }
   );
