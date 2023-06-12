@@ -116,6 +116,41 @@ Retrieves titles of all skill categories.
 ]
 ```
 
+#### Get Study Hours for a user
+
+Gets all study sessions given a disctinct user_id
+
+- **HTTP Method:** GET
+- **URL:** `/api/study_hours/{user_id}`
+
+Response:
+
+```json
+[
+  {
+    "user_id": 1,
+    "date_of_event": "2023-06-05",
+    "log_in_time": 13,
+    "log_out_time": 15,
+    "study_duration": 120
+  },
+  {
+    "user_id": 1,
+    "date_of_event": "2023-06-06",
+    "log_in_time": 15,
+    "log_out_time": 17,
+    "study_duration": 120
+  },
+  {
+    "user_id": 1,
+    "date_of_event": "2023-06-07",
+    "log_in_time": 10,
+    "log_out_time": 12,
+    "study_duration": 120
+  }
+]
+```
+
 #### Get Mastery Data for a User
 
 Retrieves all skill mastery activity for a specified user.
