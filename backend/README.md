@@ -88,7 +88,7 @@ Retrieves a user's role given an distinct user_id.
 Retrieves titles of all skill categories.
 
 - **HTTP Method:** GET
-- **URL:** `/api/skill_types`
+- **URL:** `/api/skills`
 
 ```json
 [
@@ -111,7 +111,7 @@ Response:
 
 ```json
 {
-  "skill_mastery_log": [
+  "skill_mastery": [
     {
       "user_id": 7,
       "skill_id": 1,
