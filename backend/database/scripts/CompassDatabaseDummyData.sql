@@ -43,18 +43,30 @@ INSERT INTO skills (skill_name) VALUES
   ('Notetaking'),
   ('Growth Mindset');
 
-
--- Generate skill log for each student
 INSERT INTO skill_mastery_log (user_id, skill_id, mastery_status, date_of_event)
-SELECT
-  users.user_id,
-  skills.skill_id,
-  ABS(RANDOM() % 5) AS mastery_status,
-  date('now', '-' || (ABS(RANDOM()) % 90) || ' day') AS date_of_event
-FROM
-  users, skills
-ORDER BY
-  users.user_id, skills.skill_id;
+VALUES
+  (1, 1, 1.5, date('now')),
+  (1, 1, 2.5, date('now', '-7 day')),
+  (1, 1, 2, date('now', '-14 days')),
+  (1, 1, 2.4, date('now', '-21 days')),
+  (1, 1, 4, date('now', '-28 days')),
+
+  (1, 2, 1.5, date('now')),
+  (1, 2, 2.5, date('now', '-7 day')),
+  (1, 2, 2, date('now', '-14 days')),
+  (1, 2, 2.4, date('now', '-21 days')),
+  (1, 2, 4, date('now', '-28 days')),
+
+  (1, 3, 1.5, date('now')),
+  (1, 3, 2.5, date('now', '-7 day')),
+
+  (1, 4, 0, date('now', '-28 days')),
+
+  (1, 5, 1.5, date('now')),
+  (1, 5, 2.5, date('now', '-7 day')),
+  (1, 5, 2, date('now', '-14 days')),
+  (1, 5, 2.4, date('now', '-21 days')),
+  (1, 5, 4, date('now', '-28 days'));
 
 INSERT INTO students (user_id, study_hours_completed, study_hours_required, base_study_hours)
 VALUES
