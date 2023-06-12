@@ -43,8 +43,8 @@ app.get("/api/user_roles/:user_id", (req, res) => {
 });
 
 /* Get Skill Categories */
-app.get("/api/skill_types/", (req, res) => {
-  db.all("SELECT * From skill_types", (err, row) => {
+app.get("/api/skills/", (req, res) => {
+  db.all("SELECT * FROM skills", (err, row) => {
     if (err) {
       console.error(err);
       res.status(500).send("Internal Server Error");
