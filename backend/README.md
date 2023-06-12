@@ -27,13 +27,13 @@ This is an API for the Compass App, which provides access to students educationa
 1. Clone the repository:
 
    ```shell
-   git clone https://github.com/yourusername/compass-app-api.git
+   git clone https://github.com/tone-man/CompassApp
    ```
 
 2. Install dependencies:
 
    ```shell
-   cd compass-app-api
+   cd backend
    npm install
    ```
 
