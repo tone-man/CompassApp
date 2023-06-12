@@ -16,15 +16,16 @@ import { useTheme } from "react-native-paper";
 const fetchData = async () => {
   try {
     const response = await axios.get(
-      "http://192.168.4.63:5000/api/users/michael.johnson@example.com"
+      "http://192.168.4.63:5000/api/users/john.doe@example.com"
     );
 
     const userId = response.data.user_id;
     const response2 = await axios.get(
-      "http://192.168.4.63:5000/api/users/michael.johnson@example.com"
+      "http://192.168.4.63:5000/api/skill_mastery/" + userId + "/"
     );
 
-    console.log(userId);
+    console.log(response2);
+    console.log("");
   } catch (error) {
     console.error(error);
   }
