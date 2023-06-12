@@ -170,6 +170,91 @@ app.get("/api/behavior_consequences/:behavior_id", (req, res) => {
   );
 });
 
+/* Add a Behavior to a Specific Student */
+app.post("api/behavior_events", (req, res) => {
+  const { userId, behaviorId, dateOfEvent } = req.body;
+
+  /* TODO: Validity Check */
+
+  db.run(
+    "INSERT INTO student_behavior_log (user_id, behavior_id, date_of_event)" +
+      " VALUES (?, ?, ?)",
+    userId,
+    behaviorId,
+    dateOfEvent,
+    (err) => {
+      if (err) {
+        console.error(err.message);
+        res.status(500).send("Internal Server Error");
+      } else {
+        console.log(
+          `Behavior Event Logged As: ${
+            (this.userId, this.behaviorId, this.dateOfEvent)
+          }`
+        );
+      }
+    }
+  );
+});
+
+/* Add a Mastery Event to a Specific Student */
+app.post("api/skill_mastery", (req, res) => {
+  const { userId, skillId, masteryStatus, dateOfEvent } = req.body;
+
+  /* TODO: Validity Check */
+
+  db.run(
+    "INSERT INTO skill_mastery_log (user_id, skill_id, mastery_status, date_of_event)" +
+      " VALUES (?, ?, ?, ?)",
+    userId,
+    skillId,
+    masteryStatus,
+    dateOfEvent,
+    (err) => {
+      if (err) {
+        console.error(err.message);
+        res.status(500).send("Internal Server Error");
+      } else {
+        console.log(
+          `Mastery Skill Logged As: ${
+            (this.userId, this.skillId, this.masteryStatus, this.dateOfEvent)
+          }`
+        );
+      }
+    }
+  );
+});
+
+/* Add Study Hours for a Specific Student */
+app.post("api/study_hours", (req, res) => {
+  const { userId, logInTime, dateOfEvent } = req.body;
+
+  /* TODO: Validity Check */
+
+  db.run(
+    "INSERT INTO study_hours (user_id, log_in_time, date_of_event)" +
+      " VALUES (?, ?, ?)",
+    userId,
+    logInTime,
+    dateOfEvent,
+    (err) => {
+      if (err) {
+        console.error(err.message);
+        res.status(500).send("Internal Server Error");
+      } else {
+        console.log(
+          `Study Hours Logged As: ${
+            (this.userId, this.logInTime, this.dateOfEvent)
+          }`
+        );
+      }
+    }
+  );
+});
+
+/* UPDATE BEHAVIOR LOG */
+//app.patch('api/study_hours/:id')
+
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });

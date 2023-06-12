@@ -151,6 +151,24 @@ Response:
 ]
 ```
 
+#### Insert Study Hours Data
+
+Creates a new instance of Study Hours for a user.
+Log in time is in minutes after midnight.
+
+- **HTTP Method:** POST
+- **URL:** `/api/study_hours`
+
+Request:
+
+```json
+{
+  "user_id": 7,
+  "log_in_time": 8100, // (hours_past_midnight * 60) + minutes
+  "date_of_event": "2023-05-12"
+}
+```
+
 #### Get Mastery Data for a User
 
 Retrieves all skill mastery activity for a specified user.
@@ -176,6 +194,24 @@ Response:
       "date_of_event": "2023-04-18"
     }
   ]
+}
+```
+
+#### Insert Mastery Data
+
+Creates a new Mastery Status for a user.
+
+- **HTTP Method:** POST
+- **URL:** `/api/skill_mastery`
+
+Request:
+
+```json
+{
+  "user_id": 7,
+  "skill_id": 1,
+  "mastery_status": 0,
+  "date_of_event": "2023-05-12"
 }
 ```
 
@@ -230,6 +266,23 @@ Response:
     {"user_id":1,"behavior_id":3,"date_of_event":"2023-04-02"},
     {"user_id":1,"behavior_id":2,"date_of_event":"2023-04-16"}
   ]
+}
+```
+
+#### Insert User Behavior Data
+
+Creates a new Behavior for a user.
+
+- **HTTP Method:** POST
+- **URL:** `/api/behavior_events`
+
+Request:
+
+```json
+{
+  "user_id": 7,
+  "behavior_id": 1,
+  "date_of_event": "2023-05-12"
 }
 ```
 
