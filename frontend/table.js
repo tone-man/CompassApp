@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
     marginVertical: "2.5%",
     marginBottom: "2.5%",
     borderRadius: 20,
-    backgroundColor: "#007AFF",
+    // backgroundColor: "#007AFF",
   },
   tableHeader: {
     backgroundColor: "#007AFF",
