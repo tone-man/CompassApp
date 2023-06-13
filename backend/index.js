@@ -61,7 +61,7 @@ app.get("/api/skill_mastery/:user_id", (req, res) => {
   const userId = req.params.user_id;
 
   db.all(
-    "SELECT * FROM skill_mastery_log WHERE user_id = ? ORDER BY date_of_event",
+    "SELECT * FROM skill_mastery_log WHERE user_id = ? ORDER BY skill_id, date_of_event",
     userId,
     (err, row) => {
       if (err) {
@@ -257,17 +257,22 @@ app.patch("api/study_hours/:user_id", (req, res) => {
   const userId = req.params.user_id;
   const { dateOfEvent, logInTime, logOutTime } = req.body;
 
+  /* TODO: Inpit Validation */
+
+  const studyDuration = logInTime - logOutTime;
+
   const params = {
     $userId: userId,
     $logInTime: logInTime,
     $dateOfEvent: dateOfEvent,
     $logOutTime: logOutTime,
+    $studyDuration: studyDuration,
   };
 
   db.run(
     `UPDATE yourTable
-    SET logOutTime = $logOutTime
-    WHERE userId = $userId AND logInTime = $logInTime AND dateOfEvent = $dateOfEvent`,
+    SET log_pout_time = $logOutTime AND study_duration = $studyDuration,
+    WHERE user_id = $userId AND log_in_time = $logInTime AND dateOfEvent = $dateOfEvent`,
     params,
     function (error) {
       if (error) {
