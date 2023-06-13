@@ -1,6 +1,7 @@
 import { StatusBar } from "expo-status-bar";
 import { LineChart } from "react-native-chart-kit";
 import axios from "axios";
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -13,7 +14,9 @@ import {
 import TableExample from "./table";
 import { useTheme } from "react-native-paper";
 
-const fetchData = async () => {
+const fetchData = async (id) => {
+  let eventDates = [];
+  let mastery = [];
   try {
     const response = await axios.get(
       "http://192.168.4.63:5000/api/users/john.doe@example.com"
@@ -24,18 +27,44 @@ const fetchData = async () => {
       "http://192.168.4.63:5000/api/skill_mastery/" + userId + "/"
     );
 
-    console.log(response2);
-    console.log("");
+    response2.data.forEach((item) => {
+      if (item.skill_id === id) {
+        const date = item.date_of_event;
+        const formattedDate = date
+          .replace(/^(\d{4})-/, "")
+          .replace(/-/g, "/")
+          .replace(/0/g, "");
+        eventDates.push(formattedDate);
+        mastery.push(item.mastery_status);
+      }
+    });
+
+    return { eventDates, mastery };
   } catch (error) {
     console.error(error);
+    return { eventDates, mastery };
   }
 };
-fetchData();
+
 const ExampleGraph = ({ primaryColor }) => {
+  const [eventDates, setEventDates] = useState([]);
+  const [mastery, setMastery] = useState([]);
+
+  // retrieve the data from fetch data from the API
+  useEffect(() => {
+    const fetchDataAndSetState = async () => {
+      const { eventDates, mastery } = await fetchData(1);
+      setEventDates(eventDates);
+      setMastery(mastery);
+    };
+
+    fetchDataAndSetState();
+  }, []);
+
   const chartConfig = {
     backgroundGradientFromOpacity: 0,
     backgroundGradientToOpacity: 0,
-    decimalPlaces: 0, // optional, defaults to 2dp
+    decimalPlaces: 1,
     color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
     labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
     style: {
@@ -48,26 +77,25 @@ const ExampleGraph = ({ primaryColor }) => {
     },
   };
 
+  function* yLabel() {
+    yield* [5, "", 0];
+  }
+
   return (
     <LineChart
       data={{
-        labels: ["9/1", "9/8", "9/15", "9/22", "9/29", "10/5"],
+        labels: eventDates,
         datasets: [
           {
-            data: [
-              Math.round(Math.random() * 22),
-              Math.round(Math.random() * 22),
-              Math.round(Math.random() * 22),
-              Math.round(Math.random() * 22),
-              Math.round(Math.random() * 22),
-              Math.round(Math.random() * 22),
-            ],
+            data: mastery,
           },
+          { data: [0], withDots: false, withShadow: false },
+          { data: [5], withDots: false, withShadow: false },
         ],
       }}
-      width={Dimensions.get("window").width} // from react-native
+      width={Dimensions.get("window").width}
       height={220}
-      yAxisInterval={1} // optional, defaults to 1
+      yAxisInterval={1}
       chartConfig={chartConfig}
       bezier
       style={{
@@ -132,4 +160,5 @@ const AnalyticsView = () => {
     </View>
   );
 };
+
 export default AnalyticsView;
