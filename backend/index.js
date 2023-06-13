@@ -253,7 +253,32 @@ app.post("api/study_hours", (req, res) => {
 });
 
 /* UPDATE BEHAVIOR LOG */
-//app.patch('api/study_hours/:id')
+app.patch("api/study_hours/:user_id", (req, res) => {
+  const userId = req.params.user_id;
+  const { dateOfEvent, logInTime, logOutTime } = req.body;
+
+  const params = {
+    $userId: userId,
+    $logInTime: logInTime,
+    $dateOfEvent: dateOfEvent,
+    $logOutTime: logOutTime,
+  };
+
+  db.run(
+    `UPDATE yourTable
+    SET logOutTime = $logOutTime
+    WHERE userId = $userId AND logInTime = $logInTime AND dateOfEvent = $dateOfEvent`,
+    params,
+    function (error) {
+      if (error) {
+        console.error(error.message);
+        res.status(500).send(`Internal Server Error.`);
+      } else {
+        console.log(`Log out time updated successfully for user ${userId}`);
+      }
+    }
+  );
+});
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);

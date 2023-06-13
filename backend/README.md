@@ -151,7 +151,7 @@ Response:
 ]
 ```
 
-#### Insert Study Hours Data
+#### Create a Study Hours Entry
 
 Creates a new instance of Study Hours for a user.
 Log in time is in minutes after midnight.
@@ -164,7 +164,25 @@ Request:
 ```json
 {
   "user_id": 7,
-  "log_in_time": 8100, // (hours_past_midnight * 60) + minutes
+  "log_in_time": 540, // (hours_past_midnight * 60) + minutes
+  "date_of_event": "2023-05-12"
+}
+```
+
+#### Update a Study Hours Entry
+
+Updates a Study Hours Row for a user given a disctinct user_id,
+log_in_time, date_of_event. Log out time is in minutes after midnight.
+
+- **HTTP Method:** PATCH
+- **URL:** `/api/study_hours/:user_id`
+
+Request:
+
+```json
+{
+  "log_in_time": 540, // (hours_past_midnight * 60) + minutes
+  "log_out_time": 720,
   "date_of_event": "2023-05-12"
 }
 ```
