@@ -170,86 +170,134 @@ app.get("/api/behavior_consequences/:behavior_id", (req, res) => {
   );
 });
 
+const insertBehaviorQuery = `INSERT INTO student_behavior_log (user_id, behavior_id, date_of_event)
+VALUES ($userId, $behaviorId, $dateOfEvent)`;
+
+function insertBehavior(params) {
+  /* VALIDITY CHECK */
+
+  db.run(insertBehaviorQuery, params, (err) => {
+    if (err) {
+      console.error(err.message);
+      throw new Error();
+    } else {
+      console.log(
+        `Behavior Event Logged As: ${
+          (this.userId, this.behaviorId, this.dateOfEvent)
+        }`
+      );
+    }
+  });
+}
+
 /* Add a Behavior to a Specific Student */
 app.post("api/behavior_events", (req, res) => {
   const { userId, behaviorId, dateOfEvent } = req.body;
 
+  const params = {
+    $userId: userId,
+    $behaviorId: behaviorId,
+    $dateOfEvent: dateOfEvent,
+  };
+
+  try {
+    insertBehavior(params);
+  } catch (error) {
+    console.error(error);
+    res.status(500).message("Internal Server Error");
+  }
+
+  try {
+    updateStudentStudyHoursRemaining(userId);
+  } catch (error) {
+    console.error(error);
+    res.status(500).message("Internal Server Error");
+    rollbackUpdateToBehaviorLog(params);
+  }
+});
+
+const insertSkillMasteryQuery = `INSERT INTO skill_mastery_log (user_id, skill_id, mastery_status, date_of_event) 
+VALUES ($userId, $skillId, $masteryStatus, $dateOfEvent)`;
+
+function insertSkillMastery(params) {
   /* TODO: Validity Check */
 
-  db.run(
-    "INSERT INTO student_behavior_log (user_id, behavior_id, date_of_event)" +
-      " VALUES (?, ?, ?)",
-    userId,
-    behaviorId,
-    dateOfEvent,
-    (err) => {
-      if (err) {
-        console.error(err.message);
-        res.status(500).send("Internal Server Error");
-      } else {
-        console.log(
-          `Behavior Event Logged As: ${
-            (this.userId, this.behaviorId, this.dateOfEvent)
-          }`
-        );
-      }
+  db.run(insertSkillMasteryQuery, params, (err) => {
+    if (err) {
+      console.error(err.message);
+      throw new Error();
+    } else {
+      console.log(
+        `Mastery Skill Logged As: ${
+          (this.userId, this.skillId, this.masteryStatus, this.dateOfEvent)
+        }`
+      );
     }
-  );
-});
+  });
+}
 
 /* Add a Mastery Event to a Specific Student */
 app.post("api/skill_mastery", (req, res) => {
   const { userId, skillId, masteryStatus, dateOfEvent } = req.body;
 
-  /* TODO: Validity Check */
+  const params = {
+    $userId: userId,
+    $skillId: skillId,
+    $masteryStatus: masteryStatus,
+    $dateOfEvent: dateOfEvent,
+  };
 
-  db.run(
-    "INSERT INTO skill_mastery_log (user_id, skill_id, mastery_status, date_of_event)" +
-      " VALUES (?, ?, ?, ?)",
-    userId,
-    skillId,
-    masteryStatus,
-    dateOfEvent,
-    (err) => {
-      if (err) {
-        console.error(err.message);
-        res.status(500).send("Internal Server Error");
-      } else {
-        console.log(
-          `Mastery Skill Logged As: ${
-            (this.userId, this.skillId, this.masteryStatus, this.dateOfEvent)
-          }`
-        );
-      }
-    }
-  );
+  try {
+    insertSkillMastery(params);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("Internal Server Error");
+  }
 });
 
+const insertStudyHoursQuery = `INSERT INTO study_hours (user_id, log_in_time, date_of_event) 
+VALUES ($userId, $logInTime, $dateOfEvent)`;
+
+function insertStudyHours(params) {
+  /* TODO: Validity Check */
+
+  db.run(insertStudyHoursQuery, params, (err) => {
+    if (err) {
+      console.error(err.message);
+      throw new Error();
+    } else {
+      console.log(
+        `Study Hours Logged As: ${
+          (this.userId, this.logInTime, this.dateOfEvent)
+        }`
+      );
+    }
+  });
+}
 /* Add Study Hours for a Specific Student */
 app.post("api/study_hours", (req, res) => {
   const { userId, logInTime, dateOfEvent } = req.body;
 
-  /* TODO: Validity Check */
+  const params = {
+    $userId: userId,
+    $logInTime: logInTime,
+    $dateOfEvent: dateOfEvent,
+  };
 
-  db.run(
-    "INSERT INTO study_hours (user_id, log_in_time, date_of_event)" +
-      " VALUES (?, ?, ?)",
-    userId,
-    logInTime,
-    dateOfEvent,
-    (err) => {
-      if (err) {
-        console.error(err.message);
-        res.status(500).send("Internal Server Error");
-      } else {
-        console.log(
-          `Study Hours Logged As: ${
-            (this.userId, this.logInTime, this.dateOfEvent)
-          }`
-        );
-      }
-    }
-  );
+  try {
+    insertStudyHours(params);
+  } catch (error) {
+    console.err(error);
+    res.status(500).message("Internal Server Error");
+  }
+
+  try {
+    updateStudentStudyHoursCompleted(params);
+  } catch {
+    console.err(error);
+    RollbackUpdateToStudentStudyLog();
+    res.status(500).message("Internal Server Error");
+  }
 });
 
 /* UPDATE BEHAVIOR LOG */
@@ -292,10 +340,10 @@ const sumStudentStudyTime = `SELECT SUM(study_duration)
   WHERE user_id = ?;`;
 
 const updateStudentHoursCompletedQuery = `UPDATE students
-  SET study_hours_completed 
-  WHERE user_id = ?;`;
+  SET study_hours_completed = $studyHoursCompleted
+  WHERE user_id = $userId;`;
 
-function updateStudentStufyHoursRemaining(userId) {
+function updateStudentStudyHoursCompleted(userId) {
   let sumStudyMinutes = null;
 
   db.get(sumStudentStudyTime, userId, (err, row) => {
@@ -309,7 +357,12 @@ function updateStudentStufyHoursRemaining(userId) {
   if (!sumStudyMinutes)
     throw new ReferenceError("No Study Hour Entries Found for User");
 
-  db.run(updateStudentHoursCompletedQuery, userId, (err) => {
+  const params = {
+    $userId: userId,
+    $studyHoursCompleted: sumStudyMinutes,
+  };
+
+  db.run(updateStudentHoursCompletedQuery, params, (err) => {
     if (err) {
       console.log(err);
       throw new Error("Failed to update study hours completed.");
@@ -364,7 +417,7 @@ function updateStudentStudyHoursRemaining(userId) {
 /* Rollback Functions for when one transaction passes but another fails. */
 
 const rollbackUpdateToStudentStudyLogQuery = `UPDATE student_study_hours
-  SET log_out_time = NULL AND study_duration = $studyDuration,
+  SET log_out_time = NULL AND study_duration = NULL,
   WHERE user_id = $userId AND log_in_time = $logInTime AND dateOfEvent = $dateOfEvent`;
 
 function RollbackUpdateToStudentStudyLog(params) {
