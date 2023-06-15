@@ -270,8 +270,8 @@ app.patch("api/study_hours/:user_id", (req, res) => {
   };
 
   db.run(
-    `UPDATE yourTable
-    SET log_pout_time = $logOutTime AND study_duration = $studyDuration,
+    `UPDATE student_study_hours
+    SET log_out_time = $logOutTime AND study_duration = $studyDuration,
     WHERE user_id = $userId AND log_in_time = $logInTime AND dateOfEvent = $dateOfEvent`,
     params,
     function (error) {
@@ -284,6 +284,109 @@ app.patch("api/study_hours/:user_id", (req, res) => {
     }
   );
 });
+
+/* Sub Query For Updating Student Study Hours */
+
+const sumStudentStudyTime = `SELECT SUM(study_duration)
+  FROM student_study_log
+  WHERE user_id = ?;`;
+
+const updateStudentHoursCompletedQuery = `UPDATE students
+  SET study_hours_completed 
+  WHERE user_id = ?;`;
+
+function updateStudentStufyHoursRemaining(userId) {
+  let sumStudyMinutes = null;
+
+  db.get(sumStudentStudyTime, userId, (err, row) => {
+    if (err) {
+      console.log(err);
+    } else if (row) {
+      sumStudyMinutes = row;
+    }
+  });
+
+  if (!sumStudyMinutes)
+    throw new ReferenceError("No Study Hour Entries Found for User");
+
+  db.run(updateStudentHoursCompletedQuery, userId, (err) => {
+    if (err) {
+      console.log(err);
+      throw new Error("Failed to update study hours completed.");
+    } else {
+      console.log(
+        `Study hours completed updated successfully for user ${userId}`
+      );
+    }
+  });
+}
+
+/*Update for additional study hours*/
+const sumStudentRequiredStudyTime = `SELECT SUM(additional_study_hours) FROM student_behavior_log
+  JOIN student_behavior_consequences
+  ON student_behavior_log.behavior_id=student_behavior_consequences.behavior_id
+  WHERE user_id = ?;`;
+
+const updateStudentHoursRemainingQuery = `UPDATE students
+  SET study_hours_required = $sumBehaviorMinutes
+  WHERE user_id = $userId`;
+
+function updateStudentStudyHoursRemaining(userId) {
+  let sumBehaviorMinutes = null;
+
+  db.get(sumStudentRequiredStudyTime, userId, (err, row) => {
+    if (err) {
+      console.log(err);
+    } else if (row) {
+      sumBehaviorMinutes = row;
+    }
+  });
+
+  if (!sumBehaviorMinutes) throw ReferenceError("No Behaviors Found for User");
+
+  const params = {
+    $userId: userId,
+    $sumBehaviorMinutes: sumBehaviorMinutes,
+  };
+
+  db.run(updateStudentHoursRemainingQuery, params, (err) => {
+    if (err) {
+      console.log(err);
+      throw new Error("Failed to update study hours remaining.");
+    } else {
+      console.log(
+        `Study hours remaining updated successfully for user ${userId}`
+      );
+    }
+  });
+}
+
+/* Rollback Functions for when one transaction passes but another fails. */
+
+const rollbackUpdateToStudentStudyLogQuery = `UPDATE student_study_hours
+  SET log_out_time = NULL AND study_duration = $studyDuration,
+  WHERE user_id = $userId AND log_in_time = $logInTime AND dateOfEvent = $dateOfEvent`;
+
+function RollbackUpdateToStudentStudyLog(params) {
+  db.run(rollbackUpdateToStudentStudyLogQuery, params, (err) => {
+    if (err) {
+      console.error("Failed to Rollback, will try again.");
+      RollbackUpdateToStudentStudyLog(params);
+    }
+  });
+}
+
+const rollbackUpdateToBehaviorLogQuery = `DELETE FROM student_behavior_log 
+ WHERE user_id = $userId AND behavior_id = $behaviorId AND date_of_event = $dateOfEvent;`;
+
+function rollbackUpdateToBehaviorLog(params) {
+  db.run(rollbackUpdateToBehaviorLogQuery, params, (err) => {
+    if (err) {
+      console.error("Failed to Rollback, will try again.");
+      rollbackUpdateToBehaviorLog(params);
+    }
+  });
+}
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
