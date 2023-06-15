@@ -11,7 +11,9 @@ import {
   ScrollView,
 } from "react-native";
 
-import { useTheme } from "react-native-paper";
+import TableExample from "./table";
+import ProgressTracker from "./ProgressTracker";
+import { useTheme, ProgressBar, MD3Colors } from "react-native-paper";
 
 const fetchData = async (id) => {
   let eventDates = [];
@@ -203,6 +205,8 @@ const AnalyticsView = () => {
               data2={mindsetMastery}
             />
           </View>
+          <TableExample />
+          <ProgressTracker />
         </ScrollView>
       </SafeAreaView>
     </View>

@@ -12,6 +12,7 @@ import QRcodeNavigation from "./QRcodeNavigation";
 import facultyInputNavigation from "./facultyInputNavigation";
 import QRcodeView from "./QRcodeView";
 import StudentMasteryInputView from "./StudentMasteryInputView";
+import LoginPage from "./loginPage";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -25,14 +26,19 @@ const ProfileIcon = ({ navigation }) => {
 };
 
 const StackNavigator = () => {
+  const isLoggedIn = false; // Set this flag based on your login logic
+
   return (
     <Stack.Navigator>
-      <Stack.Screen
-        name="Main"
-        component={TabNavigator}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen name="Profile" component={ProfileView} />
+      {isLoggedIn ? (
+        <Stack.Screen
+          name="Main"
+          component={TabNavigator}
+          options={{ headerShown: false }}
+        />
+      ) : (
+        <Stack.Screen name="Login" component={LoginPage} />
+      )}
     </Stack.Navigator>
   );
 };
