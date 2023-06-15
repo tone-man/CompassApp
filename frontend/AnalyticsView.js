@@ -11,7 +11,6 @@ import {
   ScrollView,
 } from "react-native";
 
-import TableExample from "./table";
 import { useTheme } from "react-native-paper";
 
 const fetchData = async (id) => {
@@ -46,21 +45,7 @@ const fetchData = async (id) => {
   }
 };
 
-const ExampleGraph = ({ primaryColor }) => {
-  const [eventDates, setEventDates] = useState([]);
-  const [mastery, setMastery] = useState([]);
-
-  // retrieve the data from fetch data from the API
-  useEffect(() => {
-    const fetchDataAndSetState = async () => {
-      const { eventDates, mastery } = await fetchData(1);
-      setEventDates(eventDates);
-      setMastery(mastery);
-    };
-
-    fetchDataAndSetState();
-  }, []);
-
+const ExampleGraph = ({ primaryColor, data1, data2 }) => {
   const chartConfig = {
     backgroundGradientFromOpacity: 0,
     backgroundGradientToOpacity: 0,
@@ -84,10 +69,10 @@ const ExampleGraph = ({ primaryColor }) => {
   return (
     <LineChart
       data={{
-        labels: eventDates,
+        labels: data1,
         datasets: [
           {
-            data: mastery,
+            data: data2,
           },
           { data: [0], withDots: false, withShadow: false },
           { data: [5], withDots: false, withShadow: false },
@@ -133,28 +118,91 @@ const AnalyticsView = () => {
     },
   });
 
+  const [readingDates, setReadingDates] = useState([]);
+  const [readingMastery, setReadingMastery] = useState([]);
+  useEffect(() => {
+    const fetchDataAndSetState = async () => {
+      const { eventDates, mastery } = await fetchData(2);
+      setReadingDates(eventDates);
+      setReadingMastery(mastery);
+    };
+
+    fetchDataAndSetState();
+  }, []);
+
+  const [writingDates, setWritingDates] = useState([]);
+  const [writingMastery, setWritingMastery] = useState([]);
+
+  useEffect(() => {
+    const fetchDataAndSetState = async () => {
+      const { eventDates, mastery } = await fetchData(3);
+      setWritingDates(eventDates);
+      setWritingMastery(mastery);
+    };
+
+    fetchDataAndSetState();
+  }, []);
+
+  const [notetakingDates, setNotetakingDates] = useState([]);
+  const [notetakingMastery, setNotetakingMastery] = useState([]);
+
+  useEffect(() => {
+    const fetchDataAndSetState = async () => {
+      const { eventDates, mastery } = await fetchData(4);
+      setNotetakingDates(eventDates);
+      setNotetakingMastery(mastery);
+    };
+
+    fetchDataAndSetState();
+  }, []);
+
+  const [mindsetDates, setMindsetDates] = useState([]);
+  const [mindsetMastery, setMindsetMastery] = useState([]);
+  useEffect(() => {
+    const fetchDataAndSetState = async () => {
+      const { eventDates, mastery } = await fetchData(5);
+      setMindsetDates(eventDates);
+      setMindsetMastery(mastery);
+    };
+    fetchDataAndSetState();
+  }, []);
+
   return (
     <View style={styles.container}>
       <SafeAreaView>
         <ScrollView>
           <View style={[styles.container, styles.graphContainer]}>
             <Text style={styles.graphText}>Reading</Text>
-            <ExampleGraph primaryColor={colors.primary} />
+            <ExampleGraph
+              primaryColor={colors.primary}
+              data1={readingDates}
+              data2={readingMastery}
+            />
           </View>
           <View style={[styles.container, styles.graphContainer]}>
             <Text style={styles.graphText}>Writing</Text>
-            <ExampleGraph primaryColor={colors.primary} />
+            <ExampleGraph
+              primaryColor={colors.primary}
+              data1={writingDates}
+              data2={writingMastery}
+            />
           </View>
           <View style={[styles.container, styles.graphContainer]}>
-            <Text style={styles.graphText}>Note-taking</Text>
-            <ExampleGraph primaryColor={colors.primary} />
+            <Text style={styles.graphText}>Notetaking</Text>
+            <ExampleGraph
+              primaryColor={colors.primary}
+              data1={notetakingDates}
+              data2={notetakingMastery}
+            />
           </View>
           <View style={[styles.container, styles.graphContainer]}>
             <Text style={styles.graphText}>Mindset</Text>
-            <ExampleGraph primaryColor={colors.primary} />
+            <ExampleGraph
+              primaryColor={colors.primary}
+              data1={mindsetDates}
+              data2={mindsetMastery}
+            />
           </View>
-
-          <TableExample />
         </ScrollView>
       </SafeAreaView>
     </View>
