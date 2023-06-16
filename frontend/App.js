@@ -4,6 +4,7 @@ import { NavigationContainer, DarkTheme } from "@react-navigation/native";
 import { Provider as PaperProvider } from "react-native-paper";
 import StackNavigator from "./AppNavigation";
 import { AppRegistry } from "react-native";
+import { AuthProvider, AuthContext } from "./AuthContext";
 
 const Main = () => (
   <PaperProvider>
@@ -15,10 +16,12 @@ AppRegistry.registerComponent("MyApp", () => Main);
 
 const App = () => {
   return (
-    <NavigationContainer>
-      {/* <NavigationContainer theme={DarkTheme}> */}
-      <StackNavigator />
-    </NavigationContainer>
+    <AuthProvider>
+      <NavigationContainer>
+        {/* <NavigationContainer theme={DarkTheme}> */}
+        <StackNavigator />
+      </NavigationContainer>
+    </AuthProvider>
   );
 };
 

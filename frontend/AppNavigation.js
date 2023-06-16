@@ -7,11 +7,15 @@ import { useTheme } from "react-native-paper";
 import AnalyticsView from "./AnalyticsView";
 import ProfileView from "./ProfileView";
 
+import React, { useContext } from "react";
+
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import QRcodeNavigation from "./QRcodeNavigation";
 import facultyInputNavigation from "./facultyInputNavigation";
 import QRcodeView from "./QRcodeView";
 import StudentMasteryInputView from "./StudentMasteryInputView";
+import { AuthContext } from "./AuthContext";
+import { useState } from "react";
 import LoginPage from "./loginPage";
 
 const Tab = createBottomTabNavigator();
@@ -26,7 +30,7 @@ const ProfileIcon = ({ navigation }) => {
 };
 
 const StackNavigator = () => {
-  const isLoggedIn = false; // Set this flag based on your login logic
+  const { isLoggedIn } = useContext(AuthContext);
 
   return (
     <Stack.Navigator>
@@ -37,7 +41,11 @@ const StackNavigator = () => {
           options={{ headerShown: false }}
         />
       ) : (
-        <Stack.Screen name="Login" component={LoginPage} />
+        <Stack.Screen name="Login">
+          {(props) => (
+            <LoginPage {...props} onLogin={() => setIsLoggedIn(true)} />
+          )}
+        </Stack.Screen>
       )}
     </Stack.Navigator>
   );
