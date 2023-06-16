@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS student_behaviors (
 
 CREATE TABLE  IF NOT EXISTS student_behavior_consequences (
   behavior_id INTEGER PRIMARY KEY,
-  additional_study_hours INTEGER NOT NULL,
+  additional_study_minutes INTEGER NOT NULL,
   FOREIGN KEY (behavior_id) REFERENCES student_behaviors(behavior_id)
 );
 
@@ -53,9 +53,9 @@ CREATE TABLE  IF NOT EXISTS skill_mastery_log (
 
 CREATE TABLE  IF NOT EXISTS students (
   user_id INTEGER PRIMARY KEY,
-  study_hours_completed INTEGER NOT NULL,
-  study_hours_required INTEGER NOT NULL,
-  base_study_hours INTEGER NOT NULL,
+  study_minutes_completed INTEGER NOT NULL,
+  study_minutes_required INTEGER NOT NULL,
+  base_study_minutes INTEGER NOT NULL,
   FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 

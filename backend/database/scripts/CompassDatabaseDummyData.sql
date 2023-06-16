@@ -21,10 +21,10 @@ INSERT INTO student_behaviors (behavior_name) VALUES
   ('Missed Coaching Meeting'),
   ('Incomplete Assignment');
 
-INSERT INTO student_behavior_consequences (behavior_id, additional_study_hours) VALUES
-  (1, 2),
-  (2, 3),
-  (3, 1);
+INSERT INTO student_behavior_consequences (behavior_id, additional_study_minutes) VALUES
+  (1, 120),
+  (2, 90),
+  (3, 60);
 
 INSERT INTO student_behavior_log (user_id, behavior_id, date_of_event) 
 SELECT
@@ -56,9 +56,9 @@ FROM
 ORDER BY
   users.user_id, skills.skill_id;
 
-INSERT INTO students (user_id, study_hours_completed, study_hours_required, base_study_hours)
+INSERT INTO students (user_id, study_minutes_completed, study_minutes_required, base_study_minutes)
 VALUES
-  (1, 13, 20, 20);
+  (1, 780, 1200, 1200);
 
 INSERT INTO student_study_log (user_id, date_of_event, log_in_time, log_out_time, study_duration)
 VALUES
