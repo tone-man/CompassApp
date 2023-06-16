@@ -393,7 +393,7 @@ function updateStudentStudyHoursCompleted(userId) {
 
 /* Sub Query For Updating Student Study Hours Required*/
 
-const baseStudentStudyTimeQuery = `SELECT (student_base_minutes) 
+const baseStudentStudyTimeQuery = `SELECT (base_study_minutes) 
   FROM students
   WHERE user_id = ?;`;
 
@@ -417,39 +417,40 @@ function updateStudentStudyHoursRemaining(userId) {
       console.log(err);
       throw new Error("Database Rejected Query.");
     } else if (row) {
-      baseStudentMinutes = row.sumBehaviorMinutes;
-    }
-  });
+      baseStudentMinutes = row.base_study_minutes;
+      console.log();
 
-  if (!baseStudentMinutes)
-    throw ReferenceError("No Base Study Hours Found for User");
+      if (!baseStudentMinutes)
+        throw ReferenceError("No Base Study Hours Found for User");
 
-  db.get(sumStudentRequiredStudyTime, userId, (err, row) => {
-    if (err) {
-      console.log(err);
-      throw new Error("Database Rejected Query.");
-    } else if (row) {
-      sumBehaviorMinutes = row;
-    }
-  });
+      db.get(sumStudentRequiredStudyTime, userId, (err, row) => {
+        if (err) {
+          console.log(err);
+          throw new Error("Database Rejected Query.");
+        } else if (row) {
+          sumBehaviorMinutes = row.sumBehaviorMinutes;
 
-  if (!sumBehaviorMinutes) throw ReferenceError("No Behaviors Found for User");
+          if (!sumBehaviorMinutes)
+            throw ReferenceError("No Behaviors Found for User");
 
-  sumBehaviorMinutes += baseStudentMinutes;
+          sumBehaviorMinutes += baseStudentMinutes;
+          const params = {
+            $userId: userId,
+            $sumBehaviorMinutes: sumBehaviorMinutes,
+          };
 
-  const params = {
-    $userId: userId,
-    $sumBehaviorMinutes: sumBehaviorMinutes,
-  };
-
-  db.run(updateStudentMinutesRemainingQuery, params, (err) => {
-    if (err) {
-      console.log(err);
-      throw new Error("Database Rejected Query.");
-    } else {
-      console.log(
-        `Study hours remaining updated successfully for user ${userId}`
-      );
+          db.run(updateStudentMinutesRemainingQuery, params, (err) => {
+            if (err) {
+              console.log(err);
+              throw new Error("Database Rejected Query.");
+            } else {
+              console.log(
+                `Study hours remaining updated successfully for user ${userId}`
+              );
+            }
+          });
+        }
+      });
     }
   });
 }
