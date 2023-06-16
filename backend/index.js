@@ -1,6 +1,13 @@
 const sqlite3 = require("sqlite3").verbose();
+
 const express = require("express");
+const cors = require("cors");
+
 const app = express();
+
+app.use(express.json()); //JSON to read headers
+app.use(cors()); // Enable CORS for all routes
+
 const port = 5000;
 
 const Responses = require("./statusMessages");
@@ -189,7 +196,7 @@ function insertBehavior(params) {
 }
 
 /* Add a Behavior to a Specific Student */
-app.post("api/behavior_events", (req, res) => {
+app.post("/api/behavior_events", (req, res) => {
   const { userId, behaviorId, dateOfEvent } = req.body;
 
   const params = {
@@ -213,6 +220,8 @@ app.post("api/behavior_events", (req, res) => {
     res.status(500).send(Responses[500]);
     rollbackUpdateToBehaviorLog(params);
   }
+
+  res.status(200).send(Responses[200]);
 });
 
 const insertSkillMasteryQuery = `INSERT INTO skill_mastery_log (user_id, skill_id, mastery_status, date_of_event) 
@@ -228,7 +237,10 @@ function insertSkillMastery(params) {
     } else {
       console.log(
         `Mastery Skill Logged As: ${
-          (this.userId, this.skillId, this.masteryStatus, this.dateOfEvent)
+          (params.userId,
+          params.skillId,
+          params.masteryStatus,
+          params.dateOfEvent)
         }`
       );
     }
@@ -236,7 +248,7 @@ function insertSkillMastery(params) {
 }
 
 /* Add a Mastery Event to a Specific Student */
-app.post("api/skill_mastery", (req, res) => {
+app.post("/api/skill_mastery", (req, res) => {
   const { userId, skillId, masteryStatus, dateOfEvent } = req.body;
 
   const params = {
@@ -252,6 +264,8 @@ app.post("api/skill_mastery", (req, res) => {
     console.log(error);
     res.status(500).send(Responses[500]);
   }
+
+  res.status(200).send(Responses[200]);
 });
 
 const insertStudyHoursQuery = `INSERT INTO study_hours (user_id, log_in_time, date_of_event) 
@@ -274,7 +288,7 @@ function insertStudyHours(params) {
   });
 }
 /* Add Study Hours for a Specific Student */
-app.post("api/study_hours", (req, res) => {
+app.post("/api/study_hours", (req, res) => {
   const { userId, logInTime, dateOfEvent } = req.body;
 
   const params = {
@@ -312,7 +326,7 @@ function updateStudyHoursLog(params) {
   });
 }
 
-app.patch("api/study_hours/:user_id", (req, res) => {
+app.patch("/api/study_hours/:user_id", (req, res) => {
   const userId = req.params.user_id;
   const { dateOfEvent, logInTime, logOutTime } = req.body;
 
