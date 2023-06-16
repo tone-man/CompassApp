@@ -1,12 +1,10 @@
 const sqlite3 = require("sqlite3").verbose();
 
 const express = require("express");
-const cors = require("cors");
 
 const app = express();
 
 app.use(express.json()); //JSON to read headers
-app.use(cors()); // Enable CORS for all routes
 
 const port = 5000;
 
@@ -233,15 +231,11 @@ function insertSkillMastery(params) {
   db.run(insertSkillMasteryQuery, params, (err) => {
     if (err) {
       console.error(err);
-      throw new Error("Database Reject Query");
+      throw new Error("Database Rejects Query");
     } else {
       console.log(
-        `Mastery Skill Logged As: ${
-          (params.userId,
-          params.skillId,
-          params.masteryStatus,
-          params.dateOfEvent)
-        }`
+        "Mastery Skill Logged As:" +
+          `\n\t{user_id:${params.$userId}, skill_id:${params.$skillId}, mastery_status:${params.$masteryStatus}, date_of_event:${params.$dateOfEvent}}`
       );
     }
   });
@@ -268,7 +262,7 @@ app.post("/api/skill_mastery", (req, res) => {
   res.status(200).send(Responses[200]);
 });
 
-const insertStudyHoursQuery = `INSERT INTO study_hours (user_id, log_in_time, date_of_event) 
+const insertStudyHoursQuery = `INSERT INTO student_study_log (user_id, log_in_time, date_of_event) 
 VALUES ($userId, $logInTime, $dateOfEvent)`;
 
 function insertStudyHours(params) {
@@ -280,9 +274,8 @@ function insertStudyHours(params) {
       throw new Error("Database Rejected Query");
     } else {
       console.log(
-        `Study Hours Logged As: ${
-          (this.userId, this.logInTime, this.dateOfEvent)
-        }`
+        `Study Hours Logged As:` +
+          `\n\t{user_id: ${params.$userId}, log_in_time: ${params.$logInTime}, date_of_event: ${params.$dateOfEvent}}`
       );
     }
   });
@@ -303,6 +296,8 @@ app.post("/api/study_hours", (req, res) => {
     console.err(error);
     res.status(500).send(Responses[500]);
   }
+
+  res.status(200).send(Responses[200]);
 });
 
 /* Update Study Hours for a Specific Student */
