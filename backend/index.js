@@ -340,10 +340,10 @@ const sumStudentStudyTime = `SELECT SUM(study_duration)
   WHERE user_id = ?;`;
 
 const updateStudentHoursCompletedQuery = `UPDATE students
-  SET study_hours_completed = $studyHoursCompleted
+  SET study_minutes_completed = $studyMinutesCompleted
   WHERE user_id = $userId;`;
 
-function updateStudentStudyHoursCompleted(userId) {
+function updateStudentStudyMinutesCompleted(userId) {
   let sumStudyMinutes = null;
 
   db.get(sumStudentStudyTime, userId, (err, row) => {
@@ -359,7 +359,7 @@ function updateStudentStudyHoursCompleted(userId) {
 
   const params = {
     $userId: userId,
-    $studyHoursCompleted: sumStudyMinutes,
+    $studyMinutesCompleted: sumStudyMinutes,
   };
 
   db.run(updateStudentHoursCompletedQuery, params, (err) => {
@@ -367,21 +367,19 @@ function updateStudentStudyHoursCompleted(userId) {
       console.log(err);
       throw new Error("Failed to update study hours completed.");
     } else {
-      console.log(
-        `Study hours completed updated successfully for user ${userId}`
-      );
+      console.log(`Study hours updated successfully for user ${userId}`);
     }
   });
 }
 
 /*Update for additional study hours*/
-const sumStudentRequiredStudyTime = `SELECT SUM(additional_study_hours) FROM student_behavior_log
+const sumStudentRequiredStudyTime = `SELECT SUM(additional_study_minutes) FROM student_behavior_log
   JOIN student_behavior_consequences
   ON student_behavior_log.behavior_id=student_behavior_consequences.behavior_id
   WHERE user_id = ?;`;
 
 const updateStudentHoursRemainingQuery = `UPDATE students
-  SET study_hours_required = $sumBehaviorMinutes
+  SET study_minutes_required = $sumBehaviorMinutes
   WHERE user_id = $userId`;
 
 function updateStudentStudyHoursRemaining(userId) {
