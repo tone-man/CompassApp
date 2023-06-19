@@ -37,6 +37,7 @@ const ProgressTracker = () => {
   const [required, setRequired] = useState(0);
 
   const [base, setBase] = useState();
+  const stylesConfig = styles(colors);
   useEffect(() => {
     const fetchDataAndSetState = async () => {
       const { study_hours_completed, study_hours_required, base_study_hours } =
@@ -53,28 +54,42 @@ const ProgressTracker = () => {
   }, []);
   return (
     <DataTable style={styles.container}>
-      <DataTable style={styles.graph}>
-        <ProgressBar
-          progress={required === 0 ? 0 : completed / required}
-          color={colors.primary}
-        />
+      <ProgressBar
+        progress={required === 0 ? 0 : completed / required}
+        color={colors.primary}
+      />
+      <DataTable style={stylesConfig.graph}>
         <DataTable.Header>
-          <DataTable.Title>Behaviors</DataTable.Title>
+          <DataTable.Title>
+            <Text style={stylesConfig.tableHeaderText}>Behaviors</Text>
+          </DataTable.Title>
         </DataTable.Header>
 
         <DataTable.Row>
-          <DataTable.Cell>Study Hours Done</DataTable.Cell>
-          <DataTable.Cell numeric>{completed}</DataTable.Cell>
+          <DataTable.Cell>
+            <Text style={stylesConfig.tableCellText}>Study Hours Done</Text>
+          </DataTable.Cell>
+          <DataTable.Cell numeric>
+            <Text style={stylesConfig.tableCellText}>{completed}</Text>
+          </DataTable.Cell>
         </DataTable.Row>
 
         <DataTable.Row>
-          <DataTable.Cell>Study Hours Goal</DataTable.Cell>
-          <DataTable.Cell numeric>{required}</DataTable.Cell>
+          <DataTable.Cell>
+            <Text style={stylesConfig.tableCellText}>Study Hours Goal</Text>
+          </DataTable.Cell>
+          <DataTable.Cell numeric>
+            <Text style={stylesConfig.tableCellText}>{required}</Text>
+          </DataTable.Cell>
         </DataTable.Row>
 
         <DataTable.Row>
-          <DataTable.Cell>Study Hours Base</DataTable.Cell>
-          <DataTable.Cell numeric>{base}</DataTable.Cell>
+          <DataTable.Cell>
+            <Text style={stylesConfig.tableCellText}>Study Hours Base</Text>
+          </DataTable.Cell>
+          <DataTable.Cell numeric>
+            <Text style={stylesConfig.tableCellText}>{base}</Text>
+          </DataTable.Cell>
         </DataTable.Row>
       </DataTable>
     </DataTable>
@@ -83,34 +98,35 @@ const ProgressTracker = () => {
 
 export default ProgressTracker;
 
-const styles = StyleSheet.create({
-  container: {
-    padding: 15,
-  },
-  graph: {
-    marginVertical: "2.5%",
-    marginBottom: "2.5%",
-    borderRadius: 20,
-    backgroundColor: "#007AFF",
-  },
-  graphText: {
-    color: "#FFFFFF",
-    fontWeight: "bold",
-  },
-  tableHeader: {
-    backgroundColor: "#007AFF",
-    flexWrap: "wrap",
-  },
-  tableTitle: {
-    flexGrow: 1,
-    flexWrap: "wrap",
-  },
-  tableHeaderText: {
-    color: "yellow",
-    fontWeight: "bold",
-    fontSize: 10,
-  },
-  tableCellText: {
-    color: "black",
-  },
-});
+const styles = (colors) =>
+  StyleSheet.create({
+    container: {
+      padding: 15,
+    },
+    graph: {
+      marginVertical: "2.5%",
+      marginBottom: "2.5%",
+      borderRadius: 20,
+      backgroundColor: colors.primary,
+    },
+    graphText: {
+      color: "#FFFFFF",
+      fontWeight: "bold",
+    },
+    tableHeader: {
+      backgroundColor: "#007AFF",
+      flexWrap: "wrap",
+    },
+    tableTitle: {
+      flexGrow: 1,
+      flexWrap: "wrap",
+    },
+    tableHeaderText: {
+      color: "yellow",
+      fontWeight: "bold",
+      fontSize: 14,
+    },
+    tableCellText: {
+      color: "white",
+    },
+  });

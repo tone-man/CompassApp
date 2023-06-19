@@ -23,7 +23,7 @@ const Stack = createStackNavigator();
 
 const ProfileIcon = ({ navigation }) => {
   return (
-    <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
+    <TouchableOpacity onPress={() => navigation.navigate("ProfileView")}>
       <Icon name="account-circle-outline" size={30} color="#000" />
     </TouchableOpacity>
   );
@@ -35,11 +35,14 @@ const StackNavigator = () => {
   return (
     <Stack.Navigator>
       {isLoggedIn ? (
-        <Stack.Screen
-          name="Main"
-          component={TabNavigator}
-          options={{ headerShown: false }}
-        />
+        <>
+          <Stack.Screen
+            name="Main"
+            component={TabNavigator}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen name="ProfileView" component={ProfileView} />
+        </>
       ) : (
         <Stack.Screen name="Login">
           {(props) => (

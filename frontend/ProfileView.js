@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import {
   DefaultTheme,
@@ -6,8 +6,19 @@ import {
   Button,
 } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { useNavigation } from "@react-navigation/native";
+import { AuthContext } from "./AuthContext";
+import LoginPage from "./loginPage";
 
 const ProfileView = () => {
+  const { signOut } = useContext(AuthContext); // get signOut from context
+  const navigation = useNavigation(); // get navigation
+
+  const handleLogout = () => {
+    signOut(); // logout user
+    navigation.navigate("Login"); // navigate to login screen
+  };
+
   return (
     <PaperProvider>
       <View style={styles.container}>
@@ -17,7 +28,7 @@ const ProfileView = () => {
           style={styles.button}
           mode="contained"
           title="LOG OUT"
-          onPress={() => console.log("Button with adjusted color pressed")}
+          onPress={handleLogout} // logout when button is pressed
         >
           Log Out
         </Button>

@@ -1,21 +1,54 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, TextInput, Button } from "react-native";
+import { StyleSheet, Text, View, TextInput, Button, Alert } from "react-native";
 import { Provider as PaperProvider, useTheme } from "react-native-paper";
 
 export default function FacultyBehaviorInput() {
   const theme = useTheme();
+  const [student, setStudent] = useState("");
+  const [behavior, setBehavior] = useState("");
+  const [date, setDate] = useState("");
+
+  const handleSave = () => {
+    if (student === "") {
+      Alert.alert("Student is required");
+      return;
+    } else if (behavior === "") {
+      Alert.alert("Behavior is required");
+      return;
+    } else if (date === "") {
+      Alert.alert("Date is required");
+      return;
+    } else {
+      Alert.alert("Saved!");
+    }
+  };
 
   return (
     <PaperProvider theme={theme}>
       <View style={styles.container}>
         <View style={styles.formContainer}>
           <Text>Student: *</Text>
-          <TextInput style={styles.input} placeholder="Search" />
+          <TextInput
+            style={styles.input}
+            placeholder="Search"
+            value={student}
+            onChangeText={setStudent}
+          />
           <Text>Behavior: *</Text>
-          <TextInput style={styles.input} placeholder="Search" />
+          <TextInput
+            style={styles.input}
+            placeholder="Search"
+            value={behavior}
+            onChangeText={setBehavior}
+          />
           <Text>Date: *</Text>
-          <TextInput style={styles.input} placeholder="DD/MM/YYYY" />
+          <TextInput
+            style={styles.input}
+            placeholder="DD/MM/YYYY"
+            value={date}
+            onChangeText={setDate}
+          />
         </View>
         <View
           style={[
@@ -28,7 +61,7 @@ export default function FacultyBehaviorInput() {
             color="white"
             mode="contained"
             title="SAVE"
-            onPress={() => console.log("Button pressed")}
+            onPress={handleSave}
           />
         </View>
       </View>
