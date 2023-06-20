@@ -1,7 +1,5 @@
 const sqlite3 = require("sqlite3").verbose();
-
 const express = require("express");
-
 const app = express();
 
 app.use(express.json()); //JSON to read headers
@@ -177,12 +175,21 @@ const insertBehaviorQuery = `INSERT INTO student_behavior_log (user_id, behavior
 VALUES ($userId, $behaviorId, $dateOfEvent);`;
 
 function insertBehavior(params) {
-  /* VALIDITY CHECK */
+  const { $userId, $behaviorId, $dateOfEvent } = params;
+
+  if (!validateUser($userId))
+    throw statusError("userId must be an integer", 400);
+
+  if (!validateBehavior($behaviorId))
+    throw statusError("behaviorId must be an integer", 400);
+
+  if (!validateDateOfEvent($dateOfEvent))
+    throw statusError("dateofEvent must be in format 'YYYY-MM-DD'", 400);
 
   db.run(insertBehaviorQuery, params, (err) => {
     if (err) {
       console.error(err);
-      throw new Error("Database Rejected Query");
+      throw new statusError("Database Rejected Query", 500);
     } else {
       console.log(
         `Behavior Event Logged As: ${
@@ -206,15 +213,19 @@ app.post("/api/behavior_events", (req, res) => {
   try {
     insertBehavior(params);
   } catch (error) {
-    console.error(error);
-    res.status(500).send(Responses[500]);
+    console.error(error.message);
+    res
+      .status(error.statusCode)
+      .json(formatResponse(error.statusCode, error.message));
   }
 
   try {
     updateStudentStudyHoursRemaining(userId);
   } catch (error) {
-    console.error(error);
-    res.status(500).send(Responses[500]);
+    console.error(error.message);
+    res
+      .status(error.statusCode)
+      .json(formatResponse(error.statusCode, error.message));
     rollbackUpdateToBehaviorLog(params);
   }
 
@@ -225,10 +236,24 @@ const insertSkillMasteryQuery = `INSERT INTO skill_mastery_log (user_id, skill_i
 VALUES ($userId, $skillId, $masteryStatus, $dateOfEvent)`;
 
 function insertSkillMastery(params) {
+  const { $userId, $skillId, $masteryStatus, $dateOfEvent } = params;
+
+  if (!validateUser($userId))
+    throw statusError("userId must be an integer", 400);
+
+  if (!validateSkill($skillId))
+    throw statusError("skillId must be an integer", 400);
+
+  if (!validateMasteryStatus($masteryStatus))
+    throw statusError("masteryStatus must be an number between 0 and 5", 400);
+
+  if (!validateDateOfEvent($dateOfEvent))
+    throw statusError("dateofEvent must be in format 'YYYY-MM-DD'", 400);
+
   db.run(insertSkillMasteryQuery, params, (err) => {
     if (err) {
       console.error(err);
-      throw new Error("Database Rejects Query");
+      throw statusError("Database Rejects Query", 500);
     } else {
       console.log(
         "Mastery Skill Logged As:" +
@@ -252,8 +277,10 @@ app.post("/api/skill_mastery", (req, res) => {
   try {
     insertSkillMastery(params);
   } catch (error) {
-    console.log(error);
-    res.status(500).send(Responses[500]);
+    console.log(error.message);
+    res
+      .status(error.statusCode)
+      .json(formatResponse(error.statusCode, error.message));
   }
 
   res.status(200).send(Responses[200]);
@@ -263,12 +290,24 @@ const insertStudyHoursQuery = `INSERT INTO student_study_log (user_id, log_in_ti
 VALUES ($userId, $logInTime, $dateOfEvent)`;
 
 function insertStudyHours(params) {
-  /* TODO: Validity Check */
+  const { $userId, $logInTime, $dateOfEvent } = params;
+
+  if (!validateUser($userId)) {
+    throw statusError("userId must be an integer", 400);
+  }
+
+  if (!validateStudyLoggingTime($logInTime)) {
+    throw statusError("logInTime must be an integer between 0 and 1440.", 400);
+  }
+
+  if (!validateDateOfEvent($dateOfEvent)) {
+    throw statusError("dateofEvent must be in format 'YYYY-MM-DD'", 400);
+  }
 
   db.run(insertStudyHoursQuery, params, (err) => {
     if (err) {
       console.error(err);
-      throw new Error("Database Rejected Query");
+      throw statusError("Database Rejected Query", 500);
     } else {
       console.log(
         `Study Hours Logged As:` +
@@ -290,8 +329,12 @@ app.post("/api/study_hours", (req, res) => {
   try {
     insertStudyHours(params);
   } catch (error) {
-    console.err(error);
-    res.status(500).send(Responses[500]);
+    console.error(error.message);
+    res
+      .status(error.statusCode)
+      .json(formatResponse(error.statusCode, error.message));
+
+    return;
   }
 
   res.status(200).send(Responses[200]);
@@ -304,14 +347,32 @@ SET log_out_time = $logOutTime AND study_duration = $studyDuration
 WHERE user_id = $userId AND log_in_time = $logInTime AND date_of_event = $dateOfEvent`;
 
 function updateStudyHoursLog(params) {
-  const { $logInTime, $logOutTime } = params;
+  const { $userId, $logInTime, $logOutTime, $dateOfEvent } = params;
+
+  if (!validateUser($userId))
+    throw statusError("userId must be an integer", 400);
+
+  if (!validateDateOfEvent($dateOfEvent))
+    throw statusError("dateofEvent must be in format 'YYYY-MM-DD'", 400);
+
+  if (!validateStudyLoggingTime($logInTime))
+    throw statusError("logInTime must be an integer between 0 and 1440.", 400);
+
+  if (!validateStudyLoggingTime($logOutTime))
+    throw statusError("logOutTime must be an integer between 0 and 1440.", 400);
 
   params.$studyDuration = $logOutTime - $logInTime;
+
+  if (!validateStudyLoggingTime(params.$studyDuration))
+    throw statusError(
+      "Study duration must be an integer between 0 and 1440.",
+      400
+    );
 
   db.run(updateStudyHoursLogQuery, params, function (error) {
     if (error) {
       console.error(error);
-      throw new Error("Database Rejected Query");
+      throw statusError("Database Rejected Query", 500);
     } else {
       console.log(
         `Log out time updated successfully for user ${params.userId}`
@@ -324,8 +385,6 @@ app.patch("/api/study_hours/:user_id", (req, res) => {
   const userId = req.params.user_id;
   const { dateOfEvent, logInTime, logOutTime } = req.body;
 
-  /* TODO: Input Validation */
-
   const params = {
     $userId: userId,
     $logInTime: logInTime,
@@ -336,16 +395,20 @@ app.patch("/api/study_hours/:user_id", (req, res) => {
   try {
     updateStudyHoursLog(params);
   } catch (error) {
-    console.error(error);
-    res.status(500).send(Responses[500]);
+    console.error(error.message);
+    res
+      .status(error.statusCode)
+      .json(formatResponse(error.statusCode, error.message));
   }
 
   try {
     updateStudentStudyHoursCompleted(params.$userId);
   } catch (error) {
-    console.error(error);
+    console.error(error.message);
     RollbackUpdateToStudentStudyLog();
-    res.status(500).send(Responses[500]);
+    res
+      .status(error.statusCode)
+      .json(formatResponse(error.statusCode, error.message));
   }
 
   res.status(200).send(Responses[200]);
@@ -365,15 +428,18 @@ const updateStudentMinutesCompletedQuery = `UPDATE students
 function updateStudentStudyHoursCompleted(userId) {
   let sumStudyMinutes = null;
 
+  if (!validateUser(userId))
+    throw statusError("userId must be an integer", 400);
+
   db.get(sumStudentStudyTimeQuery, userId, (err, row) => {
     if (err) {
       console.log(err);
-      throw new Error("Database Rejected Query.");
+      throw statusError("Database Rejected Query.", 500);
     } else if (row) {
       sumStudyMinutes = row.sumStudentStudyTime;
 
       if (!sumStudyMinutes)
-        throw new ReferenceError("No Study Hour Entries Found for User");
+        throw new statusError("No Study Hour Entries Found for User", 410);
 
       const params = {
         $userId: userId,
@@ -383,7 +449,7 @@ function updateStudentStudyHoursCompleted(userId) {
       db.run(updateStudentMinutesCompletedQuery, params, (err) => {
         if (err) {
           console.log(err);
-          throw new Error("Database Rejected Query.");
+          throw statusError("Database Rejected Query.", 500);
         } else {
           console.log(`Study hours updated successfully for user ${userId}`);
         }
@@ -413,26 +479,29 @@ function updateStudentStudyHoursRemaining(userId) {
   let baseStudentMinutes,
     sumBehaviorMinutes = null;
 
+  if (!validateUser(userId))
+    throw statusError("userId must be an integer", 400);
+
   db.get(baseStudentStudyTimeQuery, userId, (err, row) => {
     if (err) {
       console.log(err);
-      throw new Error("Database Rejected Query.");
+      throw statusError("Database Rejected Query.", 500);
     } else if (row) {
       baseStudentMinutes = row.base_study_minutes;
       console.log();
 
       if (!baseStudentMinutes)
-        throw ReferenceError("No Base Study Hours Found for User");
+        throw ReferenceError("No Base Study Hours Found for User", 410);
 
       db.get(sumStudentRequiredStudyTime, userId, (err, row) => {
         if (err) {
           console.log(err);
-          throw new Error("Database Rejected Query.");
+          throw statusError("Database Rejected Query.", 500);
         } else if (row) {
           sumBehaviorMinutes = row.sumBehaviorMinutes;
 
           if (!sumBehaviorMinutes)
-            throw ReferenceError("No Behaviors Found for User");
+            throw ReferenceError("No Behaviors Found for User", 410);
 
           sumBehaviorMinutes += baseStudentMinutes;
           const params = {
@@ -443,7 +512,7 @@ function updateStudentStudyHoursRemaining(userId) {
           db.run(updateStudentMinutesRemainingQuery, params, (err) => {
             if (err) {
               console.log(err);
-              throw new Error("Database Rejected Query.");
+              throw statusError("Database Rejected Query.", 500);
             } else {
               console.log(
                 `Study hours remaining updated successfully for user ${userId}`
@@ -463,7 +532,16 @@ const rollbackUpdateToStudentStudyLogQuery = `UPDATE student_study_hours
   WHERE user_id = $userId AND log_in_time = $logInTime AND dateOfEvent = $dateOfEvent`;
 
 function RollbackUpdateToStudentStudyLog(params) {
-  //TODO: Input validation
+  const { $userId, $logInTime, $dateOfEvent } = params;
+
+  if (!validateUser($userId))
+    throw statusError("userId must be an integer", 400);
+
+  if (!validateStudyLoggingTime($logInTime))
+    throw statusError("logInTime must be an integer between 0 and 1440.", 400);
+
+  if (!validateDateOfEvent($dateOfEvent))
+    throw statusError("dateofEvent must be in format 'YYYY-MM-DD'", 400);
 
   db.run(rollbackUpdateToStudentStudyLogQuery, params, (err) => {
     if (err) {
@@ -477,7 +555,16 @@ const rollbackUpdateToBehaviorLogQuery = `DELETE FROM student_behavior_log
  WHERE user_id = $userId AND behavior_id = $behaviorId AND date_of_event = $dateOfEvent;`;
 
 function rollbackUpdateToBehaviorLog(params) {
-  //TODO: Input Validation
+  const { $userId, $behaviorId, $dateOfEvent } = params;
+
+  if (!validateUser($userId))
+    throw statusError("userId must be an integer", 400);
+
+  if (!validateBehavior($behaviorId))
+    throw statusError("behaviorId must be an integer", 400);
+
+  if (!validateDateOfEvent($dateOfEvent))
+    throw statusError("dateofEvent must be in format 'YYYY-MM-DD'", 400);
 
   db.run(rollbackUpdateToBehaviorLogQuery, params, (err) => {
     if (err) {
@@ -486,6 +573,57 @@ function rollbackUpdateToBehaviorLog(params) {
     }
   });
 }
+
+/* Validation Functions */
+
+function validateUser(userId) {
+  /*TODO: Ensure id exists */
+  return Number.isInteger(userId);
+}
+
+function validateBehavior(behaviorId) {
+  /*TODO: Ensure id exists */
+  return Number.isInteger(behaviorId);
+}
+
+function validateSkill(skillId) {
+  /*TODO: Ensure id exists */
+  return Number.isInteger(skillId);
+}
+
+function validateMasteryStatus(masteryStatus) {
+  return masteryStatus < 0 || masteryStatus <= 5;
+}
+
+function validateStudyLoggingTime(logTime) {
+  if (!Number.isInteger(logTime)) return false;
+
+  return logTime < 0 || logTime <= 1440;
+}
+function validateDateOfEvent(dateOfEvent) {
+  const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+
+  return dateRegex.test(dateOfEvent);
+}
+
+/* Status Error Constructor */
+function statusError(message, status) {
+  const error = new Error(message);
+  error.statusCode = status;
+  return error;
+}
+
+/* API OutPut Formatter */
+function formatResponse(errorCode, additionalMessage = "No details provided.") {
+  const response = {
+    response: errorCode || 500,
+    error: Responses[errorCode] || Responses[500],
+    message: additionalMessage,
+  };
+  return response;
+}
+
+/* App Start */
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
