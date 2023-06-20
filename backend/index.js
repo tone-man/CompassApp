@@ -592,13 +592,13 @@ function validateSkill(skillId) {
 }
 
 function validateMasteryStatus(masteryStatus) {
-  return masteryStatus < 0 || masteryStatus <= 5;
+  return masteryStatus < 0 && masteryStatus <= 5;
 }
 
 function validateStudyLoggingTime(logTime) {
   if (!Number.isInteger(logTime)) return false;
 
-  return logTime < 0 || logTime <= 1440;
+  return logTime > 0 && logTime <= 1440;
 }
 function validateDateOfEvent(dateOfEvent) {
   const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
