@@ -1,28 +1,60 @@
-import { StatusBar } from "expo-status-bar";
-import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, TextInput, Button, Alert } from "react-native";
+import React, { useState } from "react";
+import {
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  Button,
+  FlatList,
+  TouchableOpacity,
+} from "react-native";
 import { Provider as PaperProvider, useTheme } from "react-native-paper";
 
 export default function FacultyBehaviorInput() {
   const theme = useTheme();
   const [student, setStudent] = useState("");
-  const [behavior, setBehavior] = useState("");
+  const [studentsList, setStudentsList] = useState([
+    "John Doe",
+    "Jane Smith",
+    "Mike Johnson",
+    "Emma Watson",
+  ]); // For simplicity, using a static list
   const [date, setDate] = useState("");
+  const [dateError, setDateError] = useState("");
 
-  const handleSave = () => {
-    if (student === "") {
-      Alert.alert("Student is required");
-      return;
-    } else if (behavior === "") {
-      Alert.alert("Behavior is required");
-      return;
-    } else if (date === "") {
-      Alert.alert("Date is required");
-      return;
+  const validateDate = (inputDate) => {
+    const dateRegex = /^\d{4}\/\d{2}\/\d{2}$/;
+    return dateRegex.test(inputDate);
+  };
+
+  const handleDateChange = (text) => {
+    setDate(text);
+    if (text !== "" && !validateDate(text)) {
+      setDateError(" ⚠️ Invalid date format. Please use YYYY/MM/DD.");
     } else {
-      Alert.alert("Saved!");
+      setDateError("");
     }
   };
+
+  // Function to filter student names
+  const findStudent = (query) => {
+    if (query === "") {
+      return [];
+    }
+    const regex = new RegExp(`${query.trim()}`, "i");
+    return studentsList.filter((student) => student.search(regex) >= 0);
+  };
+
+  const renderItem = ({ item }) => (
+    <TouchableOpacity
+      onPress={() => {
+        setStudent(item);
+        setStudentsList([]); // Clear the list by setting an empty array
+      }}
+    >
+      <Text>{item}</Text>
+    </TouchableOpacity>
+  );
 
   return (
     <PaperProvider theme={theme}>
@@ -33,22 +65,27 @@ export default function FacultyBehaviorInput() {
             style={styles.input}
             placeholder="Search"
             value={student}
-            onChangeText={setStudent}
+            onChangeText={(text) => setStudent(text)}
           />
+          {student !== "" && (
+            <FlatList
+              data={findStudent(student)}
+              renderItem={renderItem}
+              keyExtractor={(item) => item}
+            />
+          )}
           <Text>Behavior: *</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Search"
-            value={behavior}
-            onChangeText={setBehavior}
-          />
+          <TextInput style={styles.input} placeholder="Search" />
           <Text>Date: *</Text>
           <TextInput
             style={styles.input}
-            placeholder="DD/MM/YYYY"
+            placeholder="YYYY/MM/DD"
             value={date}
-            onChangeText={setDate}
+            onChangeText={handleDateChange}
           />
+          {dateError !== "" && (
+            <Text style={styles.errorText}>{dateError}</Text>
+          )}
         </View>
         <View
           style={[
@@ -61,7 +98,7 @@ export default function FacultyBehaviorInput() {
             color="white"
             mode="contained"
             title="SAVE"
-            onPress={handleSave}
+            onPress={() => console.log("Button pressed")}
           />
         </View>
       </View>
@@ -91,5 +128,9 @@ const styles = StyleSheet.create({
   },
   button: {
     width: "50%",
+  },
+  errorText: {
+    color: "red",
+    marginBottom: 10,
   },
 });

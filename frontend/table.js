@@ -1,9 +1,74 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
-import { DataTable, Text } from "react-native-paper";
-import { useTheme } from "react-native-paper";
+import { DataTable, Text, useTheme } from "react-native-paper";
+import axios from "axios";
+
+const fetchData = async (id) => {
+  try {
+    const response = await axios.get(
+      "http://192.168.4.63:5000/api/users/john.doe@example.com"
+    );
+
+    const userId = response.data.user_id;
+    const response2 = await axios.get(
+      "http://192.168.4.63:5000/api/behavior_events/" + userId + "/"
+    );
+
+    const missedClass = response2.data.reduce((count, behavior) => {
+      if (behavior.behavior_id === 1) {
+        return count + 1;
+      }
+      return count;
+    }, 0);
+    const missedCoachingMeeting = response2.data.reduce((count, behavior) => {
+      if (behavior.behavior_id === 2) {
+        return count + 1;
+      }
+      return count;
+    }, 0);
+    const incompleteAssignments = response2.data.reduce((count, behavior) => {
+      if (behavior.behavior_id === 3) {
+        return count + 1;
+      }
+      return count;
+    }, 0);
+
+    return {
+      missedClass,
+      missedCoachingMeeting,
+      incompleteAssignments,
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      missedClass: null,
+      missedCoachingMeeting: null,
+      incompleteAssignments: null,
+    };
+  }
+};
 
 const TableExample = () => {
+  const [missedClass, setMissedClass] = useState(0);
+  const [missedCoachingMeeting, setMissedCoachingMeeting] = useState(0);
+  const [incompleteAssignments, setIncompleteAssignments] = useState(0);
+
+  useEffect(() => {
+    const fetchDataAndSetState = async () => {
+      const {
+        missedClass: fetchedMissedClass,
+        missedCoachingMeeting: fetchedMissedCoachingMeeting,
+        incompleteAssignments: fetchedIncompleteAssignments,
+      } = await fetchData(1);
+
+      setMissedClass(fetchedMissedClass || 0);
+      setMissedCoachingMeeting(fetchedMissedCoachingMeeting || 0);
+      setIncompleteAssignments(fetchedIncompleteAssignments || 0);
+    };
+
+    fetchDataAndSetState();
+  }, []);
+
   const { colors } = useTheme();
   const stylesConfig = styles(colors);
 
@@ -20,7 +85,7 @@ const TableExample = () => {
           <Text style={stylesConfig.tableCellText}>Missed Classes</Text>
         </DataTable.Cell>
         <DataTable.Cell numeric>
-          <Text style={stylesConfig.tableCellText}>5</Text>
+          <Text style={stylesConfig.tableCellText}>{missedClass}</Text>
         </DataTable.Cell>
       </DataTable.Row>
 
@@ -31,7 +96,9 @@ const TableExample = () => {
           </Text>
         </DataTable.Cell>
         <DataTable.Cell numeric>
-          <Text style={stylesConfig.tableCellText}>9</Text>
+          <Text style={stylesConfig.tableCellText}>
+            {missedCoachingMeeting}
+          </Text>
         </DataTable.Cell>
       </DataTable.Row>
 
@@ -40,7 +107,9 @@ const TableExample = () => {
           <Text style={stylesConfig.tableCellText}>Missed Assignments</Text>
         </DataTable.Cell>
         <DataTable.Cell numeric>
-          <Text style={stylesConfig.tableCellText}>3</Text>
+          <Text style={stylesConfig.tableCellText}>
+            {incompleteAssignments}
+          </Text>
         </DataTable.Cell>
       </DataTable.Row>
     </DataTable>
