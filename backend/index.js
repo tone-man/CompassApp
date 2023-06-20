@@ -206,7 +206,6 @@ app.post("/api/behavior_events", (req, res) => {
   try {
     insertBehavior(params);
   } catch (error) {
-    /* TODO: Response for 404 */
     console.error(error);
     res.status(500).send(Responses[500]);
   }
@@ -226,8 +225,6 @@ const insertSkillMasteryQuery = `INSERT INTO skill_mastery_log (user_id, skill_i
 VALUES ($userId, $skillId, $masteryStatus, $dateOfEvent)`;
 
 function insertSkillMastery(params) {
-  /* TODO: Validity Check */
-
   db.run(insertSkillMasteryQuery, params, (err) => {
     if (err) {
       console.error(err);
@@ -302,21 +299,23 @@ app.post("/api/study_hours", (req, res) => {
 
 /* Update Study Hours for a Specific Student */
 
-const updateStudyHoursLogQuery = `UPDATE student_study_hours
-SET log_out_time = $logOutTime AND study_duration = $studyDuration,
-WHERE user_id = $userId AND log_in_time = $logInTime AND dateOfEvent = $dateOfEvent`;
+const updateStudyHoursLogQuery = `UPDATE student_study_log
+SET log_out_time = $logOutTime AND study_duration = $studyDuration
+WHERE user_id = $userId AND log_in_time = $logInTime AND date_of_event = $dateOfEvent`;
 
 function updateStudyHoursLog(params) {
   const { $logInTime, $logOutTime } = params;
 
-  params.$studyDuration = $logInTime - $logOutTime;
+  params.$studyDuration = $logOutTime - $logInTime;
 
   db.run(updateStudyHoursLogQuery, params, function (error) {
     if (error) {
       console.error(error);
       throw new Error("Database Rejected Query");
     } else {
-      console.log(`Log out time updated successfully for user ${userId}`);
+      console.log(
+        `Log out time updated successfully for user ${params.userId}`
+      );
     }
   });
 }
@@ -337,17 +336,19 @@ app.patch("/api/study_hours/:user_id", (req, res) => {
   try {
     updateStudyHoursLog(params);
   } catch (error) {
-    console.err(error);
+    console.error(error);
     res.status(500).send(Responses[500]);
   }
 
   try {
-    updateStudentStudyHoursCompleted(params);
+    updateStudentStudyHoursCompleted(params.$userId);
   } catch (error) {
-    console.err(error);
+    console.error(error);
     RollbackUpdateToStudentStudyLog();
     res.status(500).send(Responses[500]);
   }
+
+  res.status(200).send(Responses[200]);
 });
 
 /* Sub Query For Updating Student Study Hours Completed*/
@@ -370,23 +371,23 @@ function updateStudentStudyHoursCompleted(userId) {
       throw new Error("Database Rejected Query.");
     } else if (row) {
       sumStudyMinutes = row.sumStudentStudyTime;
-    }
-  });
 
-  if (!sumStudyMinutes)
-    throw new ReferenceError("No Study Hour Entries Found for User");
+      if (!sumStudyMinutes)
+        throw new ReferenceError("No Study Hour Entries Found for User");
 
-  const params = {
-    $userId: userId,
-    $studyMinutesCompleted: sumStudyMinutes,
-  };
+      const params = {
+        $userId: userId,
+        $studyMinutesCompleted: sumStudyMinutes,
+      };
 
-  db.run(updateStudentMinutesCompletedQuery, params, (err) => {
-    if (err) {
-      console.log(err);
-      throw new Error("Database Rejected Query.");
-    } else {
-      console.log(`Study hours updated successfully for user ${userId}`);
+      db.run(updateStudentMinutesCompletedQuery, params, (err) => {
+        if (err) {
+          console.log(err);
+          throw new Error("Database Rejected Query.");
+        } else {
+          console.log(`Study hours updated successfully for user ${userId}`);
+        }
+      });
     }
   });
 }
