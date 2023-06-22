@@ -53,7 +53,7 @@ This is an API for the Compass App, which provides access to students educationa
 
 ### Endpoints
 
-#### Get User Information
+## Get User Information
 
 Retrieves a user given an distinct email.
 
@@ -68,7 +68,36 @@ Retrieves a user given an distinct email.
 }
 ```
 
-#### Get an User's Role
+## Get All Users
+
+Retrieves information for all users in the system.
+
+- **HTTP Method:** GET
+- **URL:** `/api/users`
+
+```json
+[
+  {
+    "user_id": 1,
+    "name": "John Smith",
+    "email": "john.smith@example.com"
+  },
+  {
+    "user_id": 2,
+    "name": "Jane Doe",
+    "email": "jane.doe@example.com"
+  },
+  ...
+]
+```
+
+### Response Codes
+
+- 200 OK: The request was successful, and the user information is returned.
+- 404 Not Found: No users exist in the system.
+- 500 Internal Server Error: An error occurred while processing the request.
+
+## Get an User's Role
 
 Retrieves a user's role given an distinct user_id.
 
@@ -83,7 +112,7 @@ Retrieves a user's role given an distinct user_id.
 }
 ```
 
-#### Get a Student's Information
+## Get a Student's Information
 
 Retrieves a student information role given an distinct user_id.
 
@@ -99,7 +128,7 @@ Retrieves a student information role given an distinct user_id.
 }
 ```
 
-#### Get Skill Categories
+## Get Skill Categories
 
 Retrieves titles of all skill categories.
 
@@ -116,7 +145,7 @@ Retrieves titles of all skill categories.
 ]
 ```
 
-#### Get Study Hours for a user
+## Get Study Hours for a user
 
 Gets all study sessions given a disctinct user_id
 
@@ -151,7 +180,7 @@ Response:
 ]
 ```
 
-#### Create a Study Hours Entry
+## Create a Study Hours Entry
 
 Creates a new instance of Study Hours for a user.
 Log in time is in minutes after midnight.
@@ -169,7 +198,7 @@ Request:
 }
 ```
 
-#### Update a Study Hours Entry
+## Update a Study Hours Entry
 
 Updates a Study Hours Row for a user given a disctinct user_id,
 log_in_time, date_of_event. Log out time is in minutes after midnight.
@@ -187,7 +216,7 @@ Request:
 }
 ```
 
-#### Get Mastery Data for a User
+## Get Mastery Data for a User
 
 Retrieves all skill mastery activity for a specified user.
 
@@ -215,7 +244,7 @@ Response:
 }
 ```
 
-#### Insert Mastery Data
+## Insert Mastery Data
 
 Creates a new Mastery Status for a user.
 
@@ -233,7 +262,7 @@ Request:
 }
 ```
 
-#### Get Behavior Categories
+## Get Behavior Categories
 
 Retrieves all student behaviors.
 
@@ -252,7 +281,7 @@ Response:
 }
 ```
 
-#### Get Consequences for a Behavior
+## Get Consequences for a Behavior
 
 Retrieves the penalties for a specific behavior.
 
@@ -268,7 +297,7 @@ Response:
 }
 ```
 
-#### Get User's Behaviors
+## Get User's Behaviors
 
 Retrieves all behaviors from a given user.
 
@@ -287,7 +316,7 @@ Response:
 }
 ```
 
-#### Insert User Behavior Data
+## Insert User Behavior Data
 
 Creates a new Behavior for a user.
 
