@@ -27,6 +27,38 @@ app.get("/api/users/:email", (req, res) => {
   });
 });
 
+const getAllUsersQuery = `SELECT * FROM users;`;
+
+function getAllUsers(callback) {
+  db.all(getAllUsersQuery, (err, rows) => {
+    if (err) {
+      callback(statusError("Internal server error.", 500));
+    } else if (rows.length > 0) {
+      callback(null, rows);
+    } else {
+      callback(statusError("User does not exist.", 404));
+    }
+  });
+}
+
+app.get("/api/users", (req, res) => {
+  try {
+    getAllUsers((error, rows) => {
+      if (error) {
+        console.error(error);
+        res
+          .status(error.statusCode)
+          .json(formatResponse(error.statusCode, error.message));
+      } else {
+        res.json(rows);
+      }
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json(formatResponse(500, "Internal server error."));
+  }
+});
+
 /* Get User Role */
 app.get("/api/user_roles/:user_id", (req, res) => {
   const userId = req.params.user_id;
