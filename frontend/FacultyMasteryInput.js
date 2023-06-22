@@ -1,15 +1,74 @@
-import { StatusBar } from "expo-status-bar";
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, TextInput, Button, Alert } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  Button,
+  Alert,
+  FlatList,
+  TouchableOpacity,
+} from "react-native";
 import { Provider as PaperProvider, useTheme } from "react-native-paper";
+import Icon from "react-native-vector-icons/FontAwesome";
+import axios from "axios";
 
 export default function FacultyBehaviorInput() {
-  const theme = useTheme();
   const [student, setStudent] = useState("");
   const [mastery, setMastery] = useState("");
   const [date, setDate] = useState("");
+  const [studentsList, setStudentsList] = useState([]);
+  const [filteredStudents, setFilteredStudents] = useState([]);
 
-  const handleSave = () => {
+  useEffect(() => {
+    fetchStudentNames();
+  }, []);
+
+  const theme = useTheme();
+
+  const fetchIDFromName = async (name) => {
+    try {
+      const response = await axios.get("http://192.168.4.63:5000/api/users");
+      const user = response.data.find((user) => user.name === name);
+      return user.user_id;
+    } catch (error) {
+      console.error("Error fetching user ID:", error);
+    }
+  };
+
+  const fetchStudentNames = async () => {
+    try {
+      const response = await axios.get("http://192.168.4.63:5000/api/users");
+      setStudentsList(response.data.map((user) => user.name));
+    } catch (error) {
+      console.error("Error fetching student names:", error);
+    }
+  };
+
+  const handleStudentChange = (text) => {
+    setStudent(text);
+    if (text !== "") {
+      const filtered = studentsList.filter((student) =>
+        student.toLowerCase().includes(text.toLowerCase())
+      );
+      setFilteredStudents(filtered);
+    } else {
+      setFilteredStudents([]);
+    }
+  };
+
+  const renderItem = ({ item }) => (
+    <TouchableOpacity
+      onPress={() => {
+        setStudent(item);
+        setFilteredStudents([]);
+      }}
+    >
+      <Text>{item}</Text>
+    </TouchableOpacity>
+  );
+
+  const handleSave = async () => {
     const errorMessages = [];
 
     if (student === "") {
@@ -40,7 +99,17 @@ export default function FacultyBehaviorInput() {
 
       displayAlerts(0);
     } else {
-      Alert.alert("Saved!");
+      const userId = await fetchIDFromName(student);
+      if (userId) {
+        const data = {
+          user_id: userId,
+          skill_id: mastery,
+          mastery_status: mastery,
+          date_of_event: date,
+        };
+        console.log(data);
+        Alert.alert("Saved!");
+      }
     }
   };
 
@@ -49,26 +118,64 @@ export default function FacultyBehaviorInput() {
       <View style={styles.container}>
         <View style={styles.formContainer}>
           <Text>Student: *</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Search"
-            value={student}
-            onChangeText={setStudent}
-          />
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.input}
+              placeholder="Search"
+              value={student}
+              onChangeText={handleStudentChange}
+            />
+            {student !== "" && (
+              <TouchableOpacity
+                style={styles.clearButton}
+                onPress={() => setStudent("")}
+              >
+                <Icon name="times-circle" size={20} color="gray" />
+              </TouchableOpacity>
+            )}
+            {filteredStudents.length > 0 && (
+              <FlatList
+                data={filteredStudents}
+                renderItem={renderItem}
+                keyExtractor={(item) => item}
+                style={styles.suggestionList}
+              />
+            )}
+          </View>
           <Text>Mastery: *</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Search"
-            value={mastery}
-            onChangeText={setMastery}
-          />
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.input}
+              placeholder="Search"
+              value={mastery}
+              onChangeText={setMastery}
+            />
+            {mastery !== "" && (
+              <TouchableOpacity
+                style={styles.clearButton}
+                onPress={() => setMastery("")}
+              >
+                <Icon name="times-circle" size={20} color="gray" />
+              </TouchableOpacity>
+            )}
+          </View>
           <Text>Date: *</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="DD/MM/YYYY"
-            value={date}
-            onChangeText={setDate}
-          />
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.input}
+              placeholder="DD/MM/YYYY"
+              value={date}
+              onChangeText={setDate}
+            />
+            {date !== "" && (
+              <TouchableOpacity
+                style={styles.clearButton}
+                onPress={() => setDate("")}
+              >
+                <Icon name="times-circle" size={20} color="gray" />
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
         <View
           style={[
@@ -76,13 +183,7 @@ export default function FacultyBehaviorInput() {
             { backgroundColor: theme.colors.primary },
           ]}
         >
-          <Button
-            style={styles.button}
-            color="white"
-            mode="contained"
-            title="SAVE"
-            onPress={() => handleSave()}
-          />
+          <Button color="white" title="SAVE" onPress={handleSave} />
         </View>
       </View>
     </PaperProvider>
@@ -97,6 +198,9 @@ const styles = StyleSheet.create({
   formContainer: {
     paddingHorizontal: 20,
   },
+  inputContainer: {
+    position: "relative",
+  },
   input: {
     height: 40,
     paddingHorizontal: 10,
@@ -105,11 +209,23 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginBottom: 10,
   },
+  clearButton: {
+    position: "absolute",
+    right: 10,
+    top: 10,
+    zIndex: 1,
+  },
   buttonContainer: {
     alignItems: "center",
     paddingVertical: 10,
   },
-  button: {
-    width: "50%",
+  suggestionList: {
+    maxHeight: 120,
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#bbb",
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    paddingTop: 5,
   },
 });

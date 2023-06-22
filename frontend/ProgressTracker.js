@@ -1,15 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
 import axios from "axios";
-import {
-  DataTable,
-  Text,
-  useTheme,
-  ProgressBar,
-  MD3Colors,
-} from "react-native-paper";
+import { DataTable, Text, useTheme, ProgressBar } from "react-native-paper";
 import { View } from "react-native";
-const fetchData = async (id) => {
+
+const fetchData = async () => {
   try {
     const response = await axios.get(
       "http://192.168.4.63:5000/api/users/john.doe@example.com"
@@ -20,79 +15,106 @@ const fetchData = async (id) => {
       "http://192.168.4.63:5000/api/students/" + userId + "/"
     );
 
-    const study_hours_completed = response2.data.study_hours_completed;
-    const study_hours_required = response2.data.study_hours_required;
-    const base_study_hours = response2.data.base_study_hours;
+    const study_minutes_completed = response2.data.study_minutes_completed;
+    const study_minutes_required = response2.data.study_minutes_required;
+    const base_study_minutes = response2.data.base_study_minutes;
 
-    return { study_hours_completed, study_hours_required, base_study_hours };
+    return {
+      study_minutes_completed,
+      study_minutes_required,
+      base_study_minutes,
+    };
   } catch (error) {
     console.error(error);
-    return { study_hours_completed, study_hours_required, base_study_hours };
+    return {
+      study_minutes_completed: null,
+      study_minutes_required: null,
+      base_study_minutes: null,
+    };
   }
 };
+
+const formatTime = (minutes) => {
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+  return `${hours} hours ${remainingMinutes} minutes`;
+};
+
 const ProgressTracker = () => {
   const { colors } = useTheme();
 
   const [completed, setCompleted] = useState(0);
   const [required, setRequired] = useState(0);
+  const [base, setBase] = useState(0);
+  const [progress, setProgress] = useState(0);
 
-  const [base, setBase] = useState();
   const stylesConfig = styles(colors);
+
   useEffect(() => {
     const fetchDataAndSetState = async () => {
-      const { study_hours_completed, study_hours_required, base_study_hours } =
-        await fetchData();
-      setCompleted(study_hours_completed);
-      setRequired(study_hours_required);
-      setBase(base_study_hours);
+      const {
+        study_minutes_completed,
+        study_minutes_required,
+        base_study_minutes,
+      } = await fetchData();
+      setCompleted(study_minutes_completed);
+      setRequired(study_minutes_required);
+      setBase(base_study_minutes);
     };
 
     fetchDataAndSetState();
-    console.log("study_hours_completed", completed);
-    console.log("study_hours_required", required);
-    console.log("base_study_hours", base);
   }, []);
+
+  useEffect(() => {
+    const validProgress =
+      !isNaN(completed) && !isNaN(required) && required !== 0
+        ? Math.min(1, completed / required)
+        : 0;
+    setProgress(validProgress);
+  }, [completed, required]);
+
   return (
-    <DataTable style={styles.container}>
-      <ProgressBar
-        progress={required === 0 ? 0 : completed / required}
-        color={colors.primary}
-      />
+    <View style={styles.container}>
+      <ProgressBar progress={progress} color={colors.primary} />
       <DataTable style={stylesConfig.graph}>
         <DataTable.Header>
           <DataTable.Title>
-            <Text style={stylesConfig.tableHeaderText}>Behaviors</Text>
+            <Text style={stylesConfig.tableHeaderText}>Study Time</Text>
           </DataTable.Title>
         </DataTable.Header>
 
         <DataTable.Row>
           <DataTable.Cell>
-            <Text style={stylesConfig.tableCellText}>Study Hours Done</Text>
+            <Text style={stylesConfig.tableCellText}>Study Time Done</Text>
           </DataTable.Cell>
           <DataTable.Cell numeric>
-            <Text style={stylesConfig.tableCellText}>{completed}</Text>
+            <Text style={stylesConfig.tableCellText}>
+              {formatTime(completed)}
+            </Text>
           </DataTable.Cell>
         </DataTable.Row>
 
         <DataTable.Row>
           <DataTable.Cell>
-            <Text style={stylesConfig.tableCellText}>Study Hours Goal</Text>
+            <Text style={stylesConfig.tableCellText}>Study Time Goal</Text>
           </DataTable.Cell>
           <DataTable.Cell numeric>
-            <Text style={stylesConfig.tableCellText}>{required}</Text>
+            <Text style={stylesConfig.tableCellText}>
+              {formatTime(required)}
+            </Text>
           </DataTable.Cell>
         </DataTable.Row>
 
         <DataTable.Row>
           <DataTable.Cell>
-            <Text style={stylesConfig.tableCellText}>Study Hours Base</Text>
+            <Text style={stylesConfig.tableCellText}>Study Time Base</Text>
           </DataTable.Cell>
           <DataTable.Cell numeric>
-            <Text style={stylesConfig.tableCellText}>{base}</Text>
+            <Text style={stylesConfig.tableCellText}>{formatTime(base)}</Text>
           </DataTable.Cell>
         </DataTable.Row>
       </DataTable>
-    </DataTable>
+    </View>
   );
 };
 
