@@ -16,12 +16,18 @@ import axios from "axios";
 export default function FacultyBehaviorInput() {
   const [student, setStudent] = useState("");
   const [mastery, setMastery] = useState("");
+  const [masteryLevel, setMasteryLevel] = useState("");
   const [date, setDate] = useState("");
   const [studentsList, setStudentsList] = useState([]);
   const [filteredStudents, setFilteredStudents] = useState([]);
+  const [masteryList, setMasteryList] = useState([]);
+  const [filteredMastery, setFilteredMastery] = useState([]);
+  const [masteryLevelError, setMasteryLevelError] = useState("");
+  const [dateError, setDateError] = useState("");
 
   useEffect(() => {
     fetchStudentNames();
+    fetchMasteryList();
   }, []);
 
   const theme = useTheme();
@@ -45,15 +51,46 @@ export default function FacultyBehaviorInput() {
     }
   };
 
+  const fetchMasteryList = async () => {
+    try {
+      const response = await axios.get("http://192.168.4.63:5000/api/skills");
+      setMasteryList(response.data);
+    } catch (error) {
+      console.error("Error fetching mastery list:", error);
+    }
+  };
+
+  const getSkillIdFromName = (skillName) => {
+    const skill = masteryList.find((skill) => skill.skill_name === skillName);
+    return skill ? skill.skill_id : null;
+  };
+
   const handleStudentChange = (text) => {
     setStudent(text);
     if (text !== "") {
-      const filtered = studentsList.filter((student) =>
-        student.toLowerCase().includes(text.toLowerCase())
+      const filtered = studentsList.filter(
+        (student) =>
+          typeof student === "string" &&
+          student.toLowerCase().includes(text.toLowerCase())
       );
       setFilteredStudents(filtered);
     } else {
       setFilteredStudents([]);
+    }
+    setMasteryLevel(""); // Reset Mastery Level when changing the student
+  };
+
+  const handleMasteryChange = (text) => {
+    setMastery(text);
+    if (text !== "") {
+      const filtered = masteryList.filter(
+        (mastery) =>
+          typeof mastery === "string" &&
+          mastery.toLowerCase().includes(text.toLowerCase())
+      );
+      setFilteredMastery(filtered);
+    } else {
+      setFilteredMastery([]);
     }
   };
 
@@ -68,6 +105,39 @@ export default function FacultyBehaviorInput() {
     </TouchableOpacity>
   );
 
+  const renderMasteryItem = ({ item }) => (
+    <TouchableOpacity
+      onPress={() => {
+        setMastery(item);
+        setFilteredMastery([]);
+      }}
+    >
+      <Text>{item}</Text>
+    </TouchableOpacity>
+  );
+
+  const handleMasteryLevelChange = (text) => {
+    setMasteryLevel(text);
+    const masteryLevelValue = parseFloat(text);
+
+    if (isNaN(masteryLevelValue) || masteryLevelValue > 5.0) {
+      setMasteryLevelError("Mastery Level must be a valid number at most 5.0");
+    } else {
+      setMasteryLevelError("");
+    }
+  };
+
+  const handleDateChange = (text) => {
+    setDate(text);
+    const dateFormatRegex = /^\d{4}-\d{2}-\d{2}$/;
+
+    if (!dateFormatRegex.test(text)) {
+      setDateError("Date must be in the format YYYY-MM-DD");
+    } else {
+      setDateError("");
+    }
+  };
+
   const handleSave = async () => {
     const errorMessages = [];
 
@@ -77,6 +147,10 @@ export default function FacultyBehaviorInput() {
 
     if (mastery === "") {
       errorMessages.push("Mastery is required");
+    }
+
+    if (masteryLevel === "") {
+      errorMessages.push("Mastery Level is required");
     }
 
     if (date === "") {
@@ -100,11 +174,13 @@ export default function FacultyBehaviorInput() {
       displayAlerts(0);
     } else {
       const userId = await fetchIDFromName(student);
-      if (userId) {
+      const skill_id = getSkillIdFromName(mastery);
+      console.log(userId, skill_id);
+      if (userId && skill_id) {
         const data = {
           user_id: userId,
-          skill_id: mastery,
-          mastery_status: mastery,
+          skill_id: skill_id,
+          mastery_status: masteryLevel,
           date_of_event: date,
         };
         console.log(data);
@@ -148,7 +224,7 @@ export default function FacultyBehaviorInput() {
               style={styles.input}
               placeholder="Search"
               value={mastery}
-              onChangeText={setMastery}
+              onChangeText={handleMasteryChange}
             />
             {mastery !== "" && (
               <TouchableOpacity
@@ -158,22 +234,38 @@ export default function FacultyBehaviorInput() {
                 <Icon name="times-circle" size={20} color="gray" />
               </TouchableOpacity>
             )}
+            {filteredMastery.length > 0 && (
+              <FlatList
+                data={filteredMastery}
+                renderItem={renderMasteryItem}
+                keyExtractor={(item) => item}
+                style={styles.suggestionList}
+              />
+            )}
+          </View>
+          <Text>Mastery Level: *</Text>
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.input}
+              placeholder="Search"
+              value={masteryLevel}
+              onChangeText={handleMasteryLevelChange}
+              keyboardType="numeric"
+            />
+            {masteryLevelError !== "" && (
+              <Text style={styles.errorText}>{masteryLevelError}</Text>
+            )}
           </View>
           <Text>Date: *</Text>
           <View style={styles.inputContainer}>
             <TextInput
               style={styles.input}
-              placeholder="DD/MM/YYYY"
+              placeholder="YYYY-MM-DD"
               value={date}
-              onChangeText={setDate}
+              onChangeText={handleDateChange}
             />
-            {date !== "" && (
-              <TouchableOpacity
-                style={styles.clearButton}
-                onPress={() => setDate("")}
-              >
-                <Icon name="times-circle" size={20} color="gray" />
-              </TouchableOpacity>
+            {dateError !== "" && (
+              <Text style={styles.errorText}>{dateError}</Text>
             )}
           </View>
         </View>
@@ -227,5 +319,9 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     paddingHorizontal: 10,
     paddingTop: 5,
+  },
+  errorText: {
+    color: "red",
+    marginTop: 5,
   },
 });

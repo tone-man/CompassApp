@@ -123,10 +123,10 @@ export default function FacultyBehaviorInput() {
               style={styles.suggestionList}
             />
           )}
-          <Text>Date: *</Text>
+          <Text>Behavior: *</Text>
           <TextInput
             style={styles.input}
-            placeholder="DD/MM/YYYY"
+            placeholder="Search"
             value={date}
             onChangeText={setDate}
           />
