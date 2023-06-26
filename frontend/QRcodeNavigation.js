@@ -1,13 +1,19 @@
+import React from "react";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import { View, Text, StyleSheet } from "react-native";
+import { useTheme } from "react-native-paper";
 import QRcodeView from "./QRcodeView";
 import QRcodeScannerView from "./QRcodeScannerView";
 
 const Tab = createMaterialTopTabNavigator();
 
 function QRcodeNavigation() {
+  const { colors } = useTheme();
   return (
-    <Tab.Navigator>
+    <Tab.Navigator
+      tabBarOptions={{
+        indicatorStyle: { backgroundColor: colors.primary }, // Customize the underline color here
+      }}
+    >
       <Tab.Screen name="QRcodeScanner" component={QRcodeScannerView} />
       <Tab.Screen name="QRcodeView" component={QRcodeView} />
     </Tab.Navigator>
@@ -15,12 +21,3 @@ function QRcodeNavigation() {
 }
 
 export default QRcodeNavigation;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
