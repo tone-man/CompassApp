@@ -624,7 +624,7 @@ function validateSkill(skillId) {
 }
 
 function validateMasteryStatus(masteryStatus) {
-  return masteryStatus < 0 && masteryStatus <= 5;
+  return masteryStatus > 0 && masteryStatus <= 5;
 }
 
 function validateStudyLoggingTime(logTime) {
