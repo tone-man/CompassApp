@@ -139,52 +139,43 @@ export default function FacultyBehaviorInput() {
   };
 
   const handleSave = async () => {
-    const errorMessages = [];
-
-    if (student === "") {
-      errorMessages.push("Student is required");
-    }
-
-    if (mastery === "") {
-      errorMessages.push("Mastery is required");
-    }
-
-    if (masteryLevel === "") {
-      errorMessages.push("Mastery Level is required");
-    }
-
-    if (date === "") {
-      errorMessages.push("Date is required");
-    }
-
-    if (errorMessages.length > 0) {
-      const displayAlerts = (index) => {
-        Alert.alert(errorMessages[index], "", [
-          {
-            text: "OK",
-            onPress: () => {
-              if (index + 1 < errorMessages.length) {
-                displayAlerts(index + 1);
-              }
-            },
-          },
-        ]);
-      };
-
-      displayAlerts(0);
+    // validation checks
+    if (!masteryLevel) {
+      setMasteryLevelError("Mastery Level is required");
+    } else if (isNaN(masteryLevel)) {
+      setMasteryLevelError("Mastery Level must be a number");
+    } else if (!date) {
+      setDateError("Date is required");
     } else {
-      const userId = await fetchIDFromName(student);
+      setMasteryLevelError("");
+      setDateError("");
+
+      const student_id = await fetchIDFromName(student);
       const skill_id = getSkillIdFromName(mastery);
-      console.log(userId, skill_id);
-      if (userId && skill_id) {
-        const data = {
-          user_id: userId,
-          skill_id: skill_id,
-          mastery_status: masteryLevel,
-          date_of_event: date,
-        };
-        console.log(data);
-        Alert.alert("Saved!");
+
+      if (student_id && skill_id) {
+        try {
+          await axios.post("http://192.168.4.63:5000/api/skill_mastery", {
+            user_id: student_id,
+            skill_id: skill_id,
+            mastery_level: masteryLevel,
+            mastery_date: date,
+          });
+          Alert.alert("Data saved successfully");
+        } catch (error) {
+          console.error("Error saving data:", error);
+          console.error(
+            "user_id: " + student_id,
+            "skill_id: " + skill_id,
+            "mastery_level: " + masteryLevel,
+            "mastery_date: " + date
+          );
+          Alert.alert("Error saving data");
+        }
+      } else {
+        Alert.alert(
+          "Cannot find data for student or skill. Please check again."
+        );
       }
     }
   };
