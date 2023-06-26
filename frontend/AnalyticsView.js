@@ -120,6 +120,18 @@ const AnalyticsView = () => {
     },
   });
 
+  const [HomeworkDates, setHomeworkDates] = useState([]);
+  const [HomeworkMastery, setHomeworkMastery] = useState([]);
+  useEffect(() => {
+    const fetchDataAndSetState = async () => {
+      const { eventDates, mastery } = await fetchData(1);
+      setHomeworkDates(eventDates);
+      setHomeworkMastery(mastery);
+    };
+
+    fetchDataAndSetState();
+  }, []);
+
   const [readingDates, setReadingDates] = useState([]);
   const [readingMastery, setReadingMastery] = useState([]);
   useEffect(() => {
@@ -173,6 +185,14 @@ const AnalyticsView = () => {
     <View style={styles.container}>
       <SafeAreaView>
         <ScrollView>
+          <View style={[styles.container, styles.graphContainer]}>
+            <Text style={styles.graphText}>Homework</Text>
+            <ExampleGraph
+              primaryColor={colors.primary}
+              data1={HomeworkDates}
+              data2={HomeworkMastery}
+            />
+          </View>
           <View style={[styles.container, styles.graphContainer]}>
             <Text style={styles.graphText}>Reading</Text>
             <ExampleGraph

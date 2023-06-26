@@ -156,19 +156,19 @@ export default function FacultyBehaviorInput() {
       if (student_id && skill_id) {
         try {
           await axios.post("http://192.168.4.63:5000/api/skill_mastery", {
-            user_id: student_id,
-            skill_id: skill_id,
-            mastery_level: masteryLevel,
-            mastery_date: date,
+            userId: student_id,
+            skillId: skill_id,
+            masteryStatus: masteryLevel,
+            dateOfEvent: date,
           });
           Alert.alert("Data saved successfully");
         } catch (error) {
           console.error("Error saving data:", error);
           console.error(
-            "user_id: " + student_id,
-            "skill_id: " + skill_id,
-            "mastery_level: " + masteryLevel,
-            "mastery_date: " + date
+            "userId: " + student_id,
+            "skillId: " + skill_id,
+            "masteryStatus: " + masteryLevel,
+            "dateOfEvent: " + date
           );
           Alert.alert("Error saving data");
         }
