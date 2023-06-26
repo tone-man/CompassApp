@@ -308,14 +308,14 @@ app.post("/api/skill_mastery", (req, res) => {
 
   try {
     insertSkillMastery(params);
+
+    res.status(200).send(Responses[200]);
   } catch (error) {
     console.log(error.message);
     res
       .status(error.statusCode)
       .json(formatResponse(error.statusCode, error.message));
   }
-
-  res.status(200).send(Responses[200]);
 });
 
 const insertStudyHoursQuery = `INSERT INTO student_study_log (user_id, log_in_time, date_of_event) 
@@ -624,7 +624,7 @@ function validateSkill(skillId) {
 }
 
 function validateMasteryStatus(masteryStatus) {
-  return masteryStatus < 0 && masteryStatus <= 5;
+  return masteryStatus > 0 && masteryStatus <= 5;
 }
 
 function validateStudyLoggingTime(logTime) {
