@@ -104,15 +104,6 @@ const ProgressTracker = () => {
             </Text>
           </DataTable.Cell>
         </DataTable.Row>
-
-        <DataTable.Row>
-          <DataTable.Cell>
-            <Text style={stylesConfig.tableCellText}>Study Time Base</Text>
-          </DataTable.Cell>
-          <DataTable.Cell numeric>
-            <Text style={stylesConfig.tableCellText}>{formatTime(base)}</Text>
-          </DataTable.Cell>
-        </DataTable.Row>
       </DataTable>
     </View>
   );

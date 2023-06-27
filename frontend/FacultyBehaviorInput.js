@@ -1,4 +1,3 @@
-import { StatusBar } from "expo-status-bar";
 import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
@@ -7,24 +6,41 @@ import {
   TextInput,
   Button,
   Alert,
-  TouchableOpacity,
   FlatList,
+  TouchableOpacity,
 } from "react-native";
 import { Provider as PaperProvider, useTheme } from "react-native-paper";
 import Icon from "react-native-vector-icons/FontAwesome";
 import axios from "axios";
+import { Picker } from "@react-native-picker/picker";
 
 export default function FacultyBehaviorInput() {
-  const theme = useTheme();
   const [student, setStudent] = useState("");
+  const [behavior, setBehavior] = useState("");
+  const [date, setDate] = useState("");
   const [studentsList, setStudentsList] = useState([]);
   const [filteredStudents, setFilteredStudents] = useState([]);
-  const [date, setDate] = useState("");
-  const [hours, setHours] = useState("");
+  const [behaviorList, setBehaviorList] = useState([]);
+  const [filteredBehavior, setFilteredBehavior] = useState([]);
+  const [dateError, setDateError] = useState("");
+  const options = ["Option 1", "Option 2", "Option 3", "Option 4", "Option 5"];
 
   useEffect(() => {
     fetchStudentNames();
+    fetchBehaviorList();
   }, []);
+
+  const theme = useTheme();
+
+  const fetchIDFromName = async (name) => {
+    try {
+      const response = await axios.get("http://192.168.4.63:5000/api/users");
+      const user = response.data.find((user) => user.name === name);
+      return user.user_id;
+    } catch (error) {
+      console.error("Error fetching user ID:", error);
+    }
+  };
 
   const fetchStudentNames = async () => {
     try {
@@ -35,46 +51,37 @@ export default function FacultyBehaviorInput() {
     }
   };
 
-  const handleSave = () => {
-    const errorMessages = [];
-
-    if (student === "") {
-      errorMessages.push("Student is required");
+  const fetchBehaviorList = async () => {
+    try {
+      const response = await axios.get(
+        "http://192.168.4.63:5000/api/behaviors"
+      );
+      setBehaviorList(response.data);
+    } catch (error) {
+      console.error("Error fetching behavior list:", error);
     }
+  };
 
-    if (date === "") {
-      errorMessages.push("Date is required");
-    }
+  const getBehaviorIdFromName = (behaviorName) => {
+    console.log("Behavior Name:", "'" + behaviorName + "'");
+    console.log("Behavior List:", behaviorList);
 
-    if (hours === "") {
-      errorMessages.push("Hours is required");
-    }
+    const behavior = behaviorList.find(
+      (behavior) => behavior.behavior_name === behaviorName
+    );
 
-    if (errorMessages.length > 0) {
-      const displayAlerts = (index) => {
-        Alert.alert(errorMessages[index], "", [
-          {
-            text: "OK",
-            onPress: () => {
-              if (index + 1 < errorMessages.length) {
-                displayAlerts(index + 1);
-              }
-            },
-          },
-        ]);
-      };
+    console.log("Found Behavior:", behavior);
 
-      displayAlerts(0);
-    } else {
-      Alert.alert("Saved!");
-    }
+    return behavior ? behavior.behavior_id : null;
   };
 
   const handleStudentChange = (text) => {
     setStudent(text);
     if (text !== "") {
-      const filtered = studentsList.filter((student) =>
-        student.toLowerCase().includes(text.toLowerCase())
+      const filtered = studentsList.filter(
+        (student) =>
+          typeof student === "string" &&
+          student.toLowerCase().includes(text.toLowerCase())
       );
       setFilteredStudents(filtered);
     } else {
@@ -82,9 +89,22 @@ export default function FacultyBehaviorInput() {
     }
   };
 
+  const handleBehaviorChange = (text) => {
+    setBehavior(text);
+    if (text !== "") {
+      const filtered = behaviorList.filter(
+        (behavior) =>
+          typeof behavior === "string" &&
+          behavior.toLowerCase().includes(text.toLowerCase())
+      );
+      setFilteredBehavior(filtered);
+    } else {
+      setFilteredBehavior([]);
+    }
+  };
+
   const renderItem = ({ item }) => (
     <TouchableOpacity
-      style={styles.suggestionItem}
       onPress={() => {
         setStudent(item);
         setFilteredStudents([]);
@@ -93,6 +113,68 @@ export default function FacultyBehaviorInput() {
       <Text>{item}</Text>
     </TouchableOpacity>
   );
+
+  const renderBehaviorItem = ({ item }) => (
+    <TouchableOpacity
+      onPress={() => {
+        setBehavior(item);
+        setFilteredBehavior([]);
+      }}
+    >
+      <Text>{item}</Text>
+    </TouchableOpacity>
+  );
+
+  const handleDateChange = (text) => {
+    setDate(text);
+    const dateFormatRegex = /^\d{4}-\d{2}-\d{2}$/;
+
+    if (!dateFormatRegex.test(text)) {
+      setDateError("Date must be in the format YYYY-MM-DD");
+    } else {
+      setDateError("");
+    }
+  };
+
+  const handleSave = async () => {
+    // validation checks
+    if (!date) {
+      setDateError("Date is required");
+    } else {
+      setDateError("");
+
+      const student_id = await fetchIDFromName(student);
+      const behavior_id = getBehaviorIdFromName(behavior);
+
+      if (student_id && behavior_id) {
+        try {
+          await axios.post("http://192.168.4.63:5000/api/behavior_events", {
+            userId: student_id,
+            behaviorId: behavior_id,
+            dateOfEvent: date,
+          });
+          Alert.alert("Data saved successfully");
+        } catch (error) {
+          console.error("Error saving data:", error);
+          console.error(
+            "userId: " + student_id,
+            "behaviorId: " + behavior_id,
+            "dateOfEvent: " + date
+          );
+          Alert.alert("Error saving data");
+        }
+      } else {
+        Alert.alert(
+          "Cannot find data for student or skill. Please check again."
+        );
+        console.error(
+          "userId: " + student_id,
+          "skillId: " + behavior_id,
+          "dateOfEvent: " + date
+        );
+      }
+    }
+  };
 
   return (
     <PaperProvider theme={theme}>
@@ -114,29 +196,38 @@ export default function FacultyBehaviorInput() {
                 <Icon name="times-circle" size={20} color="gray" />
               </TouchableOpacity>
             )}
+            {filteredStudents.length > 0 && (
+              <FlatList
+                data={filteredStudents}
+                renderItem={renderItem}
+                keyExtractor={(item) => item}
+                style={styles.suggestionList}
+              />
+            )}
           </View>
-          {filteredStudents.length > 0 && (
-            <FlatList
-              data={filteredStudents}
-              renderItem={renderItem}
-              keyExtractor={(item) => item}
-              style={styles.suggestionList}
-            />
-          )}
           <Text>Behavior: *</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Search"
-            value={date}
-            onChangeText={setDate}
-          />
-          <Text>Hours: *</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="0 hours"
-            value={hours}
-            onChangeText={setHours}
-          />
+          <View style={styles.inputContainer}>
+            <Picker
+              selectedValue={selectedOption}
+              onValueChange={(itemValue) => setSelectedOption(itemValue)}
+            >
+              {options.map((option) => (
+                <Picker.Item key={option} label={option} value={option} />
+              ))}
+            </Picker>
+          </View>
+          <Text>Date: *</Text>
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.input}
+              placeholder="YYYY-MM-DD"
+              value={date}
+              onChangeText={handleDateChange}
+            />
+            {dateError !== "" && (
+              <Text style={styles.errorText}>{dateError}</Text>
+            )}
+          </View>
         </View>
         <View
           style={[
@@ -144,13 +235,7 @@ export default function FacultyBehaviorInput() {
             { backgroundColor: theme.colors.primary },
           ]}
         >
-          <Button
-            style={styles.button}
-            color="white"
-            mode="contained"
-            title="SAVE"
-            onPress={() => handleSave()}
-          />
+          <Button color="white" title="SAVE" onPress={handleSave} />
         </View>
       </View>
     </PaperProvider>
@@ -182,6 +267,10 @@ const styles = StyleSheet.create({
     top: 10,
     zIndex: 1,
   },
+  buttonContainer: {
+    alignItems: "center",
+    paddingVertical: 10,
+  },
   suggestionList: {
     maxHeight: 120,
     backgroundColor: "#fff",
@@ -191,18 +280,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingTop: 5,
   },
-  suggestionItem: {
-    paddingVertical: 5,
-  },
-  buttonContainer: {
-    alignItems: "center",
-    paddingVertical: 10,
-  },
-  button: {
-    width: "50%",
-  },
   errorText: {
     color: "red",
-    marginBottom: 10,
+    marginTop: 5,
   },
 });

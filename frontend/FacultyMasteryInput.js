@@ -13,7 +13,7 @@ import { Provider as PaperProvider, useTheme } from "react-native-paper";
 import Icon from "react-native-vector-icons/FontAwesome";
 import axios from "axios";
 
-export default function FacultyBehaviorInput() {
+export default function FacultyMasteryInput() {
   const [student, setStudent] = useState("");
   const [mastery, setMastery] = useState("");
   const [masteryLevel, setMasteryLevel] = useState("");
