@@ -112,6 +112,15 @@ const TableExample = () => {
           </Text>
         </DataTable.Cell>
       </DataTable.Row>
+
+      <DataTable.Row>
+        <DataTable.Cell>
+          <Text style={stylesConfig.tableCellText}>Missing Assignments</Text>
+        </DataTable.Cell>
+        <DataTable.Cell numeric>
+          <Text style={stylesConfig.tableCellText}>{0}</Text>
+        </DataTable.Cell>
+      </DataTable.Row>
     </DataTable>
   );
 };

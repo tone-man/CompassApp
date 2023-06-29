@@ -12,6 +12,7 @@ import {
 import { Provider as PaperProvider, useTheme } from "react-native-paper";
 import Icon from "react-native-vector-icons/FontAwesome";
 import axios from "axios";
+import RNPickerSelect from "react-native-picker-select";
 
 export default function FacultyMasteryInput() {
   const [student, setStudent] = useState("");
@@ -24,6 +25,10 @@ export default function FacultyMasteryInput() {
   const [filteredMastery, setFilteredMastery] = useState([]);
   const [masteryLevelError, setMasteryLevelError] = useState("");
   const [dateError, setDateError] = useState("");
+  const masteryOptions = masteryList.map((mastery) => ({
+    label: mastery.skill_name,
+    value: mastery.skill_id,
+  }));
 
   useEffect(() => {
     fetchStudentNames();
@@ -211,28 +216,11 @@ export default function FacultyMasteryInput() {
           </View>
           <Text>Mastery: *</Text>
           <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.input}
-              placeholder="Search"
+            <RNPickerSelect
               value={mastery}
-              onChangeText={handleMasteryChange}
+              onValueChange={(value) => setMastery(value)}
+              items={masteryOptions}
             />
-            {mastery !== "" && (
-              <TouchableOpacity
-                style={styles.clearButton}
-                onPress={() => setMastery("")}
-              >
-                <Icon name="times-circle" size={20} color="gray" />
-              </TouchableOpacity>
-            )}
-            {filteredMastery.length > 0 && (
-              <FlatList
-                data={filteredMastery}
-                renderItem={renderMasteryItem}
-                keyExtractor={(item) => item}
-                style={styles.suggestionList}
-              />
-            )}
           </View>
           <Text>Mastery Level: *</Text>
           <View style={styles.inputContainer}>

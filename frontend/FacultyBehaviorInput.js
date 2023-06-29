@@ -12,7 +12,7 @@ import {
 import { Provider as PaperProvider, useTheme } from "react-native-paper";
 import Icon from "react-native-vector-icons/FontAwesome";
 import axios from "axios";
-import { Picker } from "@react-native-picker/picker";
+import RNPickerSelect from "react-native-picker-select";
 
 export default function FacultyBehaviorInput() {
   const [student, setStudent] = useState("");
@@ -23,7 +23,10 @@ export default function FacultyBehaviorInput() {
   const [behaviorList, setBehaviorList] = useState([]);
   const [filteredBehavior, setFilteredBehavior] = useState([]);
   const [dateError, setDateError] = useState("");
-  const options = ["Option 1", "Option 2", "Option 3", "Option 4", "Option 5"];
+  const behaviorOptions = behaviorList.map((behavior) => ({
+    label: behavior.behavior_name,
+    value: behavior.behavior_id,
+  }));
 
   useEffect(() => {
     fetchStudentNames();
@@ -206,15 +209,12 @@ export default function FacultyBehaviorInput() {
             )}
           </View>
           <Text>Behavior: *</Text>
-          <View style={styles.inputContainer}>
-            <Picker
-              selectedValue={selectedOption}
-              onValueChange={(itemValue) => setSelectedOption(itemValue)}
-            >
-              {options.map((option) => (
-                <Picker.Item key={option} label={option} value={option} />
-              ))}
-            </Picker>
+          <View style={styles.scrollSelect}>
+            <RNPickerSelect
+              value={behavior}
+              onValueChange={(value) => setBehavior(value)}
+              items={behaviorOptions}
+            />
           </View>
           <Text>Date: *</Text>
           <View style={styles.inputContainer}>
@@ -252,6 +252,11 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     position: "relative",
+  },
+  scrollSelect: {
+    position: "relative",
+    borderWidth: 1,
+    borderColor: "#bbb",
   },
   input: {
     height: 40,

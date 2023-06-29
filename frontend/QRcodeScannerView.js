@@ -8,23 +8,38 @@ import {
   TouchableOpacity,
   Linking,
 } from "react-native";
-// import SoundPlayer from "react-native-sound-player";
-
 import { BarCodeScanner } from "expo-barcode-scanner";
 
 export default function QRcodeScannerView() {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
   const [data, setData] = useState("Not yet scanned");
+  const [timerRunning, setTimerRunning] = useState(false);
+  let studyTime = 0;
 
   const askForCameraPermission = async () => {
     const { status } = await BarCodeScanner.requestPermissionsAsync();
-    setHasPermission(status == "granted");
+    setHasPermission(status === "granted");
   };
 
   useEffect(() => {
     askForCameraPermission();
   }, []);
+
+  useEffect(() => {
+    let timer = null;
+
+    if (timerRunning) {
+      timer = setInterval(() => {
+        // Code to run on each timer tick
+        studyTime += 1;
+      }, 1000);
+    }
+
+    return () => {
+      clearInterval(timer);
+    };
+  }, [timerRunning]);
 
   const handlePress = () => {
     Linking.openURL(data);
@@ -32,9 +47,9 @@ export default function QRcodeScannerView() {
 
   const handleBarCodeScanned = ({ type, data }) => {
     setScanned(true);
-    // SoundPlayer.playSoundFile("sound", "mp3");
+    setTimerRunning(!timerRunning);
     setData(data);
-    console.log("Type: " + type + "\nData: " + data);
+    console.log(studyTime);
   };
 
   if (hasPermission === null) {
@@ -45,15 +60,17 @@ export default function QRcodeScannerView() {
       </View>
     );
   }
+
   if (hasPermission === false) {
     return (
       <View style={styles.container}>
         <Text>No access to camera</Text>
-        <Button title="Allow Camera" onPress={() => askForCameraPermission()} />
+        <Button title="Allow Camera" onPress={askForCameraPermission} />
         <StatusBar style="auto" />
       </View>
     );
   }
+
   if (scanned) {
     return (
       <View style={styles.container}>
@@ -63,7 +80,7 @@ export default function QRcodeScannerView() {
             {data}
           </Text>
         </TouchableOpacity>
-        <Button title={"Tap to Scan Again"} onPress={() => setScanned(false)} />
+        <Button title="Tap to Scan Again" onPress={() => setScanned(false)} />
         <StatusBar style="auto" />
       </View>
     );
