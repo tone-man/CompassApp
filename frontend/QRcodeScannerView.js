@@ -8,14 +8,16 @@ import {
   TouchableOpacity,
   Linking,
 } from "react-native";
+
 import { BarCodeScanner } from "expo-barcode-scanner";
 
 export default function QRcodeScannerView() {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
   const [data, setData] = useState("Not yet scanned");
-  const [timerRunning, setTimerRunning] = useState(false);
-  let studyTime = 0;
+  const [isScannedIn, setIsScannedIn] = useState(false);
+  const [timeIn, setTimeIn] = useState(0);
+  const [timeOut, setTimeOut] = useState(0);
 
   const askForCameraPermission = async () => {
     const { status } = await BarCodeScanner.requestPermissionsAsync();
@@ -27,19 +29,20 @@ export default function QRcodeScannerView() {
   }, []);
 
   useEffect(() => {
-    let timer = null;
-
-    if (timerRunning) {
-      timer = setInterval(() => {
-        // Code to run on each timer tick
-        studyTime += 1;
-      }, 1000);
+    if (isScannedIn) {
+      var d = new Date();
+      const minutesSinceMidnight = d.getHours() * 60 + d.getMinutes();
+      setTimeIn(minutesSinceMidnight);
+      console.log("timeIn: " + minutesSinceMidnight);
+    } else {
+      var d = new Date();
+      const minutesSinceMidnight2 = d.getHours() * 60 + d.getMinutes();
+      setTimeOut(minutesSinceMidnight2);
+      console.log("timeOut: " + minutesSinceMidnight2);
+      console.log(timeOut - timeIn);
+      // post request
     }
-
-    return () => {
-      clearInterval(timer);
-    };
-  }, [timerRunning]);
+  }, [isScannedIn, timeIn, timeOut]);
 
   const handlePress = () => {
     Linking.openURL(data);
@@ -47,9 +50,9 @@ export default function QRcodeScannerView() {
 
   const handleBarCodeScanned = ({ type, data }) => {
     setScanned(true);
-    setTimerRunning(!timerRunning);
     setData(data);
-    console.log(studyTime);
+    setIsScannedIn(!isScannedIn);
+    // ...
   };
 
   if (hasPermission === null) {
@@ -60,17 +63,15 @@ export default function QRcodeScannerView() {
       </View>
     );
   }
-
   if (hasPermission === false) {
     return (
       <View style={styles.container}>
         <Text>No access to camera</Text>
-        <Button title="Allow Camera" onPress={askForCameraPermission} />
+        <Button title="Allow Camera" onPress={() => askForCameraPermission()} />
         <StatusBar style="auto" />
       </View>
     );
   }
-
   if (scanned) {
     return (
       <View style={styles.container}>
@@ -80,7 +81,7 @@ export default function QRcodeScannerView() {
             {data}
           </Text>
         </TouchableOpacity>
-        <Button title="Tap to Scan Again" onPress={() => setScanned(false)} />
+        <Button title={"Tap to Scan Again"} onPress={() => setScanned(false)} />
         <StatusBar style="auto" />
       </View>
     );
