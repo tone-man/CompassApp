@@ -15,6 +15,7 @@ import axios from "axios";
 import RNPickerSelect from "react-native-picker-select";
 
 export default function FacultyBehaviorInput() {
+  // set states for student, behavior, date, studentsList, filteredStudents, behaviorList, filteredBehavior, dateError and behavior options
   const [student, setStudent] = useState("");
   const [behavior, setBehavior] = useState("");
   const [date, setDate] = useState("");
@@ -36,6 +37,7 @@ export default function FacultyBehaviorInput() {
   const theme = useTheme();
 
   const fetchIDFromName = async (name) => {
+    // fetch user ID from name from backend and return user ID if found or an error if not found
     try {
       const response = await axios.get("http://192.168.4.63:5000/api/users");
       const user = response.data.find((user) => user.name === name);
@@ -46,6 +48,7 @@ export default function FacultyBehaviorInput() {
   };
 
   const fetchStudentNames = async () => {
+    // fetch student names from backend and set studentsList to list of student names from backend or an error if not found
     try {
       const response = await axios.get("http://192.168.4.63:5000/api/users");
       setStudentsList(response.data.map((user) => user.name));
@@ -55,6 +58,7 @@ export default function FacultyBehaviorInput() {
   };
 
   const fetchBehaviorList = async () => {
+    // fetch behavior list from backend and set behaviorList to list of behaviors from backend or an error if not found
     try {
       const response = await axios.get(
         "http://192.168.4.63:5000/api/behaviors"
@@ -66,6 +70,7 @@ export default function FacultyBehaviorInput() {
   };
 
   const getBehaviorIdFromName = (behaviorName) => {
+    // get behavior ID from behavior name from behavior list and return behavior ID if found or null if not found
     console.log("Behavior Name:", "'" + behaviorName + "'");
     console.log("Behavior List:", behaviorList);
 
@@ -79,6 +84,7 @@ export default function FacultyBehaviorInput() {
   };
 
   const handleStudentChange = (text) => {
+    // set student to text and set filteredStudents to list of students that match text or an empty list if text is empty
     setStudent(text);
     if (text !== "") {
       const filtered = studentsList.filter(
@@ -93,6 +99,7 @@ export default function FacultyBehaviorInput() {
   };
 
   const handleBehaviorChange = (text) => {
+    // set behavior to text and set filteredBehavior to list of behaviors that match text or an empty list if text is empty
     setBehavior(text);
     if (text !== "") {
       const filtered = behaviorList.filter(
@@ -107,6 +114,7 @@ export default function FacultyBehaviorInput() {
   };
 
   const renderItem = ({ item }) => (
+    // render item for student or behavior list
     <TouchableOpacity
       onPress={() => {
         setStudent(item);
@@ -118,6 +126,7 @@ export default function FacultyBehaviorInput() {
   );
 
   const renderBehaviorItem = ({ item }) => (
+    // render item for behavior list
     <TouchableOpacity
       onPress={() => {
         setBehavior(item);
@@ -129,9 +138,10 @@ export default function FacultyBehaviorInput() {
   );
 
   const handleDateChange = (text) => {
+    // set date to text and set dateError to error message if date is not in the format YYYY-MM-DD or an empty string if date is in the format YYYY-MM-DD
     setDate(text);
     const dateFormatRegex = /^\d{4}-\d{2}-\d{2}$/;
-
+    //
     if (!dateFormatRegex.test(text)) {
       setDateError("Date must be in the format YYYY-MM-DD");
     } else {
@@ -145,19 +155,22 @@ export default function FacultyBehaviorInput() {
       setDateError("Date is required");
     } else {
       setDateError("");
-
+      // fetch student ID from name and behavior ID from behavior name
       const student_id = await fetchIDFromName(student);
       const behavior_id = getBehaviorIdFromName(behavior);
 
       if (student_id && behavior_id) {
         try {
+          // post request to save data
           await axios.post("http://192.168.4.63:5000/api/behavior_events", {
             userId: student_id,
             behaviorId: behavior_id,
             dateOfEvent: date,
           });
+          // alert user that data was saved successfully
           Alert.alert("Data saved successfully");
         } catch (error) {
+          // alert user that data was not saved successfully
           console.error("Error saving data:", error);
           console.error(
             "userId: " + student_id,
@@ -167,6 +180,7 @@ export default function FacultyBehaviorInput() {
           Alert.alert("Error saving data");
         }
       } else {
+        // alert user that student or skill was not found
         Alert.alert(
           "Cannot find data for student or skill. Please check again."
         );
@@ -180,6 +194,7 @@ export default function FacultyBehaviorInput() {
   };
 
   return (
+    // render form for faculty behavior input
     <PaperProvider theme={theme}>
       <View style={styles.container}>
         <View style={styles.formContainer}>

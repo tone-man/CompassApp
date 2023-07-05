@@ -12,6 +12,7 @@ import {
 import { BarCodeScanner } from "expo-barcode-scanner";
 
 export default function QRcodeScannerView() {
+  // set states for camera permission, scanned, data, isScannedIn, timeIn, timeOut
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
   const [data, setData] = useState("Not yet scanned");
@@ -19,6 +20,7 @@ export default function QRcodeScannerView() {
   const [timeIn, setTimeIn] = useState(0);
   const [timeOut, setTimeOut] = useState(0);
 
+  // ask for camera permission if not yet granted
   const askForCameraPermission = async () => {
     const { status } = await BarCodeScanner.requestPermissionsAsync();
     setHasPermission(status === "granted");
@@ -28,18 +30,19 @@ export default function QRcodeScannerView() {
     askForCameraPermission();
   }, []);
 
+  // check if scanned in or scanned out and set timeIn or timeOut accordingly
   useEffect(() => {
     if (isScannedIn) {
       var d = new Date();
-      const minutesSinceMidnight = d.getHours() * 60 + d.getMinutes();
-      setTimeIn(minutesSinceMidnight);
+      const minutesSinceMidnight = d.getHours() * 60 + d.getMinutes(); // calculate time in minutes since midnight
+      setTimeIn(minutesSinceMidnight); // set timeIn to minutes since midnight
       console.log("timeIn: " + minutesSinceMidnight);
     } else {
       var d = new Date();
-      const minutesSinceMidnight2 = d.getHours() * 60 + d.getMinutes();
-      setTimeOut(minutesSinceMidnight2);
+      const minutesSinceMidnight2 = d.getHours() * 60 + d.getMinutes(); // calculate time in minutes since midnight
+      setTimeOut(minutesSinceMidnight2); // set timeOut to minutes since midnight
       console.log("timeOut: " + minutesSinceMidnight2);
-      console.log(timeOut - timeIn);
+      console.log(timeOut - timeIn); // calculate time spent in the study room
       // post request
     }
   }, [isScannedIn, timeIn, timeOut]);
@@ -48,13 +51,14 @@ export default function QRcodeScannerView() {
     Linking.openURL(data);
   };
 
+  // handle barcode scanned
   const handleBarCodeScanned = ({ type, data }) => {
     setScanned(true);
     setData(data);
     setIsScannedIn(!isScannedIn);
     // ...
   };
-
+  // if camera permission not granted, ask for permission
   if (hasPermission === null) {
     return (
       <View style={styles.container}>
@@ -73,6 +77,7 @@ export default function QRcodeScannerView() {
     );
   }
   if (scanned) {
+    // if scanned, display scanned data and a button to scan again
     return (
       <View style={styles.container}>
         <Text>Scanned Data:</Text>
@@ -88,6 +93,7 @@ export default function QRcodeScannerView() {
   }
 
   return (
+    // display a camera view and a border to scan QR code
     <View style={styles.container}>
       <View style={styles.cameraContainer}>
         <BarCodeScanner
@@ -104,7 +110,7 @@ export default function QRcodeScannerView() {
     </View>
   );
 }
-
+// styling
 const styles = StyleSheet.create({
   container: {
     flex: 1,

@@ -22,6 +22,7 @@ const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
 const ProfileIcon = ({ navigation }) => {
+  // display user icon and navigate to profile view when pressed
   return (
     <TouchableOpacity onPress={() => navigation.navigate("ProfileView")}>
       <Icon name="account-circle-outline" size={30} color="#000" />
@@ -30,6 +31,7 @@ const ProfileIcon = ({ navigation }) => {
 };
 
 const StackNavigator = () => {
+  // get isLoggedIn from context and navigate to login screen if user is not logged in
   const { isLoggedIn } = useContext(AuthContext);
 
   return (
@@ -55,6 +57,7 @@ const StackNavigator = () => {
 };
 
 function TabNavigator() {
+  // display tabs for analytics, QR code, and data input
   const navigation = useNavigation();
   const { colors } = useTheme();
   return (
@@ -103,6 +106,7 @@ function TabNavigator() {
 
 export default StackNavigator;
 
+// styling for tabs
 const styles = StyleSheet.create({
   container: {
     flex: 1,

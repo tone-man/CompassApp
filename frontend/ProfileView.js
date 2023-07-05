@@ -20,6 +20,7 @@ const ProfileView = () => {
   };
 
   return (
+    // display user icon, username, and logout button
     <PaperProvider>
       <View style={styles.container}>
         <Icon name="account-circle-outline" size={300} color="#000" />
@@ -38,7 +39,7 @@ const ProfileView = () => {
 };
 
 export default ProfileView;
-
+// styling for ProfileView
 const styles = StyleSheet.create({
   container: {
     flex: 1,

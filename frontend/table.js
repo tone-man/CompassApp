@@ -4,6 +4,7 @@ import { DataTable, Text, useTheme } from "react-native-paper";
 import axios from "axios";
 
 const fetchData = async (id) => {
+  // fetch data from backend and set states for eventDates and mastery for each skill (this is the similiar to the fetchData function in AnalyticsView.js)
   try {
     const response = await axios.get(
       "http://192.168.4.63:5000/api/users/john.doe@example.com"
@@ -49,6 +50,7 @@ const fetchData = async (id) => {
 };
 
 const TableExample = () => {
+  // set up states for eventDates and mastery for each skill
   const [missedClass, setMissedClass] = useState(0);
   const [missedCoachingMeeting, setMissedCoachingMeeting] = useState(0);
   const [incompleteAssignments, setIncompleteAssignments] = useState(0);
@@ -73,6 +75,7 @@ const TableExample = () => {
   const stylesConfig = styles(colors);
 
   return (
+    // set up a table that contains the behaviors and the number of times they have occurred
     <DataTable style={stylesConfig.graph}>
       <DataTable.Header>
         <DataTable.Title>
@@ -126,7 +129,7 @@ const TableExample = () => {
 };
 
 export default TableExample;
-
+// set up styles for the container, title text, text inputs, and button
 const styles = (colors) =>
   StyleSheet.create({
     container: {

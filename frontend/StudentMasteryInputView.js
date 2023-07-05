@@ -4,6 +4,7 @@ import { TextInput, Button } from "react-native-paper";
 
 export default function StudentMasteryInputView() {
   return (
+    // set up a view that contains a title, text inputs, and a button
     <View style={styles.container}>
       <Text style={styles.titleText}>ADD A MASTERY SKILL</Text>
 
@@ -17,7 +18,7 @@ export default function StudentMasteryInputView() {
     </View>
   );
 }
-
+// set up styles for the container, title text, text inputs, and button
 const styles = StyleSheet.create({
   container: {
     flex: 1,

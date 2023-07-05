@@ -15,6 +15,8 @@ import axios from "axios";
 import RNPickerSelect from "react-native-picker-select";
 
 export default function FacultyMasteryInput() {
+  // set states for student, mastery, masteryLevel, date, studentsList, filteredStudents,
+  // masteryList, filteredMastery, masteryLevelError, dateError
   const [student, setStudent] = useState("");
   const [mastery, setMastery] = useState("");
   const [masteryLevel, setMasteryLevel] = useState("");
@@ -38,6 +40,7 @@ export default function FacultyMasteryInput() {
   const theme = useTheme();
 
   const fetchIDFromName = async (name) => {
+    // fetch user ID from name
     try {
       const response = await axios.get("http://192.168.4.63:5000/api/users");
       const user = response.data.find((user) => user.name === name);
@@ -48,6 +51,7 @@ export default function FacultyMasteryInput() {
   };
 
   const fetchStudentNames = async () => {
+    // fetch student names from backend
     try {
       const response = await axios.get("http://192.168.4.63:5000/api/users");
       setStudentsList(response.data.map((user) => user.name));
@@ -57,6 +61,7 @@ export default function FacultyMasteryInput() {
   };
 
   const fetchMasteryList = async () => {
+    // fetch mastery list from backend
     try {
       const response = await axios.get("http://192.168.4.63:5000/api/skills");
       setMasteryList(response.data);
@@ -66,11 +71,13 @@ export default function FacultyMasteryInput() {
   };
 
   const getSkillIdFromName = (skillName) => {
+    // get skill ID from skill name in mastery list
     const skill = masteryList.find((skill) => skill.skill_name === skillName);
     return skill ? skill.skill_id : null;
   };
 
   const handleStudentChange = (text) => {
+    // handle student name change and filter student list
     setStudent(text);
     if (text !== "") {
       const filtered = studentsList.filter(
@@ -86,6 +93,7 @@ export default function FacultyMasteryInput() {
   };
 
   const handleMasteryChange = (text) => {
+    // handle mastery change and filter mastery list
     setMastery(text);
     if (text !== "") {
       const filtered = masteryList.filter(
@@ -100,6 +108,7 @@ export default function FacultyMasteryInput() {
   };
 
   const renderItem = ({ item }) => (
+    // render student item and set student
     <TouchableOpacity
       onPress={() => {
         setStudent(item);
@@ -111,6 +120,7 @@ export default function FacultyMasteryInput() {
   );
 
   const renderMasteryItem = ({ item }) => (
+    // render mastery item and set mastery
     <TouchableOpacity
       onPress={() => {
         setMastery(item);
@@ -122,6 +132,7 @@ export default function FacultyMasteryInput() {
   );
 
   const handleMasteryLevelChange = (text) => {
+    // handle mastery level change and set mastery level error if invalid
     setMasteryLevel(text);
     const masteryLevelValue = parseFloat(text);
 
@@ -133,6 +144,7 @@ export default function FacultyMasteryInput() {
   };
 
   const handleDateChange = (text) => {
+    // handle date change and set date error if invalid
     setDate(text);
     const dateFormatRegex = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -144,7 +156,8 @@ export default function FacultyMasteryInput() {
   };
 
   const handleSave = async () => {
-    // validation checks
+    // handle save and set mastery level error and date error if invalid or missing
+    // check if student ID and skill ID are valid
     if (!masteryLevel) {
       setMasteryLevelError("Mastery Level is required");
     } else if (isNaN(masteryLevel)) {
@@ -154,20 +167,23 @@ export default function FacultyMasteryInput() {
     } else {
       setMasteryLevelError("");
       setDateError("");
-
+      // fetch student ID and skill ID
       const student_id = await fetchIDFromName(student);
       const skill_id = getSkillIdFromName(mastery);
-
+      // check if student ID and skill ID are valid
       if (student_id && skill_id) {
         try {
+          // post request to backend
           await axios.post("http://192.168.4.63:5000/api/skill_mastery", {
             userId: student_id,
             skillId: skill_id,
             masteryStatus: masteryLevel,
             dateOfEvent: date,
           });
+          // alert the user that the data has been saved
           Alert.alert("Data saved successfully");
         } catch (error) {
+          // alert the user that there was an error saving the data
           console.error("Error saving data:", error);
           console.error(
             "userId: " + student_id,
@@ -178,6 +194,7 @@ export default function FacultyMasteryInput() {
           Alert.alert("Error saving data");
         }
       } else {
+        // alert the user that the student or skill was not found
         Alert.alert(
           "Cannot find data for student or skill. Please check again."
         );
@@ -186,6 +203,7 @@ export default function FacultyMasteryInput() {
   };
 
   return (
+    // display form for inputting mastery data
     <PaperProvider theme={theme}>
       <View style={styles.container}>
         <View style={styles.formContainer}>

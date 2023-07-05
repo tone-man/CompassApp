@@ -4,10 +4,11 @@ import axios from "axios";
 import { DataTable, Text, useTheme, ProgressBar } from "react-native-paper";
 import { View } from "react-native";
 
+// fetch data from backend
 const fetchData = async () => {
   try {
     const response = await axios.get(
-      "http://192.168.4.63:5000/api/users/john.doe@example.com"
+      "http://192.168.4.63:5000/api/users/john.doe@example.com" // need to change email address to whoever is logged in rather than john.doe@example.com
     );
 
     const userId = response.data.user_id;
@@ -33,7 +34,7 @@ const fetchData = async () => {
     };
   }
 };
-
+// format time to hours and minutes for display in table
 const formatTime = (minutes) => {
   const hours = Math.floor(minutes / 60);
   const remainingMinutes = minutes % 60;
@@ -42,14 +43,14 @@ const formatTime = (minutes) => {
 
 const ProgressTracker = () => {
   const { colors } = useTheme();
-
+  // set states for completed, required, base, and progress
   const [completed, setCompleted] = useState(0);
   const [required, setRequired] = useState(0);
   const [base, setBase] = useState(0);
   const [progress, setProgress] = useState(0);
 
   const stylesConfig = styles(colors);
-
+  // fetch data from backend and set states
   useEffect(() => {
     const fetchDataAndSetState = async () => {
       const {
@@ -65,6 +66,7 @@ const ProgressTracker = () => {
     fetchDataAndSetState();
   }, []);
 
+  // calculate progress
   useEffect(() => {
     const validProgress =
       !isNaN(completed) && !isNaN(required) && required !== 0
@@ -74,6 +76,7 @@ const ProgressTracker = () => {
   }, [completed, required]);
 
   return (
+    // display progress bar and table
     <View style={styles.container}>
       <ProgressBar progress={progress} color={colors.primary} />
       <DataTable style={stylesConfig.graph}>
@@ -108,9 +111,9 @@ const ProgressTracker = () => {
     </View>
   );
 };
-
+// export ProgressTracker
 export default ProgressTracker;
-
+// styles for ProgressTracker
 const styles = (colors) =>
   StyleSheet.create({
     container: {

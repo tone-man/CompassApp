@@ -16,11 +16,12 @@ import ProgressTracker from "./ProgressTracker";
 import { useTheme, ProgressBar, MD3Colors } from "react-native-paper";
 
 const fetchData = async (id) => {
+  // fetch data from backend and set states for eventDates and mastery for each skill
   let eventDates = [];
   let mastery = [];
   try {
     const response = await axios.get(
-      "http://192.168.4.63:5000/api/users/john.doe@example.com"
+      "http://192.168.4.63:5000/api/users/john.doe@example.com" // need to change email address to whoever is logged in rather than john.doe@example.com
     );
 
     const userId = response.data.user_id;
@@ -29,6 +30,7 @@ const fetchData = async (id) => {
     );
 
     response2.data.forEach((item) => {
+      // format date and push to eventDates array
       if (item.skill_id === id) {
         const date = item.date_of_event;
         const formattedDate = date
@@ -49,6 +51,7 @@ const fetchData = async (id) => {
 
 const ExampleGraph = ({ primaryColor, data1, data2 }) => {
   const chartConfig = {
+    // graph styling
     backgroundGradientFromOpacity: 0,
     backgroundGradientToOpacity: 0,
     decimalPlaces: 1,
@@ -69,6 +72,7 @@ const ExampleGraph = ({ primaryColor, data1, data2 }) => {
   }
 
   return (
+    // LineChart component from react-native-chart-kit
     <LineChart
       data={{
         labels: data1,
@@ -94,6 +98,7 @@ const ExampleGraph = ({ primaryColor, data1, data2 }) => {
 };
 
 const AnalyticsView = () => {
+  // AnalyticsView component that renders all graphs and tables
   const { colors } = useTheme();
 
   const styles = StyleSheet.create({
@@ -119,7 +124,7 @@ const AnalyticsView = () => {
       fontWeight: "bold",
     },
   });
-
+  // set states for Homework, Reading, Writing, Notetaking, and Mindset skills and their respective eventDates and mastery
   const [HomeworkDates, setHomeworkDates] = useState([]);
   const [HomeworkMastery, setHomeworkMastery] = useState([]);
   useEffect(() => {
@@ -182,6 +187,7 @@ const AnalyticsView = () => {
   }, []);
 
   return (
+    // render all graphs and tables in a scrollable view that is contained in a safe area view that is contained in a view
     <View style={styles.container}>
       <SafeAreaView>
         <ScrollView>
