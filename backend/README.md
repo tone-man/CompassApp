@@ -180,7 +180,7 @@ Response:
 ]
 ```
 
-## Create a Study Hours Entry
+## Insert a Study Hours Entry
 
 Creates a new instance of Study Hours for a user.
 Log in time is in minutes after midnight.
@@ -192,13 +192,22 @@ Request:
 
 ```json
 {
-  "user_id": 7,
-  "log_in_time": 540, // (hours_past_midnight * 60) + minutes
-  "date_of_event": "2023-05-12"
+  "userId": 1,
+  "datetimeOfLogIn": "2023-06-16 11:20:00",
+  "datetimeOfLogOut": "2023-06-16 11:20:00",
+  "durationOfStudy": 120
 }
 ```
 
+### Response Codes
+
+- 200 OK: The request was successful, and the user information is returned.
+- 400 Bad Request: There is missing or incorrect information in the request.
+- 500 Internal Server Error: An error occurred while processing the request.
+
 ## Update a Study Hours Entry
+
+#### DEPRECATED
 
 Updates a Study Hours Row for a user given a disctinct user_id,
 log_in_time, date_of_event. Log out time is in minutes after midnight.
