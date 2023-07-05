@@ -76,9 +76,9 @@ INSERT INTO student_study_log (user_id, datetime_of_sign_in, datetime_of_sign_ou
 VALUES
   (1, datetime('now'), datetime('now', '+3 hours'), 180),
   (1, datetime('now', '-1 day'), datetime('now','-1 day', '+4 hours'), 240),
-  (1, datetime('now', '-2 days'), datetime('now','-1 day', '+2 hours'),  120),
-  (1, datetime('now', '-3 days'), datetime('now','-1 day', '+2 hours'), 120),
-  (1, datetime('now', '-4 days'), datetime('now','-1 day', '+2 hours'), 120);
+  (1, datetime('now', '-2 days'), datetime('now','-2 day', '+2 hours'),  120),
+  (1, datetime('now', '-3 days'), datetime('now','-3 day', '+2 hours'), 120),
+  (1, datetime('now', '-4 days'), datetime('now','-4 day', '+2 hours'), 120);
 
 
 
