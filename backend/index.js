@@ -367,7 +367,7 @@ app.post("/api/study_hours", (req, res) => {
     $datetimeOfLogOut: datetimeOfLogOut,
     $durationOfStudy: durationOfStudy,
   };
-
+  console.log(params);
   try {
     insertStudyHours(params);
   } catch (error) {

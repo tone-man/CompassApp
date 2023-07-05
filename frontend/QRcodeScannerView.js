@@ -1,64 +1,96 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useState, useEffect } from "react";
+
 import {
   StyleSheet,
+  Alert,
   Text,
   View,
   Button,
   TouchableOpacity,
   Linking,
 } from "react-native";
+import axios from "axios";
 
 import { BarCodeScanner } from "expo-barcode-scanner";
 
 export default function QRcodeScannerView() {
-  // set states for camera permission, scanned, data, isScannedIn, timeIn, timeOut
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
   const [data, setData] = useState("Not yet scanned");
   const [isScannedIn, setIsScannedIn] = useState(false);
   const [timeIn, setTimeIn] = useState(0);
   const [timeOut, setTimeOut] = useState(0);
+  const [dateString, setDateString] = useState("");
 
-  // ask for camera permission if not yet granted
   const askForCameraPermission = async () => {
     const { status } = await BarCodeScanner.requestPermissionsAsync();
     setHasPermission(status === "granted");
+  };
+
+  const fetchIDFromName = async (name) => {
+    try {
+      const response = await axios.get("http://192.168.4.63:5000/api/users");
+      const user = response.data.find((user) => user.name === name);
+      return user.user_id;
+    } catch (error) {
+      console.error("Error fetching user ID:", error);
+    }
   };
 
   useEffect(() => {
     askForCameraPermission();
   }, []);
 
-  // check if scanned in or scanned out and set timeIn or timeOut accordingly
   useEffect(() => {
-    if (isScannedIn) {
-      var d = new Date();
-      const minutesSinceMidnight = d.getHours() * 60 + d.getMinutes(); // calculate time in minutes since midnight
-      setTimeIn(minutesSinceMidnight); // set timeIn to minutes since midnight
-      console.log("timeIn: " + minutesSinceMidnight);
-    } else {
-      var d = new Date();
-      const minutesSinceMidnight2 = d.getHours() * 60 + d.getMinutes(); // calculate time in minutes since midnight
-      setTimeOut(minutesSinceMidnight2); // set timeOut to minutes since midnight
-      console.log("timeOut: " + minutesSinceMidnight2);
-      console.log(timeOut - timeIn); // calculate time spent in the study room
-      // post request
-    }
-  }, [isScannedIn, timeIn, timeOut]);
+    const saveData = async () => {
+      if (isScannedIn && timeIn === 0) {
+        const d1 = new Date();
+        const minutesSinceMidnight = d1.getHours() * 60 + d1.getMinutes();
+        setTimeIn(minutesSinceMidnight);
+        setDateString(
+          `${d1.getFullYear()}-${
+            d1.getMonth() + 1
+          }-${d1.getDate()} ${d1.getHours()}:${d1.getMinutes()}`
+        );
+      } else if (!isScannedIn && timeIn !== 0) {
+        const d2 = new Date();
+        const minutesSinceMidnight2 = d2.getHours() * 60 + d2.getMinutes();
+        setTimeOut(minutesSinceMidnight2);
+        const dateString2 = `${d2.getFullYear()}-${
+          d2.getMonth() + 1
+        }-${d2.getDate()} ${d2.getHours()}:${d2.getMinutes()}`;
+
+        try {
+          await axios.post("http://192.168.4.63:5000/api/study_hours", {
+            userId: 1,
+            datetimeOfLogIn: dateString,
+            datetimeOfLogOut: dateString2,
+            durationOfStudy: timeOut - timeIn,
+          });
+          Alert.alert("Data saved successfully");
+          //reset timeIn and timeOut
+          setTimeIn(0);
+          setTimeOut(0);
+        } catch (error) {
+          console.error("Failed to save data:", error);
+        }
+      }
+    };
+
+    saveData();
+  }, [isScannedIn]);
 
   const handlePress = () => {
     Linking.openURL(data);
   };
 
-  // handle barcode scanned
   const handleBarCodeScanned = ({ type, data }) => {
     setScanned(true);
     setData(data);
     setIsScannedIn(!isScannedIn);
-    // ...
   };
-  // if camera permission not granted, ask for permission
+
   if (hasPermission === null) {
     return (
       <View style={styles.container}>
@@ -67,6 +99,7 @@ export default function QRcodeScannerView() {
       </View>
     );
   }
+
   if (hasPermission === false) {
     return (
       <View style={styles.container}>
@@ -76,8 +109,8 @@ export default function QRcodeScannerView() {
       </View>
     );
   }
+
   if (scanned) {
-    // if scanned, display scanned data and a button to scan again
     return (
       <View style={styles.container}>
         <Text>Scanned Data:</Text>
