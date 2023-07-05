@@ -68,17 +68,17 @@ VALUES
   (1, 5, 2.4, date('now', '-21 days')),
   (1, 5, 4, date('now', '-28 days'));
 
-INSERT INTO students (user_id, study_minutes_completed, study_minutes_required, base_study_minutes)
+INSERT INTO students (user_id, study_time_completed, study_time_required, base_time_required)
 VALUES
   (1, 780, 1200, 1200);
 
-INSERT INTO student_study_log (user_id, date_of_event, log_in_time, log_out_time, study_duration)
+INSERT INTO student_study_log (user_id, datetime_of_sign_in, datetime_of_sign_out , duration_of_study)
 VALUES
-  (1, date('now'), 9, 12, 180),
-  (1, date('now', '-1 day'), 14, 18, 240),
-  (1, date('now', '-2 days'), 10, 12, 120),
-  (1, date('now', '-3 days'), 15, 17, 120),
-  (1, date('now', '-4 days'), 13, 15, 120);
+  (1, datetime('now'), datetime('now', '+3 hours'), 180),
+  (1, datetime('now', '-1 day'), datetime('now','-1 day', '+4 hours'), 240),
+  (1, datetime('now', '-2 days'), datetime('now','-1 day', '+2 hours'),  120),
+  (1, datetime('now', '-3 days'), datetime('now','-1 day', '+2 hours'), 120),
+  (1, datetime('now', '-4 days'), datetime('now','-1 day', '+2 hours'), 120);
 
 
 

@@ -53,18 +53,17 @@ CREATE TABLE  IF NOT EXISTS skill_mastery_log (
 
 CREATE TABLE  IF NOT EXISTS students (
   user_id INTEGER PRIMARY KEY,
-  study_minutes_completed INTEGER NOT NULL,
-  study_minutes_required INTEGER NOT NULL,
-  base_study_minutes INTEGER NOT NULL,
+  study_time_completed INTEGER NOT NULL,
+  study_time_required INTEGER NOT NULL,
+  base_time_required INTEGER NOT NULL,
   FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
 CREATE TABLE  IF NOT EXISTS student_study_log (
   user_id INTEGER,
-  date_of_event DATE NOT NULL,
-  log_in_time INTEGER NOT NULL,
-  log_out_time INTEGER,
-  study_duration INTEGER
+  datetime_of_sign_in TEXT NOT NULL,
+  datetime_of_sign_out TEXT NOT NULL,
+  duration_of_study INTEGER NOT NULL
 );
 
 
