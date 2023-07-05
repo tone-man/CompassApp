@@ -318,22 +318,29 @@ app.post("/api/skill_mastery", (req, res) => {
   }
 });
 
-const insertStudyHoursQuery = `INSERT INTO student_study_log (user_id, log_in_time, date_of_event) 
-VALUES ($userId, $logInTime, $dateOfEvent)`;
+const insertStudyHoursQuery = `INSERT INTO student_study_log ($userId, $datetimeOfLogIn, $datetimeOfLogOut, $durationOfStudy) 
+VALUES ($userId, $datetimeOfLogIn, $datetimeOfLogOut, $durationOfStudy)`;
 
 function insertStudyHours(params) {
-  const { $userId, $logInTime, $dateOfEvent } = params;
+  const { $userId, $datetimeOfLogIn, $datetimeOfLogOut, $durationOfStudy } =
+    params;
 
   if (!validateUser($userId)) {
     throw statusError("userId must be an integer", 400);
   }
 
-  if (!validateStudyLoggingTime($logInTime)) {
-    throw statusError("logInTime must be an integer between 0 and 1440.", 400);
+  if (!validateDatetime($datetimeOfLogIn)) {
+    throw statusError(
+      "datetimeOfLogIn must be in format 'YYYY-MM-DD HH:MM:SS'.",
+      400
+    );
   }
 
-  if (!validateDateOfEvent($dateOfEvent)) {
-    throw statusError("dateofEvent must be in format 'YYYY-MM-DD'", 400);
+  if (!validateDatetime($datetimeOfLogOut)) {
+    throw statusError(
+      "datetimeOfLogOut must be in format 'YYYY-MM-DD HH:MM:SS'.",
+      400
+    );
   }
 
   db.run(insertStudyHoursQuery, params, (err) => {
@@ -348,20 +355,23 @@ function insertStudyHours(params) {
     }
   });
 }
+
 /* Add Study Hours for a Specific Student */
 app.post("/api/study_hours", (req, res) => {
-  const { userId, logInTime, dateOfEvent } = req.body;
+  const { userId, datetimeOfLogIn, datetimeOfLogOut, durationOfStudy } =
+    req.body;
 
   const params = {
     $userId: userId,
-    $logInTime: logInTime,
-    $dateOfEvent: dateOfEvent,
+    $datetimeOfLogIn: datetimeOfLogIn,
+    $datetimeOfLogOut: datetimeOfLogOut,
+    $durationOfStudy: durationOfStudy,
   };
 
   try {
     insertStudyHours(params);
   } catch (error) {
-    console.error(error.message);
+    console.error(error);
     res
       .status(error.statusCode)
       .json(formatResponse(error.statusCode, error.message));
@@ -379,7 +389,8 @@ SET log_out_time = $logOutTime AND study_duration = $studyDuration
 WHERE user_id = $userId AND log_in_time = $logInTime AND date_of_event = $dateOfEvent`;
 
 function updateStudyHoursLog(params) {
-  const { $userId, $logInTime, $logOutTime, $dateOfEvent } = params;
+  const { $userId, $datetimeOfLogIn, $datetimeOfLogOut, $durationOfStudy } =
+    params;
 
   if (!validateUser($userId))
     throw statusError("userId must be an integer", 400);
@@ -632,10 +643,17 @@ function validateStudyLoggingTime(logTime) {
 
   return logTime > 0 && logTime <= 1440;
 }
+
 function validateDateOfEvent(dateOfEvent) {
   const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
 
   return dateRegex.test(dateOfEvent);
+}
+
+function validateDatetime(dateTime) {
+  const dateTimeRegex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
+
+  return dateTimeRegex.test(dateTime);
 }
 
 /* Status Error Constructor */
