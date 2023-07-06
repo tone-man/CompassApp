@@ -19,12 +19,14 @@ INSERT INTO user_roles_mapping (user_id, role_id) VALUES
 INSERT INTO student_behaviors (behavior_name) VALUES
   ('Missed Class'),
   ('Missed Coaching Meeting'),
-  ('Incomplete Assignment');
+  ('Incomplete Assignment'),
+  ('Assignment Completed Late');
 
 INSERT INTO student_behavior_consequences (behavior_id, additional_study_minutes) VALUES
   (1, 120),
   (2, 90),
-  (3, 60);
+  (3, 60),
+  (4, 0);
 
 INSERT INTO student_behavior_log (user_id, behavior_id, date_of_event) 
 SELECT
