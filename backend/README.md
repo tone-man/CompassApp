@@ -70,10 +70,35 @@ Retrieves a user given an distinct email.
 
 ## Get All Users
 
-Retrieves information for all users in the system.
+Retrieves information about users in the system, allowing for filters based on user type.
 
-- **HTTP Method:** GET
-- **URL:** `/api/users`
+- **HTTP Method:** POST
+- **URL:** `/api/users/`
+
+### Request
+
+The request should be a JSON object with the following properties:
+
+- `userType`: Specifies the user type to filter the results. Valid values for `userType` are:
+  - `Student`: Students
+  - `Teacher`: Teachers
+  - `Admin`: Admin
+- `quantity`: Specifies how many entries to be returned. Default value is 1000.
+
+Example Request:
+
+```json
+{
+  "userType": 1,
+  "quantity": 10
+}
+```
+
+### Response
+
+The response will be a JSON array containing objects representing user information.
+
+Example Response:
 
 ```json
 [
@@ -90,6 +115,14 @@ Retrieves information for all users in the system.
   ...
 ]
 ```
+
+### Error Responses
+
+- `400 Bad Request`: Returned if the request is missing the `userType` property.
+- `404 Not Found`: Returned if there are no users matching the specified user type.
+- `500 Internal Server Error`: Returned if there is an internal server error while retrieving the users.
+
+## Get Users
 
 ### Response Codes
 
