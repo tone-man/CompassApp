@@ -12,51 +12,60 @@ const Responses = require("./statusMessages");
 const db = new sqlite3.Database("database/CompassDatabase.db");
 
 /* Get User Information */
+
+const getUserInfoQuery = "SELECT * FROM users WHERE email = ?";
+
+function getUserInfo(email) {
+  return new Promise((resolve, reject) => {
+    db.get(getUserInfoQuery, email, (err, row) => {
+      if (err) reject(err);
+      else resolve(row);
+    });
+  });
+}
+
 app.get("/api/users/:email", (req, res) => {
   const email = req.params.email;
 
-  db.get("SELECT * FROM users WHERE email = ?", email, (err, row) => {
-    if (err) {
-      console.error(err);
+  getUserInfo()
+    .then((row) => {
+      if (row) {
+        res.json(row);
+      } else {
+        res.status(404).send(Responses[404]);
+      }
+    })
+    .catch((error) => {
+      console.error(error);
       res.status(500).send(Responses[500]);
-    } else if (row) {
-      res.json(row);
-    } else {
-      res.status(404).send(Responses[404]);
-    }
-  });
+    });
 });
+
+/* Get All Users Query */
 
 const getAllUsersQuery = `SELECT * FROM users;`;
 
-function getAllUsers(callback) {
-  db.all(getAllUsersQuery, (err, rows) => {
-    if (err) {
-      callback(statusError("Internal server error.", 500));
-    } else if (rows.length > 0) {
-      callback(null, rows);
-    } else {
-      callback(statusError("User does not exist.", 404));
-    }
+function getAllUsers() {
+  return new Promise((resolve, reject) => {
+    db.all(getAllUsersQuery, (err, rows) => {
+      if (err) reject(statusError("Internal server error.", 500));
+      else if (rows.length > 0) resolve(rows);
+      else reject(statusError("User does not exist.", 404));
+    });
   });
 }
 
 app.get("/api/users", (req, res) => {
-  try {
-    getAllUsers((error, rows) => {
-      if (error) {
-        console.error(error);
-        res
-          .status(error.statusCode)
-          .json(formatResponse(error.statusCode, error.message));
-      } else {
-        res.json(rows);
-      }
+  getAllUsers()
+    .then((rows) => {
+      res.json(rows);
+    })
+    .catch((error) => {
+      console.error(error);
+      res
+        .status(error.statusCode)
+        .json(formatResponse(error.statusCode, error.message));
     });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json(formatResponse(500, "Internal server error."));
-  }
 });
 
 /* Get User Role */
@@ -88,7 +97,7 @@ WHERE user_roles.role_name = $userRole
 LIMIT $quantity;
 `;
 
-function getUsersPost(params, callback) {
+function getUsersPost(params) {
   let { $quantity, $userRole } = params;
 
   if (!$quantity) {
@@ -99,15 +108,17 @@ function getUsersPost(params, callback) {
     throw statusError("Missing a user role.", 400);
   }
 
-  db.all(getUsersPostQuery, params, (err, rows) => {
-    if (err) {
-      console.error(err);
-      callback(statusError("Internal Server Error", 500));
-    } else if (rows.length > 0) {
-      callback(null, rows);
-    } else {
-      callback(statusError($userRole + " does not exist.", 404));
-    }
+  return new Promise((resolve, reject) => {
+    db.all(getUsersPostQuery, params, (err, rows) => {
+      if (err) {
+        console.error(err);
+        reject(statusError("Internal Server Error", 500));
+      } else if (rows.length > 0) {
+        resolve(rows);
+      } else {
+        reject(statusError($userRole + " does not exist.", 404));
+      }
+    });
   });
 }
 
@@ -123,38 +134,43 @@ app.post("/api/users/", (req, res) => {
     $quantity: quantity,
   };
 
-  try {
-    getUsersPost(params, (error, rows) => {
-      if (error) {
-        console.error(error.message);
-        res
-          .status(error.statusCode)
-          .json(formatResponse(error.statusCode, error.message));
-      } else {
-        res.json(rows);
-      }
+  getUsersPost(params)
+    .then((rows) => {
+      res.json(rows);
+    })
+    .catch((error) => {
+      console.error(error.message);
+      res
+        .status(error.statusCode)
+        .json(formatResponse(error.statusCode, error.message));
     });
-  } catch (error) {
-    console.error(error.message);
-    res
-      .status(error.statusCode)
-      .json(formatResponse(error.statusCode, error.message));
-  }
 });
 
 /* Get Skill Categories */
 app.get("/api/skills/", (req, res) => {
-  db.all("SELECT * FROM skills", (err, row) => {
-    if (err) {
-      console.error(err);
-      res.status(500).send(Responses[500]);
-    } else if (row) {
-      res.json(row);
-    } else {
-      res.status(404).send(Responses[404]);
-    }
-  });
+  getSkillCategories()
+    .then((rows) => {
+      res.json(rows);
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(error.statusCode).send(Responses[error.statusCode]);
+    });
 });
+
+function getSkillCategories() {
+  return new Promise((resolve, reject) => {
+    db.all("SELECT * FROM skills", (err, rows) => {
+      if (err) {
+        reject(statusError("Internal server error.", 500));
+      } else if (rows.length > 0) {
+        resolve(rows);
+      } else {
+        reject(statusError("Skill categories not found.", 404));
+      }
+    });
+  });
+}
 
 /* Get Mastery Log */
 app.get("/api/skill_mastery/:user_id", (req, res) => {
