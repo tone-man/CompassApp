@@ -157,7 +157,7 @@ export default function FacultyBehaviorInput() {
       setDateError("");
       // fetch student ID from name and behavior ID from behavior name
       const student_id = await fetchIDFromName(student);
-      const behavior_id = getBehaviorIdFromName(behavior);
+      const behavior_id = behavior;
 
       if (student_id && behavior_id) {
         try {

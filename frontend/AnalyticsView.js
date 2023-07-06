@@ -131,6 +131,8 @@ const AnalyticsView = () => {
     const fetchDataAndSetState = async () => {
       const { eventDates, mastery } = await fetchData(1);
       setHomeworkDates(eventDates);
+      console.log(eventDates);
+      console.log(mastery);
       setHomeworkMastery(mastery);
     };
 

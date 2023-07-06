@@ -137,7 +137,9 @@ export default function FacultyMasteryInput() {
     const masteryLevelValue = parseFloat(text);
 
     if (isNaN(masteryLevelValue) || masteryLevelValue > 5.0) {
-      setMasteryLevelError("Mastery Level must be a valid number at most 5.0");
+      setMasteryLevelError(
+        "Mastery Level must be a valid number no more than 5.0"
+      );
     } else {
       setMasteryLevelError("");
     }
@@ -169,7 +171,7 @@ export default function FacultyMasteryInput() {
       setDateError("");
       // fetch student ID and skill ID
       const student_id = await fetchIDFromName(student);
-      const skill_id = getSkillIdFromName(mastery);
+      const skill_id = mastery;
       // check if student ID and skill ID are valid
       if (student_id && skill_id) {
         try {

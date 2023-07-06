@@ -1,6 +1,5 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useState, useEffect } from "react";
-
 import {
   StyleSheet,
   Alert,
@@ -11,7 +10,6 @@ import {
   Linking,
 } from "react-native";
 import axios from "axios";
-
 import { BarCodeScanner } from "expo-barcode-scanner";
 
 export default function QRcodeScannerView() {
@@ -22,20 +20,11 @@ export default function QRcodeScannerView() {
   const [timeIn, setTimeIn] = useState(0);
   const [timeOut, setTimeOut] = useState(0);
   const [dateString, setDateString] = useState("");
+  const [dateString2, setDateString2] = useState("");
 
   const askForCameraPermission = async () => {
     const { status } = await BarCodeScanner.requestPermissionsAsync();
     setHasPermission(status === "granted");
-  };
-
-  const fetchIDFromName = async (name) => {
-    try {
-      const response = await axios.get("http://192.168.4.63:5000/api/users");
-      const user = response.data.find((user) => user.name === name);
-      return user.user_id;
-    } catch (error) {
-      console.error("Error fetching user ID:", error);
-    }
   };
 
   useEffect(() => {
@@ -43,24 +32,26 @@ export default function QRcodeScannerView() {
   }, []);
 
   useEffect(() => {
-    const saveData = async () => {
-      if (isScannedIn && timeIn === 0) {
-        const d1 = new Date();
-        const minutesSinceMidnight = d1.getHours() * 60 + d1.getMinutes();
-        setTimeIn(minutesSinceMidnight);
-        setDateString(
-          `${d1.getFullYear()}-${
-            d1.getMonth() + 1
-          }-${d1.getDate()} ${d1.getHours()}:${d1.getMinutes()}`
-        );
-      } else if (!isScannedIn && timeIn !== 0) {
-        const d2 = new Date();
-        const minutesSinceMidnight2 = d2.getHours() * 60 + d2.getMinutes();
-        setTimeOut(minutesSinceMidnight2);
-        const dateString2 = `${d2.getFullYear()}-${
-          d2.getMonth() + 1
-        }-${d2.getDate()} ${d2.getHours()}:${d2.getMinutes()}`;
+    if (isScannedIn && timeIn === 0) {
+      const d1 = new Date();
+      const minutesSinceMidnight = d1.getHours() * 60 + d1.getMinutes();
+      setTimeIn(minutesSinceMidnight);
+      setDateString(formatDateString(d1));
+    }
+  }, [isScannedIn]);
 
+  useEffect(() => {
+    if (!isScannedIn && timeIn !== 0) {
+      const d2 = new Date();
+      const minutesSinceMidnight2 = d2.getHours() * 60 + d2.getMinutes();
+      setTimeOut(minutesSinceMidnight2);
+      setDateString2(formatDateString(d2));
+    }
+  }, [isScannedIn]);
+
+  useEffect(() => {
+    const saveData = async () => {
+      if (timeOut !== 0) {
         try {
           await axios.post("http://192.168.4.63:5000/api/study_hours", {
             userId: 1,
@@ -68,8 +59,11 @@ export default function QRcodeScannerView() {
             datetimeOfLogOut: dateString2,
             durationOfStudy: timeOut - timeIn,
           });
+          console.log("user id: 1");
+          console.log("datetime of log in: " + dateString);
+          console.log("datetime of log out: " + dateString2);
+          console.log("duration of study: " + (timeOut - timeIn));
           Alert.alert("Data saved successfully");
-          //reset timeIn and timeOut
           setTimeIn(0);
           setTimeOut(0);
         } catch (error) {
@@ -77,9 +71,8 @@ export default function QRcodeScannerView() {
         }
       }
     };
-
     saveData();
-  }, [isScannedIn]);
+  }, [timeOut]);
 
   const handlePress = () => {
     Linking.openURL(data);
@@ -126,7 +119,6 @@ export default function QRcodeScannerView() {
   }
 
   return (
-    // display a camera view and a border to scan QR code
     <View style={styles.container}>
       <View style={styles.cameraContainer}>
         <BarCodeScanner
@@ -143,7 +135,29 @@ export default function QRcodeScannerView() {
     </View>
   );
 }
-// styling
+
+// Additional helper function to format date string
+const formatDateString = (date) => {
+  return (
+    date.getFullYear() +
+    "-" +
+    (date.getMonth() + 1 < 10 ? "0" : "") +
+    (date.getMonth() + 1) +
+    "-" +
+    (date.getDate() < 10 ? "0" : "") +
+    date.getDate() +
+    " " +
+    (date.getHours() < 10 ? "0" : "") +
+    date.getHours() +
+    ":" +
+    (date.getMinutes() < 10 ? "0" : "") +
+    date.getMinutes() +
+    ":" +
+    (date.getSeconds() < 10 ? "0" : "") +
+    date.getSeconds()
+  );
+};
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -161,7 +175,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 2,
-    backgroundColor: "red", // Customize the color of the border
+    backgroundColor: "red",
   },
   borderRight: {
     position: "absolute",
@@ -169,7 +183,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 2,
     width: 2,
-    backgroundColor: "red", // Customize the color of the border
+    backgroundColor: "red",
   },
   borderBottom: {
     position: "absolute",
@@ -177,7 +191,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     height: 2,
-    backgroundColor: "red", // Customize the color of the border
+    backgroundColor: "red",
   },
   borderLeft: {
     position: "absolute",
@@ -185,6 +199,6 @@ const styles = StyleSheet.create({
     left: 0,
     bottom: 2,
     width: 2,
-    backgroundColor: "red", // Customize the color of the border
+    backgroundColor: "red",
   },
 });

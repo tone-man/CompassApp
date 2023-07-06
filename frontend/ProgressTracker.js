@@ -16,9 +16,14 @@ const fetchData = async () => {
       "http://192.168.4.63:5000/api/students/" + userId + "/"
     );
 
-    const study_minutes_completed = response2.data.study_minutes_completed;
-    const study_minutes_required = response2.data.study_minutes_required;
-    const base_study_minutes = response2.data.base_study_minutes;
+    const study_minutes_completed = response2.data.study_time_completed;
+    const study_minutes_required = response2.data.study_time_required;
+    const base_study_minutes = response2.data.base_time_required;
+    console.log(
+      study_minutes_completed,
+      study_minutes_required,
+      base_study_minutes
+    );
 
     return {
       study_minutes_completed,
