@@ -118,10 +118,6 @@ app.post("/api/users/", (req, res) => {
     quantity = 1000;
   }
 
-  if (!userRole) {
-    userRole = "Student";
-  }
-
   const params = {
     $userRole: userRole,
     $quantity: quantity,
