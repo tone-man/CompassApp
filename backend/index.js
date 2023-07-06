@@ -79,6 +79,69 @@ app.get("/api/user_roles/:user_id", (req, res) => {
   );
 });
 
+const getUsersPostQuery = `SELECT * FROM users
+INNER JOIN user_roles_mapping
+ON users.user_id = user_roles_mapping.user_id
+INNER JOIN user_roles
+ON user_roles_mapping.role_id = user_roles.role_id
+WHERE user_roles.role_name = $userRole
+LIMIT $quantity;
+`;
+
+function getUsersPost(params, callback) {
+  let { $quantity, $userRole } = params;
+
+  if (!$quantity) {
+    throw statusError("Missing an entry limit.", 400);
+  }
+
+  if (!$userRole) {
+    throw statusError("Missing a user role.", 400);
+  }
+
+  db.all(getUsersPostQuery, params, (err, rows) => {
+    if (err) {
+      console.error(err);
+      callback(statusError("Internal Server Error", 500));
+    } else if (rows.length > 0) {
+      callback(null, rows);
+    } else {
+      callback(statusError($userRole + " does not exist.", 404));
+    }
+  });
+}
+
+app.post("/api/users/", (req, res) => {
+  let { userRole, quantity } = req.body;
+
+  if (!quantity) {
+    quantity = 1000;
+  }
+
+  const params = {
+    $userRole: userRole,
+    $quantity: quantity,
+  };
+
+  try {
+    getUsersPost(params, (error, rows) => {
+      if (error) {
+        console.error(error.message);
+        res
+          .status(error.statusCode)
+          .json(formatResponse(error.statusCode, error.message));
+      } else {
+        res.json(rows);
+      }
+    });
+  } catch (error) {
+    console.error(error.message);
+    res
+      .status(error.statusCode)
+      .json(formatResponse(error.statusCode, error.message));
+  }
+});
+
 /* Get Skill Categories */
 app.get("/api/skills/", (req, res) => {
   db.all("SELECT * FROM skills", (err, row) => {
@@ -134,7 +197,7 @@ app.get("/api/study_hours/:user_id", (req, res) => {
   const userId = req.params.user_id;
 
   db.all(
-    "SELECT * FROM student_study_log WHERE user_id = ? ORDER BY date_of_event",
+    "SELECT * FROM student_study_log WHERE user_id = ? ORDER BY datetime_of_sign_in",
     userId,
     (err, row) => {
       if (err) {
@@ -318,7 +381,7 @@ app.post("/api/skill_mastery", (req, res) => {
   }
 });
 
-const insertStudyHoursQuery = `INSERT INTO student_study_log ($userId, $datetimeOfLogIn, $datetimeOfLogOut, $durationOfStudy) 
+const insertStudyHoursQuery = `INSERT INTO student_study_log (user_id, datetime_of_sign_in, datetime_of_sign_out, duration_of_study) 
 VALUES ($userId, $datetimeOfLogIn, $datetimeOfLogOut, $durationOfStudy)`;
 
 function insertStudyHours(params) {
@@ -350,7 +413,7 @@ function insertStudyHours(params) {
     } else {
       console.log(
         `Study Hours Logged As:` +
-          `\n\t{user_id: ${params.$userId}, log_in_time: ${params.$logInTime}, date_of_event: ${params.$dateOfEvent}}`
+          `\n\t{user_id: ${params.$userId}, datetime_of_sign_in: ${params.$datetimeOfLogIn}, datetime_of_sign_out: ${params.$datetimeOfLogOut}, duration_of_study: ${params.$durationOfStudy}}`
       );
     }
   });
@@ -370,6 +433,7 @@ app.post("/api/study_hours", (req, res) => {
   console.log(params);
   try {
     insertStudyHours(params);
+    res.status(200).send(Responses[200]);
   } catch (error) {
     console.error(error);
     res
@@ -378,8 +442,6 @@ app.post("/api/study_hours", (req, res) => {
 
     return;
   }
-
-  res.status(200).send(Responses[200]);
 });
 
 /* Update Study Hours for a Specific Student */
