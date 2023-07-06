@@ -381,7 +381,7 @@ app.post("/api/skill_mastery", (req, res) => {
   }
 });
 
-const insertStudyHoursQuery = `INSERT INTO student_study_log ($userId, $datetimeOfLogIn, $datetimeOfLogOut, $durationOfStudy) 
+const insertStudyHoursQuery = `INSERT INTO student_study_log (user_id, datetime_of_sign_in, datetime_of_sign_out, duration_of_study) 
 VALUES ($userId, $datetimeOfLogIn, $datetimeOfLogOut, $durationOfStudy)`;
 
 function insertStudyHours(params) {
@@ -413,7 +413,7 @@ function insertStudyHours(params) {
     } else {
       console.log(
         `Study Hours Logged As:` +
-          `\n\t{user_id: ${params.$userId}, log_in_time: ${params.$logInTime}, date_of_event: ${params.$dateOfEvent}}`
+          `\n\t{user_id: ${params.$userId}, datetime_of_sign_in: ${params.$datetimeOfLogIn}, datetime_of_sign_out: ${params.$datetimeOfLogOut}, duration_of_study: ${params.$durationOfStudy}}`
       );
     }
   });
@@ -433,6 +433,7 @@ app.post("/api/study_hours", (req, res) => {
 
   try {
     insertStudyHours(params);
+    res.status(200).send(Responses[200]);
   } catch (error) {
     console.error(error);
     res
@@ -441,8 +442,6 @@ app.post("/api/study_hours", (req, res) => {
 
     return;
   }
-
-  res.status(200).send(Responses[200]);
 });
 
 /* Update Study Hours for a Specific Student */
