@@ -412,30 +412,35 @@ const insertSkillMasteryQuery = `INSERT INTO skill_mastery_log (user_id, skill_i
 VALUES ($userId, $skillId, $masteryStatus, $dateOfEvent)`;
 
 function insertSkillMastery(params) {
-  const { $userId, $skillId, $masteryStatus, $dateOfEvent } = params;
+  return new Promise((resolve, reject) => {
+    const { $userId, $skillId, $masteryStatus, $dateOfEvent } = params;
 
-  if (!validateUser($userId))
-    throw statusError("userId must be an integer", 400);
+    if (!validateUser($userId))
+      reject(statusError("userId must be an integer", 400));
 
-  if (!validateSkill($skillId))
-    throw statusError("skillId must be an integer", 400);
+    if (!validateSkill($skillId))
+      reject(statusError("skillId must be an integer", 400));
 
-  if (!validateMasteryStatus($masteryStatus))
-    throw statusError("masteryStatus must be an number between 0 and 5", 400);
-
-  if (!validateDateOfEvent($dateOfEvent))
-    throw statusError("dateofEvent must be in format 'YYYY-MM-DD'", 400);
-
-  db.run(insertSkillMasteryQuery, params, (err) => {
-    if (err) {
-      console.error(err);
-      throw statusError("Database Rejects Query", 500);
-    } else {
-      console.log(
-        "Mastery Skill Logged As:" +
-          `\n\t{user_id:${params.$userId}, skill_id:${params.$skillId}, mastery_status:${params.$masteryStatus}, date_of_event:${params.$dateOfEvent}}`
+    if (!validateMasteryStatus($masteryStatus))
+      reject(
+        statusError("masteryStatus must be an number between 0 and 5", 400)
       );
-    }
+
+    if (!validateDateOfEvent($dateOfEvent))
+      reject(statusError("dateofEvent must be in format 'YYYY-MM-DD'", 400));
+
+    db.run(insertSkillMasteryQuery, params, (error) => {
+      if (error) {
+        console.error(error);
+        reject(statusError("Database Rejects Query", 500));
+      } else {
+        console.log(
+          "Mastery Skill Logged As:" +
+            `\n\t{user_id:${params.$userId}, skill_id:${params.$skillId}, mastery_status:${params.$masteryStatus}, date_of_event:${params.$dateOfEvent}}`
+        );
+        resolve();
+      }
+    });
   });
 }
 
@@ -450,16 +455,16 @@ app.post("/api/skill_mastery", (req, res) => {
     $dateOfEvent: dateOfEvent,
   };
 
-  try {
-    insertSkillMastery(params);
-
-    res.status(200).send(Responses[200]);
-  } catch (error) {
-    console.log(error.message);
-    res
-      .status(error.statusCode)
-      .json(formatResponse(error.statusCode, error.message));
-  }
+  insertSkillMastery(params)
+    .then(() => {
+      res.status(200).send(Responses[200]);
+    })
+    .catch((error) => {
+      console.log(error);
+      res
+        .status(error.statusCode)
+        .json(formatResponse(error.statusCode, error.message));
+    });
 });
 
 const insertStudyHoursQuery = `INSERT INTO student_study_log (user_id, datetime_of_sign_in, datetime_of_sign_out, duration_of_study) 
