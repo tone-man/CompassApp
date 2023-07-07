@@ -213,13 +213,9 @@ app.get("/api/skill_mastery/:user_id", (req, res) => {
 function getStudentInfo(userId) {
   return new Promise((resolve, reject) => {
     db.get("SELECT * FROM students WHERE user_id = ?", userId, (err, row) => {
-      if (err) {
-        reject(statusError(Responses[500], 500));
-      } else if (row) {
-        resolve(row);
-      } else {
-        reject(statusError(Responses[404], 404));
-      }
+      if (err) reject(statusError(Responses[500], 500));
+      else if (row) resolve(row);
+      else reject(statusError(Responses[404], 404));
     });
   });
 }
@@ -240,23 +236,34 @@ app.get("/api/students/:user_id", (req, res) => {
 });
 
 /* Get Student Study Hours */
+
+function getStudentStudyHours(userId) {
+  return new Promise((resolve, reject) => {
+    db.all(
+      "SELECT * FROM student_study_log WHERE user_id = ? ORDER BY datetime_of_sign_in",
+      userId,
+      (err, rows) => {
+        if (err) reject(statusError(Responses[500], 500));
+        else if (rows.length > 0) resolve(rows);
+        else reject(statusError(Responses[404], 404));
+      }
+    );
+  });
+}
+
 app.get("/api/study_hours/:user_id", (req, res) => {
   const userId = req.params.user_id;
 
-  db.all(
-    "SELECT * FROM student_study_log WHERE user_id = ? ORDER BY datetime_of_sign_in",
-    userId,
-    (err, row) => {
-      if (err) {
-        console.error(err);
-        res.status(500).send(Responses[500]);
-      } else if (row) {
-        res.json(row);
-      } else {
-        res.status(404).send(Responses[404]);
-      }
-    }
-  );
+  getStudentStudyHours(userId)
+    .then((rows) => {
+      res.json(rows);
+    })
+    .catch((error) => {
+      console.error(error);
+      res
+        .status(error.statusCode)
+        .json(formatResponse(error.statusCode, error.message));
+    });
 });
 
 /* Get Student Bad Behaviors */
