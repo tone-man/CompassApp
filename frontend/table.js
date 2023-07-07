@@ -27,8 +27,14 @@ const fetchData = async (id) => {
       }
       return count;
     }, 0);
-    const incompleteAssignments = response2.data.reduce((count, behavior) => {
+    const missedAssignments = response2.data.reduce((count, behavior) => {
       if (behavior.behavior_id === 3) {
+        return count + 1;
+      }
+      return count;
+    }, 0);
+    const lateAssignments = response2.data.reduce((count, behavior) => {
+      if (behavior.behavior_id === 4) {
         return count + 1;
       }
       return count;
@@ -37,14 +43,16 @@ const fetchData = async (id) => {
     return {
       missedClass,
       missedCoachingMeeting,
-      incompleteAssignments,
+      missedAssignments,
+      lateAssignments,
     };
   } catch (error) {
     console.error(error);
     return {
       missedClass: null,
       missedCoachingMeeting: null,
-      incompleteAssignments: null,
+      missedAssignments: null,
+      lateAssignments: null,
     };
   }
 };
@@ -53,19 +61,22 @@ const TableExample = () => {
   // set up states for eventDates and mastery for each skill
   const [missedClass, setMissedClass] = useState(0);
   const [missedCoachingMeeting, setMissedCoachingMeeting] = useState(0);
-  const [incompleteAssignments, setIncompleteAssignments] = useState(0);
+  const [missedAssignments, setMissedAssignments] = useState(0);
+  const [lateAssignments, setLateAssignments] = useState(0);
 
   useEffect(() => {
     const fetchDataAndSetState = async () => {
       const {
         missedClass: fetchedMissedClass,
         missedCoachingMeeting: fetchedMissedCoachingMeeting,
-        incompleteAssignments: fetchedIncompleteAssignments,
+        missedAssignments: fetchedMissedAssignments,
+        lateAssignments: fetchedLateAssignments,
       } = await fetchData(1);
 
       setMissedClass(fetchedMissedClass || 0);
       setMissedCoachingMeeting(fetchedMissedCoachingMeeting || 0);
-      setIncompleteAssignments(fetchedIncompleteAssignments || 0);
+      setMissedAssignments(fetchedMissedAssignments || 0);
+      setLateAssignments(fetchedLateAssignments || 0);
     };
 
     fetchDataAndSetState();
@@ -110,9 +121,16 @@ const TableExample = () => {
           <Text style={stylesConfig.tableCellText}>Missed Assignments</Text>
         </DataTable.Cell>
         <DataTable.Cell numeric>
-          <Text style={stylesConfig.tableCellText}>
-            {incompleteAssignments}
-          </Text>
+          <Text style={stylesConfig.tableCellText}>{missedAssignments}</Text>
+        </DataTable.Cell>
+      </DataTable.Row>
+
+      <DataTable.Row>
+        <DataTable.Cell>
+          <Text style={stylesConfig.tableCellText}>Late Assignments</Text>
+        </DataTable.Cell>
+        <DataTable.Cell numeric>
+          <Text style={stylesConfig.tableCellText}>{lateAssignments}</Text>
         </DataTable.Cell>
       </DataTable.Row>
 
@@ -121,7 +139,9 @@ const TableExample = () => {
           <Text style={stylesConfig.tableCellText}>Missing Assignments</Text>
         </DataTable.Cell>
         <DataTable.Cell numeric>
-          <Text style={stylesConfig.tableCellText}>{0}</Text>
+          <Text style={stylesConfig.tableCellText}>
+            {missedAssignments - lateAssignments}
+          </Text>
         </DataTable.Cell>
       </DataTable.Row>
     </DataTable>

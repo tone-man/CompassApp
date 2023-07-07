@@ -83,17 +83,17 @@ const ProgressTracker = () => {
   return (
     // display progress bar and table
     <View style={styles.container}>
-      <ProgressBar progress={progress} color={colors.primary} />
       <DataTable style={stylesConfig.graph}>
         <DataTable.Header>
           <DataTable.Title>
             <Text style={stylesConfig.tableHeaderText}>Study Time</Text>
           </DataTable.Title>
         </DataTable.Header>
+        <ProgressBar progress={progress} color={"yellow"} />
 
         <DataTable.Row>
           <DataTable.Cell>
-            <Text style={stylesConfig.tableCellText}>Study Time Done</Text>
+            <Text style={stylesConfig.tableCellText}>Complete</Text>
           </DataTable.Cell>
           <DataTable.Cell numeric>
             <Text style={stylesConfig.tableCellText}>
@@ -104,7 +104,19 @@ const ProgressTracker = () => {
 
         <DataTable.Row>
           <DataTable.Cell>
-            <Text style={stylesConfig.tableCellText}>Study Time Goal</Text>
+            <Text style={stylesConfig.tableCellText}>Remaining</Text>
+          </DataTable.Cell>
+          <DataTable.Cell numeric>
+            <Text style={stylesConfig.tableCellText}>
+              {required - completed <= 0
+                ? "0 hours 0 minutes"
+                : formatTime(required - completed)}
+            </Text>
+          </DataTable.Cell>
+        </DataTable.Row>
+        <DataTable.Row>
+          <DataTable.Cell>
+            <Text style={stylesConfig.tableCellText}>Required</Text>
           </DataTable.Cell>
           <DataTable.Cell numeric>
             <Text style={stylesConfig.tableCellText}>
