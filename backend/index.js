@@ -174,6 +174,8 @@ function getSkillCategories() {
   });
 }
 
+/* Get Student Skill Mastery Data */
+
 function getSkillMasteryLog(userId) {
   return new Promise((resolve, reject) => {
     db.all(
@@ -236,7 +238,6 @@ app.get("/api/students/:user_id", (req, res) => {
 });
 
 /* Get Student Study Hours */
-
 function getStudentStudyHours(userId) {
   return new Promise((resolve, reject) => {
     db.all(
@@ -266,6 +267,7 @@ app.get("/api/study_hours/:user_id", (req, res) => {
     });
 });
 
+/* Get Student Bad Behaviors */
 function getStudentBehaviorEvents(userId) {
   return new Promise((resolve, reject) => {
     db.all(
@@ -279,7 +281,7 @@ function getStudentBehaviorEvents(userId) {
     );
   });
 }
-/* Get Student Bad Behaviors */
+
 app.get("/api/behavior_events/:user_id", (req, res) => {
   const userId = req.params.user_id;
 
@@ -296,17 +298,28 @@ app.get("/api/behavior_events/:user_id", (req, res) => {
 });
 
 /* Get Behavior Categories */
-app.get("/api/behaviors", (req, res) => {
-  db.all("SELECT * FROM student_behaviors", (err, row) => {
-    if (err) {
-      console.error(err);
-      res.status(500).send(Responses[500]);
-    } else if (row) {
-      res.json(row);
-    } else {
-      res.status(404).send(Responses[404]);
-    }
+
+function getStudentBehaviors() {
+  return new Promise((resolve, reject) => {
+    db.all("SELECT * FROM student_behaviors;", (err, rows) => {
+      if (err) reject(statusError(Responses[500], 500));
+      else if (rows.length > 0) resolve(rows);
+      else reject(statusError(Responses[404], 404));
+    });
   });
+}
+
+app.get("/api/behaviors", (req, res) => {
+  getStudentBehaviors()
+    .then((rows) => {
+      res.json(rows);
+    })
+    .catch((error) => {
+      console.error(error);
+      res
+        .status(error.statusCode)
+        .json(formatResponse(error.statusCode, error.message));
+    });
 });
 
 /* Get Behavior Consequences For Given Behavior */
