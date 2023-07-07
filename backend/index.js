@@ -13,11 +13,9 @@ const db = new sqlite3.Database("database/CompassDatabase.db");
 
 /* Get User Information */
 
-const getUserInfoQuery = "SELECT * FROM users WHERE email = ?";
-
 function getUserInfo(email) {
   return new Promise((resolve, reject) => {
-    db.get(getUserInfoQuery, email, (err, row) => {
+    db.get("SELECT * FROM users WHERE email = ?", email, (err, row) => {
       if (err) reject(statusError("Internal server error.", 500));
       else if (row.length > 0) resolve(rows);
       else reject(statusError("User does not exist.", 404));
@@ -28,7 +26,7 @@ function getUserInfo(email) {
 app.get("/api/users/:email", (req, res) => {
   const email = req.params.email;
 
-  getUserInfo()
+  getUserInfo(email)
     .then((row) => {
       if (row) {
         res.json(row);
@@ -43,11 +41,9 @@ app.get("/api/users/:email", (req, res) => {
 
 /* Get All Users Query */
 
-const getAllUsersQuery = `SELECT * FROM users;`;
-
 function getAllUsers() {
   return new Promise((resolve, reject) => {
-    db.all(getAllUsersQuery, (err, rows) => {
+    db.all(`SELECT * FROM users;`, (err, rows) => {
       if (err) reject(statusError("Internal server error.", 500));
       else if (rows.length > 0) resolve(rows);
       else reject(statusError("User does not exist.", 404));
@@ -323,23 +319,33 @@ app.get("/api/behaviors", (req, res) => {
 });
 
 /* Get Behavior Consequences For Given Behavior */
+
+function getStudentBehaviorConsequence(behaviorId) {
+  return new Promise((resolve, reject) => {
+    db.all(
+      "SELECT * FROM student_behavior_consequences WHERE behavior_id = ?;",
+      behaviorId,
+      (err, rows) => {
+        if (err) reject(statusError(Responses[500], 500));
+        else if (rows.length > 0) resolve(rows);
+        else reject(statusError(Responses[404], 404));
+      }
+    );
+  });
+}
 app.get("/api/behavior_consequences/:behavior_id", (req, res) => {
   const behaviorId = req.params.behavior_id;
 
-  db.get(
-    "SELECT * FROM student_behavior_consequences WHERE behavior_id = ?",
-    behaviorId,
-    (err, row) => {
-      if (err) {
-        console.error(err);
-        res.status(500).send(Responses[500]);
-      } else if (row) {
-        res.json(row);
-      } else {
-        res.status(404).send(Responses[404]);
-      }
-    }
-  );
+  getStudentBehaviorConsequence(behaviorId)
+    .then((rows) => {
+      res.json(rows);
+    })
+    .catch((error) => {
+      console.error(error);
+      res
+        .status(error.statusCode)
+        .json(formatResponse(error.statusCode, error.message));
+    });
 });
 
 const insertBehaviorQuery = `INSERT INTO student_behavior_log (user_id, behavior_id, date_of_event)
