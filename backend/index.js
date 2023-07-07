@@ -33,6 +33,7 @@ app.get("/api/users/:email", (req, res) => {
       }
     })
     .catch((error) => {
+      console.error(error);
       res
         .status(error.statusCode)
         .json(formatResponse(error.statusCode, error.message));
@@ -352,28 +353,28 @@ const insertBehaviorQuery = `INSERT INTO student_behavior_log (user_id, behavior
 VALUES ($userId, $behaviorId, $dateOfEvent);`;
 
 function insertBehavior(params) {
-  const { $userId, $behaviorId, $dateOfEvent } = params;
+  return new Promise((resolve, reject) => {
+    const { $userId, $behaviorId, $dateOfEvent } = params;
 
-  if (!validateUser($userId))
-    throw statusError("userId must be an integer", 400);
+    if (!validateUser($userId))
+      reject(statusError("userId must be an integer", 400));
 
-  if (!validateBehavior($behaviorId))
-    throw statusError("behaviorId must be an integer", 400);
+    if (!validateBehavior($behaviorId))
+      reject(statusError("behaviorId must be an integer", 400));
 
-  if (!validateDateOfEvent($dateOfEvent))
-    throw statusError("dateofEvent must be in format 'YYYY-MM-DD'", 400);
+    if (!validateDateOfEvent($dateOfEvent))
+      reject(statusError("dateofEvent must be in format 'YYYY-MM-DD'", 400));
 
-  db.run(insertBehaviorQuery, params, (err) => {
-    if (err) {
-      console.error(err);
-      throw new statusError("Database Rejected Query", 500);
-    } else {
-      console.log(
-        `Behavior Event Logged As: ${
-          (this.userId, this.behaviorId, this.dateOfEvent)
-        }`
-      );
-    }
+    db.run(insertBehaviorQuery, params, (error) => {
+      if (error) {
+        reject(statusError("Database Rejected Query", 500));
+      } else {
+        console.log(
+          `Behavior Event Logged As: {userId: ${$userId}, behaviorId: ${$behaviorId}, dateOfEvent: ${$dateOfEvent}}`
+        );
+        resolve();
+      }
+    });
   });
 }
 
@@ -387,26 +388,24 @@ app.post("/api/behavior_events", (req, res) => {
     $dateOfEvent: dateOfEvent,
   };
 
-  try {
-    insertBehavior(params);
-  } catch (error) {
-    console.error(error.message);
-    res
-      .status(error.statusCode)
-      .json(formatResponse(error.statusCode, error.message));
-  }
-
-  try {
-    updateStudentStudyHoursRemaining(userId);
-  } catch (error) {
-    console.error(error.message);
-    res
-      .status(error.statusCode)
-      .json(formatResponse(error.statusCode, error.message));
-    rollbackUpdateToBehaviorLog(params);
-  }
-
-  res.status(200).send(Responses[200]);
+  insertBehavior(params)
+    .then(() => updateStudentStudyHoursRemaining(userId))
+    .then(() => {
+      res.status(200).send(formatResponse(200, Responses[200]));
+    })
+    .catch((error) => {
+      rollbackUpdateToBehaviorLog(params);
+      console.error(error);
+      res
+        .status(error.statusCode)
+        .json(formatResponse(error.statusCode, error.message));
+    })
+    .catch((error) => {
+      console.error(error);
+      res
+        .status(error.statusCode)
+        .json(formatResponse(error.statusCode, error.message));
+    });
 });
 
 const insertSkillMasteryQuery = `INSERT INTO skill_mastery_log (user_id, skill_id, mastery_status, date_of_event) 
@@ -647,68 +646,80 @@ function updateStudentStudyHoursCompleted(userId) {
 
 /* Sub Query For Updating Student Study Hours Required*/
 
-const baseStudentStudyTimeQuery = `SELECT (base_study_minutes) 
+const baseStudentStudyTimeQuery = `SELECT (base_time_required) 
   FROM students
   WHERE user_id = ?;`;
 
-const sumStudentRequiredStudyTime = `SELECT SUM(additional_study_minutes) 
+function baseStudyTime(userId) {
+  return new Promise((resolve, reject) => {
+    if (!validateUser(userId))
+      reject(statusError("userId must be an integer", 400));
+
+    db.get(baseStudentStudyTimeQuery, userId, (error, row) => {
+      if (error) reject(statusError(Responses[500], 500));
+      else if (row) resolve(row.base_time_required);
+      else reject(statusError(Responses[400], 400));
+    });
+  });
+}
+
+const sumStudentRequiredStudyTimeQuery = `SELECT SUM(additional_study_minutes) 
   AS sumBehaviorMinutes
   FROM student_behavior_log
   JOIN student_behavior_consequences
   ON student_behavior_log.behavior_id=student_behavior_consequences.behavior_id
   WHERE user_id = ?;`;
 
+function sumStudentRequiredStudyTime(userId) {
+  return new Promise((resolve, reject) => {
+    if (!validateUser(userId))
+      reject(statusError("userId must be an integer", 400));
+
+    db.get(sumStudentRequiredStudyTimeQuery, userId, (error, row) => {
+      if (error) reject(statusError(Responses[500], 500));
+      else if (row) resolve(row.sumBehaviorMinutes);
+      else reject(statusError(Responses[400], 400));
+    });
+  });
+}
+
 const updateStudentMinutesRemainingQuery = `UPDATE students
-  SET study_minutes_required = $sumBehaviorMinutes
+  SET study_time_required = $totalTimeRemaining
   WHERE user_id = $userId`;
 
+function updateStudentMinutesRemaining(params) {
+  return new Promise((resolve, reject) => {
+    const { $userId, $totalTimeRemaining } = params;
+
+    if (!validateUser($userId))
+      reject(statusError("userId must be an integer", 400));
+
+    db.get(updateStudentMinutesRemainingQuery, params, (error, row) => {
+      if (error) reject(statusError(Responses[500], 500));
+      else resolve();
+    });
+  });
+}
+
 function updateStudentStudyHoursRemaining(userId) {
-  let baseStudentMinutes,
-    sumBehaviorMinutes = null;
+  return new Promise((resolve, reject) => {
+    Promise.all([baseStudyTime(userId), sumStudentRequiredStudyTime(userId)])
+      .then(([baseStudentMinutes, sumBehaviorMinutes]) => {
+        const params = {
+          $userId: userId,
+          $totalTimeRemaining: baseStudentMinutes + sumBehaviorMinutes,
+        };
 
-  if (!validateUser(userId))
-    throw statusError("userId must be an integer", 400);
-
-  db.get(baseStudentStudyTimeQuery, userId, (err, row) => {
-    if (err) {
-      console.log(err);
-      throw statusError("Database Rejected Query.", 500);
-    } else if (row) {
-      baseStudentMinutes = row.base_study_minutes;
-      console.log();
-
-      if (!baseStudentMinutes)
-        throw ReferenceError("No Base Study Hours Found for User", 410);
-
-      db.get(sumStudentRequiredStudyTime, userId, (err, row) => {
-        if (err) {
-          console.log(err);
-          throw statusError("Database Rejected Query.", 500);
-        } else if (row) {
-          sumBehaviorMinutes = row.sumBehaviorMinutes;
-
-          if (!sumBehaviorMinutes)
-            throw ReferenceError("No Behaviors Found for User", 410);
-
-          sumBehaviorMinutes += baseStudentMinutes;
-          const params = {
-            $userId: userId,
-            $sumBehaviorMinutes: sumBehaviorMinutes,
-          };
-
-          db.run(updateStudentMinutesRemainingQuery, params, (err) => {
-            if (err) {
-              console.log(err);
-              throw statusError("Database Rejected Query.", 500);
-            } else {
-              console.log(
-                `Study hours remaining updated successfully for user ${userId}`
-              );
-            }
-          });
-        }
+        return updateStudentMinutesRemaining(params).then(() => {
+          console.log(
+            `Study hours remaining updated successfully for user ${userId}`
+          );
+          resolve();
+        });
+      })
+      .catch((error) => {
+        reject(error);
       });
-    }
   });
 }
 
@@ -757,6 +768,10 @@ function rollbackUpdateToBehaviorLog(params) {
     if (err) {
       console.error("Failed to Rollback, will try again.");
       rollbackUpdateToBehaviorLog(params);
+    } else {
+      console.log(
+        `Behavior Event Removed: {userId: ${$userId}, behaviorId: ${$behaviorId}, dateOfEvent: ${$dateOfEvent}}`
+      );
     }
   });
 }
@@ -808,10 +823,10 @@ function statusError(message, status) {
 }
 
 /* API OutPut Formatter */
-function formatResponse(errorCode, additionalMessage = "No details provided.") {
+function formatResponse(code, additionalMessage = "No details provided.") {
   const response = {
-    response: errorCode || 500,
-    error: Responses[errorCode] || Responses[500],
+    response: code || 500,
+    error: Responses[code] || Responses[500],
     message: additionalMessage,
   };
   return response;
