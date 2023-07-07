@@ -18,8 +18,9 @@ const getUserInfoQuery = "SELECT * FROM users WHERE email = ?";
 function getUserInfo(email) {
   return new Promise((resolve, reject) => {
     db.get(getUserInfoQuery, email, (err, row) => {
-      if (err) reject(err);
-      else resolve(row);
+      if (err) reject(statusError("Internal server error.", 500));
+      else if (row.length > 0) resolve(rows);
+      else reject(statusError("User does not exist.", 404));
     });
   });
 }
@@ -31,13 +32,12 @@ app.get("/api/users/:email", (req, res) => {
     .then((row) => {
       if (row) {
         res.json(row);
-      } else {
-        res.status(404).send(Responses[404]);
       }
     })
     .catch((error) => {
-      console.error(error);
-      res.status(500).send(Responses[500]);
+      res
+        .status(error.statusCode)
+        .json(formatResponse(error.statusCode, error.message));
     });
 });
 
@@ -154,7 +154,9 @@ app.get("/api/skills/", (req, res) => {
     })
     .catch((error) => {
       console.error(error);
-      res.status(error.statusCode).send(Responses[error.statusCode]);
+      res
+        .status(error.statusCode)
+        .json(formatResponse(error.statusCode, error.message));
     });
 });
 
@@ -172,40 +174,69 @@ function getSkillCategories() {
   });
 }
 
-/* Get Mastery Log */
+function getSkillMasteryLog(userId) {
+  return new Promise((resolve, reject) => {
+    db.all(
+      "SELECT * FROM skill_mastery_log WHERE user_id = ? ORDER BY skill_id, date_of_event",
+      userId,
+      (err, rows) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(rows);
+        }
+      }
+    );
+  });
+}
+
 app.get("/api/skill_mastery/:user_id", (req, res) => {
   const userId = req.params.user_id;
 
-  db.all(
-    "SELECT * FROM skill_mastery_log WHERE user_id = ? ORDER BY skill_id, date_of_event",
-    userId,
-    (err, row) => {
-      if (err) {
-        console.error(err);
-        res.status(500).send(Responses[500]);
-      } else if (row) {
-        res.json(row);
+  getSkillMasteryLog(userId)
+    .then((rows) => {
+      if (rows.length > 0) {
+        res.json(rows);
       } else {
         res.status(404).send("Skill Mastery not found for the specified user");
       }
-    }
-  );
+    })
+    .catch((error) => {
+      console.error(error);
+      res
+        .status(error.statusCode)
+        .json(formatResponse(error.statusCode, error.message));
+    });
 });
 
 /* Get Student Information */
+function getStudentInfo(userId) {
+  return new Promise((resolve, reject) => {
+    db.get("SELECT * FROM students WHERE user_id = ?", userId, (err, row) => {
+      if (err) {
+        reject(statusError(Responses[500], 500));
+      } else if (row) {
+        resolve(row);
+      } else {
+        reject(statusError(Responses[404], 404));
+      }
+    });
+  });
+}
+
 app.get("/api/students/:user_id", (req, res) => {
   const userId = req.params.user_id;
 
-  db.get("SELECT * FROM students WHERE user_id = ?", userId, (err, row) => {
-    if (err) {
-      console.error(err);
-      res.status(500).send(Responses[500]);
-    } else if (row) {
+  getStudentInfo(userId)
+    .then((row) => {
       res.json(row);
-    } else {
-      res.status(404).send(Responses[404]);
-    }
-  });
+    })
+    .catch((error) => {
+      console.error(error);
+      res
+        .status(error.statusCode)
+        .json(formatResponse(error.statusCode, error.message));
+    });
 });
 
 /* Get Student Study Hours */
