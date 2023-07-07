@@ -266,24 +266,33 @@ app.get("/api/study_hours/:user_id", (req, res) => {
     });
 });
 
+function getStudentBehaviorEvents(userId) {
+  return new Promise((resolve, reject) => {
+    db.all(
+      "SELECT * FROM student_behavior_log WHERE user_id = ? ORDER BY date_of_event",
+      userId,
+      (err, rows) => {
+        if (err) reject(statusError(Responses[500], 500));
+        else if (rows.length > 0) resolve(rows);
+        else reject(statusError(Responses[404], 404));
+      }
+    );
+  });
+}
 /* Get Student Bad Behaviors */
 app.get("/api/behavior_events/:user_id", (req, res) => {
   const userId = req.params.user_id;
 
-  db.all(
-    "SELECT * FROM student_behavior_log WHERE user_id = ? ORDER BY date_of_event",
-    userId,
-    (err, row) => {
-      if (err) {
-        console.error(err);
-        res.status(500).send(Responses[500]);
-      } else if (row) {
-        res.json(row);
-      } else {
-        res.status(404).send(Responses[404]);
-      }
-    }
-  );
+  getStudentBehaviorEvents(userId)
+    .then((rows) => {
+      res.json(rows);
+    })
+    .catch((error) => {
+      console.error(error);
+      res
+        .status(error.statusCode)
+        .json(formatResponse(error.statusCode, error.message));
+    });
 });
 
 /* Get Behavior Categories */
