@@ -17,7 +17,7 @@ function getUserInfo(email) {
   return new Promise((resolve, reject) => {
     db.get("SELECT * FROM users WHERE email = ?", email, (err, row) => {
       if (err) reject(statusError("Internal server error.", 500));
-      else if (row.length > 0) resolve(rows);
+      else if (row) resolve(row);
       else reject(statusError("User does not exist.", 404));
     });
   });
@@ -25,7 +25,6 @@ function getUserInfo(email) {
 
 app.get("/api/users/:email", (req, res) => {
   const email = req.params.email;
-
   getUserInfo(email)
     .then((row) => {
       if (row) {
