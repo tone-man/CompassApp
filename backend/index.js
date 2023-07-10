@@ -471,37 +471,44 @@ const insertStudyHoursQuery = `INSERT INTO student_study_log (user_id, datetime_
 VALUES ($userId, $datetimeOfLogIn, $datetimeOfLogOut, $durationOfStudy)`;
 
 function insertStudyHours(params) {
-  const { $userId, $datetimeOfLogIn, $datetimeOfLogOut, $durationOfStudy } =
-    params;
+  return new Promise((resolve, reject) => {
+    const { $userId, $datetimeOfLogIn, $datetimeOfLogOut, $durationOfStudy } =
+      params;
 
-  if (!validateUser($userId)) {
-    throw statusError("userId must be an integer", 400);
-  }
+    if (!validateUser($userId)) {
+      reject(statusError("userId must be an integer", 400));
+    }
 
-  if (!validateDatetime($datetimeOfLogIn)) {
-    throw statusError(
-      "datetimeOfLogIn must be in format 'YYYY-MM-DD HH:MM:SS'.",
-      400
-    );
-  }
-
-  if (!validateDatetime($datetimeOfLogOut)) {
-    throw statusError(
-      "datetimeOfLogOut must be in format 'YYYY-MM-DD HH:MM:SS'.",
-      400
-    );
-  }
-
-  db.run(insertStudyHoursQuery, params, (err) => {
-    if (err) {
-      console.error(err);
-      throw statusError("Database Rejected Query", 500);
-    } else {
-      console.log(
-        `Study Hours Logged As:` +
-          `\n\t{user_id: ${params.$userId}, datetime_of_sign_in: ${params.$datetimeOfLogIn}, datetime_of_sign_out: ${params.$datetimeOfLogOut}, duration_of_study: ${params.$durationOfStudy}}`
+    if (!validateDatetime($datetimeOfLogIn)) {
+      reject(
+        statusError(
+          "datetimeOfLogIn must be in format 'YYYY-MM-DD HH:MM:SS'.",
+          400
+        )
       );
     }
+
+    if (!validateDatetime($datetimeOfLogOut)) {
+      reject(
+        statusError(
+          "datetimeOfLogOut must be in format 'YYYY-MM-DD HH:MM:SS'.",
+          400
+        )
+      );
+    }
+
+    db.run(insertStudyHoursQuery, params, (err) => {
+      if (err) {
+        console.error(err);
+        reject(statusError("Database Rejected Query", 500));
+      } else {
+        console.log(
+          `Study Hours Logged As:` +
+            `\n\t{user_id: ${params.$userId}, datetime_of_sign_in: ${params.$datetimeOfLogIn}, datetime_of_sign_out: ${params.$datetimeOfLogOut}, duration_of_study: ${params.$durationOfStudy}}`
+        );
+        resolve();
+      }
+    });
   });
 }
 
@@ -517,20 +524,29 @@ app.post("/api/study_hours", (req, res) => {
     $durationOfStudy: durationOfStudy,
   };
 
-  try {
-    insertStudyHours(params);
-    res.status(200).send(Responses[200]);
-  } catch (error) {
-    console.error(error);
-    res
-      .status(error.statusCode)
-      .json(formatResponse(error.statusCode, error.message));
-
-    return;
-  }
+  insertStudyHours(params)
+    .then(updateStudentStudyHoursCompleted(userId))
+    .then(() => {
+      res.status(200).send(Responses[200]);
+    })
+    .catch((error) => {
+      rollbackUpdateToStudentStudyLog(params);
+      console.error(error);
+      res
+        .status(error.statusCode)
+        .json(formatResponse(error.statusCode, error.message));
+    })
+    .catch((error) => {
+      console.log(error);
+      res
+        .status(error.statusCode)
+        .json(formatResponse(error.statusCode, error.message));
+    });
 });
 
-/* Update Study Hours for a Specific Student */
+/* Update Study Hours for a Specific Student 
+  REMOVE SHORTLY
+*/
 
 const updateStudyHoursLogQuery = `UPDATE student_study_log
 SET log_out_time = $logOutTime AND study_duration = $studyDuration
@@ -596,7 +612,7 @@ app.patch("/api/study_hours/:user_id", (req, res) => {
     updateStudentStudyHoursCompleted(params.$userId);
   } catch (error) {
     console.error(error.message);
-    RollbackUpdateToStudentStudyLog();
+    rollbackUpdateToStudentStudyLog();
     res
       .status(error.statusCode)
       .json(formatResponse(error.statusCode, error.message));
@@ -607,45 +623,60 @@ app.patch("/api/study_hours/:user_id", (req, res) => {
 
 /* Sub Query For Updating Student Study Hours Completed*/
 
-const sumStudentStudyTimeQuery = `SELECT SUM(study_duration)
+const sumStudentStudyTimeQuery = `SELECT SUM(duration_of_study)
   AS sumStudentStudyTime
   FROM student_study_log
   WHERE user_id = ?;`;
 
+function sumStudentStudyTime(userId) {
+  return new Promise((resolve, reject) => {
+    if (!validateUser(userId)) {
+      reject(statusError("userId must be an integer", 400));
+    }
+
+    db.get(sumStudentStudyTimeQuery, userId, (err, row) => {
+      if (err) {
+        console.log(err);
+        reject(statusError("Database Rejected Query.", 500));
+      } else if (row) {
+        resolve(row.sumStudentStudyTime);
+      } else {
+        resolve(0);
+      }
+    });
+  });
+}
+
 const updateStudentMinutesCompletedQuery = `UPDATE students
-  SET study_minutes_completed = $studyMinutesCompleted
+  SET study_time_completed = $studyMinutesCompleted
   WHERE user_id = $userId;`;
 
 function updateStudentStudyHoursCompleted(userId) {
-  let sumStudyMinutes = null;
-
-  if (!validateUser(userId))
-    throw statusError("userId must be an integer", 400);
-
-  db.get(sumStudentStudyTimeQuery, userId, (err, row) => {
-    if (err) {
-      console.log(err);
-      throw statusError("Database Rejected Query.", 500);
-    } else if (row) {
-      sumStudyMinutes = row.sumStudentStudyTime;
-
-      if (!sumStudyMinutes)
-        throw new statusError("No Study Hour Entries Found for User", 410);
-
-      const params = {
-        $userId: userId,
-        $studyMinutesCompleted: sumStudyMinutes,
-      };
-
-      db.run(updateStudentMinutesCompletedQuery, params, (err) => {
-        if (err) {
-          console.log(err);
-          throw statusError("Database Rejected Query.", 500);
-        } else {
-          console.log(`Study hours updated successfully for user ${userId}`);
-        }
-      });
+  return new Promise((resolve, reject) => {
+    if (!validateUser(userId)) {
+      reject(statusError("userId must be an integer", 400));
     }
+
+    sumStudentStudyTime(userId)
+      .then((sumStudyMinutes) => {
+        const params = {
+          $userId: userId,
+          $studyMinutesCompleted: sumStudyMinutes,
+        };
+
+        db.run(updateStudentMinutesCompletedQuery, params, (err) => {
+          if (err) {
+            console.log(err);
+            reject(statusError("Database Rejected Query.", 500));
+          } else {
+            console.log(`Study hours updated successfully for user ${userId}`);
+            resolve();
+          }
+        });
+      })
+      .catch((error) => {
+        reject(error);
+      });
   });
 }
 
@@ -734,7 +765,7 @@ const rollbackUpdateToStudentStudyLogQuery = `UPDATE student_study_hours
   SET log_out_time = NULL AND study_duration = NULL,
   WHERE user_id = $userId AND log_in_time = $logInTime AND dateOfEvent = $dateOfEvent`;
 
-function RollbackUpdateToStudentStudyLog(params) {
+function rollbackUpdateToStudentStudyLog(params) {
   const { $userId, $logInTime, $dateOfEvent } = params;
 
   if (!validateUser($userId))
@@ -749,7 +780,7 @@ function RollbackUpdateToStudentStudyLog(params) {
   db.run(rollbackUpdateToStudentStudyLogQuery, params, (err) => {
     if (err) {
       console.error("Failed to Rollback, will try again.");
-      RollbackUpdateToStudentStudyLog(params);
+      rollbackUpdateToStudentStudyLog(params);
     }
   });
 }
