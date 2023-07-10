@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "@react-native-picker/picker": "^2.4.10",
+    "react-native-autocomplete-input": "^5.3.2",
+    "react-native-linear-gradient": "^2.7.1"
+  }
+}

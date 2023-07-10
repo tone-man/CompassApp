@@ -15,27 +15,30 @@ const fetchData = async () => {
     const response2 = await axios.get(
       "http://192.168.4.63:5000/api/students/" + userId + "/"
     );
+    console.log("got data for user", userId, response2.data);
 
-    const study_minutes_completed = response2.data.study_time_completed;
-    const study_minutes_required = response2.data.study_time_required;
-    const base_study_minutes = response2.data.base_time_required;
+    const study_time_completed = response2.data.study_time_completed;
+    const study_time_required = response2.data.study_time_required;
+    const base_time_required = response2.data.base_time_required;
     console.log(
-      study_minutes_completed,
-      study_minutes_required,
-      base_study_minutes
+      "-->",
+      study_time_completed,
+      study_time_required,
+      base_time_required,
+      "<--"
     );
 
     return {
-      study_minutes_completed,
-      study_minutes_required,
-      base_study_minutes,
+      study_time_completed: study_time_completed,
+      study_time_required: study_time_required,
+      base_study_time: base_time_required,
     };
   } catch (error) {
     console.error(error);
     return {
-      study_minutes_completed: null,
-      study_minutes_required: null,
-      base_study_minutes: null,
+      study_time_completed: null,
+      study_time_required: null,
+      base_study_time: null,
     };
   }
 };
@@ -58,14 +61,11 @@ const ProgressTracker = () => {
   // fetch data from backend and set states
   useEffect(() => {
     const fetchDataAndSetState = async () => {
-      const {
-        study_minutes_completed,
-        study_minutes_required,
-        base_study_minutes,
-      } = await fetchData();
-      setCompleted(study_minutes_completed);
-      setRequired(study_minutes_required);
-      setBase(base_study_minutes);
+      const { study_time_completed, study_time_required, base_study_time } =
+        await fetchData();
+      setCompleted(study_time_completed);
+      setRequired(study_time_required);
+      setBase(base_study_time);
     };
 
     fetchDataAndSetState();
@@ -73,6 +73,7 @@ const ProgressTracker = () => {
 
   // calculate progress
   useEffect(() => {
+    console.log(completed, required);
     const validProgress =
       !isNaN(completed) && !isNaN(required) && required !== 0
         ? Math.min(1, completed / required)
