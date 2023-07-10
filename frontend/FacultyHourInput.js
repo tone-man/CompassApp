@@ -116,7 +116,8 @@ export default function FacultyBehaviorInput() {
           mastery_status: mastery,
           date_of_event: date,
         };
-        console.log(data);
+        //const response = await axios.post(
+
         // alert user that data was saved successfully
         Alert.alert("Saved!");
       }
