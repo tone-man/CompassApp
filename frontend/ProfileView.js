@@ -11,7 +11,7 @@ import { AuthContext } from "./AuthContext";
 import LoginPage from "./loginPage";
 
 const ProfileView = () => {
-  const { signOut } = useContext(AuthContext); // get signOut from context
+  const { signOut, user } = useContext(AuthContext); // get signOut from context
   const navigation = useNavigation(); // get navigation
 
   const handleLogout = () => {
@@ -24,7 +24,7 @@ const ProfileView = () => {
     <PaperProvider>
       <View style={styles.container}>
         <Icon name="account-circle-outline" size={300} color="#000" />
-        <Text> USER </Text>
+        <Text> {user.name} </Text>
         <Button
           style={styles.button}
           mode="contained"
