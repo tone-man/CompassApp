@@ -8,7 +8,9 @@ WebBrowser.maybeCompleteAuthSession();
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
+  // set isLogged in state to false
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  // set user to null
   const [user, setUser] = useState(null); // Add user state
   const [request, response, promptAsync] = Google.useAuthRequest({
     androidClientId:
@@ -31,15 +33,19 @@ export const AuthProvider = ({ children }) => {
   };
 
   const handleSignIn = async () => {
-    const storedUser = await AsyncStorage.getItem("@user");
+    // Get the user's name using the Google Auth token
+    const storedUser = await AsyncStorage.getItem("@user"); // Get the user's name
     if (!storedUser) {
+      // If the user doesn't exist
       if (response?.type === "success") {
+        // check if the response is a success from the Google Auth
         await getUserInfo(response.authentication.accessToken);
       }
     } else {
+      // If the user is stores
       setUser(JSON.parse(storedUser)); // Set user state if user is found in async storage
-      setIsLoggedIn(true);
-      console.log("Stored user info:", storedUser);
+      setIsLoggedIn(true); // Set isLoggedIn state to true
+      console.log("Stored user info:", storedUser); // log the user info (remove later)
     }
   };
 

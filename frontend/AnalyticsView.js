@@ -44,7 +44,6 @@ const fetchData = async (id) => {
 
     return { eventDates, mastery };
   } catch (error) {
-    console.error(error);
     return { eventDates, mastery };
   }
 };
@@ -131,8 +130,6 @@ const AnalyticsView = () => {
     const fetchDataAndSetState = async () => {
       const { eventDates, mastery } = await fetchData(1);
       setHomeworkDates(eventDates);
-      console.log(eventDates);
-      console.log(mastery);
       setHomeworkMastery(mastery);
     };
 
