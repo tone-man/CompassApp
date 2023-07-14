@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Image } from "react-native";
 import {
   DefaultTheme,
   Provider as PaperProvider,
@@ -8,11 +8,25 @@ import {
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useNavigation } from "@react-navigation/native";
 import { AuthContext } from "./AuthContext";
-import LoginPage from "./loginPage";
+import loginPage from "./loginPage";
+import { ThemeContext } from "./ThemeContext";
 
 const ProfileView = () => {
   const { signOut, user } = useContext(AuthContext); // get signOut from context
   const navigation = useNavigation(); // get navigation
+  const { theme, setTheme } = useContext(ThemeContext); // get theme and setTheme from context
+  const setThemeColor = (color) => {
+    setTheme({
+      ...theme,
+      colors: {
+        ...theme.colors,
+        primary: color,
+      },
+    });
+  };
+  React.useEffect(() => {
+    setThemeColor("blue");
+  }, []);
 
   const handleLogout = () => {
     signOut(); // logout user
@@ -23,8 +37,11 @@ const ProfileView = () => {
     // display user icon, username, and logout button
     <PaperProvider>
       <View style={styles.container}>
-        <Icon name="account-circle-outline" size={300} color="#000" />
-        <Text> {user.name} </Text>
+        <Image
+          style={styles.profileImage}
+          source={{ uri: user.picture }} // Dynamic image source from user.picture
+        />
+        <Text>{user.name}</Text>
         <Button
           style={styles.button}
           mode="contained"
@@ -39,12 +56,19 @@ const ProfileView = () => {
 };
 
 export default ProfileView;
+
 // styling for ProfileView
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
     alignItems: "center",
+  },
+  profileImage: {
+    width: 300,
+    height: 300,
+    borderRadius: 150,
+    marginBottom: 40,
   },
   button: {
     width: "100%",
