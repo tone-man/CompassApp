@@ -7,6 +7,16 @@ app.use(express.json()); //JSON to read headers
 const port = 5000;
 
 const Responses = require("./statusMessages");
+const { statusError, formatResponse } = require("./utils");
+const {
+  validateUser,
+  validateBehavior,
+  validateSkill,
+  validateMasteryStatus,
+  validateDateOfEvent,
+  validateDatetime,
+  validateEmail,
+} = require("./validation");
 
 /* Opens Database Connection */
 const db = new sqlite3.Database("database/CompassDatabase.db");
@@ -543,82 +553,50 @@ app.post("/api/study_hours", (req, res) => {
     });
 });
 
-/* Update Study Hours for a Specific Student 
-  REMOVE SHORTLY
-*/
+const insertUserQuery = `INSERT INTO users (email, name)
+VALUES ($email, $name)`;
 
-const updateStudyHoursLogQuery = `UPDATE student_study_log
-SET log_out_time = $logOutTime AND study_duration = $studyDuration
-WHERE user_id = $userId AND log_in_time = $logInTime AND date_of_event = $dateOfEvent`;
+function addUser(params) {
+  return new Promise((resolve, reject) => {
+    const { $name, $email } = params;
 
-function updateStudyHoursLog(params) {
-  const { $userId, $datetimeOfLogIn, $datetimeOfLogOut, $durationOfStudy } =
-    params;
-
-  if (!validateUser($userId))
-    throw statusError("userId must be an integer", 400);
-
-  if (!validateDateOfEvent($dateOfEvent))
-    throw statusError("dateofEvent must be in format 'YYYY-MM-DD'", 400);
-
-  if (!validateStudyLoggingTime($logInTime))
-    throw statusError("logInTime must be an integer between 0 and 1440.", 400);
-
-  if (!validateStudyLoggingTime($logOutTime))
-    throw statusError("logOutTime must be an integer between 0 and 1440.", 400);
-
-  params.$studyDuration = $logOutTime - $logInTime;
-
-  if (!validateStudyLoggingTime(params.$studyDuration))
-    throw statusError(
-      "Study duration must be an integer between 0 and 1440.",
-      400
-    );
-
-  db.run(updateStudyHoursLogQuery, params, function (error) {
-    if (error) {
-      console.error(error);
-      throw statusError("Database Rejected Query", 500);
-    } else {
-      console.log(
-        `Log out time updated successfully for user ${params.userId}`
-      );
+    if (!validateEmail($email)) {
+      statusError("email must be in format 'user@example.com'.", 400);
     }
+
+    db.run(insertUserQuery, params, (err) => {
+      if (err) {
+        console.log(err);
+        reject(statusError(Responses[500], 500));
+      } else {
+        console.log(`User Created:` + `\n\t{name: ${$name}, email: ${$email}}`);
+        resolve();
+      }
+    });
   });
 }
 
-app.patch("/api/study_hours/:user_id", (req, res) => {
-  const userId = req.params.user_id;
-  const { dateOfEvent, logInTime, logOutTime } = req.body;
+const insertUserMappingQuery = `INSERT INTO user_mapping (email, name)
+VALUES ($userId, $roleId)`;
 
-  const params = {
-    $userId: userId,
-    $logInTime: logInTime,
-    $dateOfEvent: dateOfEvent,
-    $logOutTime: logOutTime,
-  };
+function insertMappingQuery(params) {
+  return new Promise((resolve, reject) => {
+    const { $userId, $roleId } = params;
 
-  try {
-    updateStudyHoursLog(params);
-  } catch (error) {
-    console.error(error.message);
-    res
-      .status(error.statusCode)
-      .json(formatResponse(error.statusCode, error.message));
-  }
-
-  try {
-    updateStudentStudyHoursCompleted(params.$userId);
-  } catch (error) {
-    console.error(error.message);
-    rollbackUpdateToStudentStudyLog();
-    res
-      .status(error.statusCode)
-      .json(formatResponse(error.statusCode, error.message));
-  }
-
-  res.status(200).send(Responses[200]);
-});
+    db.run(insertUserQuery, params, (err) => {
+      if (err) {
+        console.log(err);
+        reject(statusError(Responses[500], 500));
+      } else {
+        console.log(
+          `User Mapping Created:` +
+            `\n\t{user_id: ${$userId}, role_id: ${$roleId}}`
+        );
+        resolve();
+      }
+    });
+  });
+}
 
 /* Sub Query For Updating Student Study Hours Completed*/
 
@@ -809,62 +787,6 @@ function rollbackUpdateToBehaviorLog(params) {
       );
     }
   });
-}
-
-/* Validation Functions */
-
-function validateUser(userId) {
-  /*TODO: Ensure id exists */
-  return Number.isInteger(userId);
-}
-
-function validateBehavior(behaviorId) {
-  /*TODO: Ensure id exists */
-  return Number.isInteger(behaviorId);
-}
-
-function validateSkill(skillId) {
-  /*TODO: Ensure id exists */
-  return Number.isInteger(skillId);
-}
-
-function validateMasteryStatus(masteryStatus) {
-  return masteryStatus > 0 && masteryStatus <= 5;
-}
-
-function validateStudyLoggingTime(logTime) {
-  if (!Number.isInteger(logTime)) return false;
-
-  return logTime > 0 && logTime <= 1440;
-}
-
-function validateDateOfEvent(dateOfEvent) {
-  const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-
-  return dateRegex.test(dateOfEvent);
-}
-
-function validateDatetime(dateTime) {
-  const dateTimeRegex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
-
-  return dateTimeRegex.test(dateTime);
-}
-
-/* Status Error Constructor */
-function statusError(message, status) {
-  const error = new Error(message);
-  error.statusCode = status;
-  return error;
-}
-
-/* API OutPut Formatter */
-function formatResponse(code, additionalMessage = "No details provided.") {
-  const response = {
-    response: code || 500,
-    error: Responses[code] || Responses[500],
-    message: additionalMessage,
-  };
-  return response;
 }
 
 /* App Start */
