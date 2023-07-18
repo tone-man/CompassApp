@@ -25,7 +25,7 @@ const ProfileView = () => {
     });
   };
   React.useEffect(() => {
-    setThemeColor("blue");
+    // setThemeColor("blue");
   }, []);
 
   const handleLogout = () => {
