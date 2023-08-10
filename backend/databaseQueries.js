@@ -255,6 +255,38 @@ function getUserRoleMapping(user_id) {
 }
 
 /**
+ * Get a behavior by id
+ * @param {*} behavior_id
+ * @returns
+ */
+function getBehaviorById(behavior_id) {
+  return new Promise((resolve, reject) => {
+    const query = "SELECT * FROM student_behaviors WHERE behavior_id = ?";
+    db.get(query, [behavior_id], (err, row) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(row);
+      }
+    });
+  });
+}
+
+/**
+ * Get all behaviors
+ * @returns json of all behaviors
+ */
+function getAllStudentBehaviors() {
+  return new Promise((resolve, reject) => {
+    db.all("SELECT * FROM student_behaviors;", (err, rows) => {
+      if (err) reject(err);
+      else if (rows.length > 0) resolve(rows);
+      else reject(err);
+    });
+  });
+}
+
+/**
  *
  * UPDATE QUERIES
  *
@@ -271,6 +303,26 @@ function updateUser(id, name, email) {
   return new Promise((resolve, reject) => {
     const query = "UPDATE users SET name = ?, email = ? WHERE id = ?";
     db.run(query, [name, email, id], function (err) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
+}
+
+/**
+ * Update the name of a behavior
+ * @param {*} behavior_id
+ * @param {*} behavior_name
+ * @returns none
+ */
+function updateBehavior(behavior_id, behavior_name) {
+  return new Promise((resolve, reject) => {
+    const query =
+      "UPDATE student_behaviors SET behavior_name = ? WHERE behavior_id = ?";
+    db.run(query, [behavior_name, behavior_id], function (err) {
       if (err) {
         reject(err);
       } else {
@@ -303,6 +355,7 @@ function deleteUser(id) {
     });
   });
 }
+
 /**
  * Deletes a mapping between a user and role
  * @param {*} user_id
@@ -314,6 +367,24 @@ function deleteUserRoleMapping(user_id, role_id) {
     const query =
       "DELETE FROM user_roles_mapping WHERE user_id = ? AND role_id = ?";
     db.run(query, [user_id, role_id], function (err) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
+}
+
+/**
+ * Deletes behavior of a given id
+ * @param {*} behavior_id
+ * @returns none
+ */
+function deleteBehavior(behavior_id) {
+  return new Promise((resolve, reject) => {
+    const query = "DELETE FROM student_behaviors WHERE behavior_id = ?";
+    db.run(query, [behavior_id], function (err) {
       if (err) {
         reject(err);
       } else {
