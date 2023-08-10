@@ -85,6 +85,27 @@ function createBehaviorConsequence(behaviorId, additionalStudyMinutes) {
 }
 
 /**
+ * Create a behavior entry
+ * @param {*} userId
+ * @param {*} behaviorId
+ * @param {*} dateOfEvent
+ * @returns none
+ */
+function createBehaviorLog(userId, behaviorId, dateOfEvent) {
+  return new Promise((resolve, reject) => {
+    const query =
+      "INSERT INTO student_behavior_log (user_id, behavior_id, date_of_event) VALUES (?, ?, ?)";
+    db.run(query, [userId, behaviorId, dateOfEvent], function (err) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
+}
+
+/**
  *
  * READ QUERIES
  *
