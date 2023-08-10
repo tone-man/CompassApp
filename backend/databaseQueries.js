@@ -387,6 +387,24 @@ function getSkillMasteryByStudent(userId) {
 }
 
 /**
+ * Get Student info based off user id
+ * @param {*} user_id
+ * @returns data from student
+ */
+function getStudentById(user_id) {
+  return new Promise((resolve, reject) => {
+    const query = "SELECT * FROM students WHERE user_id = ?";
+    db.get(query, [user_id], (err, row) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(row);
+      }
+    });
+  });
+}
+
+/**
  *
  * UPDATE QUERIES
  *
@@ -538,6 +556,37 @@ function updateSkillMasteryLog(entry_id, mastery_status) {
 }
 
 /**
+ * Updates data for a specific student
+ * @param {*} user_id
+ * @param {*} study_time_completed
+ * @param {*} study_time_required
+ * @param {*} base_time_required
+ * @returns
+ */
+function updateStudent(
+  user_id,
+  study_time_completed,
+  study_time_required,
+  base_time_required
+) {
+  return new Promise((resolve, reject) => {
+    const query =
+      "UPDATE students SET study_time_completed = ?, study_time_required = ?, base_time_required = ? WHERE user_id = ?";
+    db.run(
+      query,
+      [study_time_completed, study_time_required, base_time_required, user_id],
+      function (err) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve({ changes: this.changes });
+        }
+      }
+    );
+  });
+}
+
+/**
  *
  * DELETE QUERIES
  *
@@ -667,6 +716,24 @@ function deleteSkillMasteryLog(entry_id) {
         reject(err);
       } else {
         resolve();
+      }
+    });
+  });
+}
+
+/**
+ * Delete Student Information for a Usor
+ * @param {*} user_id
+ * @returns
+ */
+function deleteStudent(user_id) {
+  return new Promise((resolve, reject) => {
+    const query = "DELETE FROM students WHERE user_id = ?";
+    db.run(query, [user_id], function (err) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve({ changes: this.changes });
       }
     });
   });
