@@ -193,7 +193,7 @@ function createStudent(
  * @param {*} duration_of_study
  * @returns userId of entry
  */
-function createStudentStudyLog(
+function createStudyLog(
   user_id,
   datetime_of_sign_in,
   datetime_of_sign_out,
@@ -209,7 +209,7 @@ function createStudentStudyLog(
         if (err) {
           reject(err);
         } else {
-          resolve({ studentId: user_id });
+          resolve({ entryId: this.lastID });
         }
       }
     );
@@ -405,6 +405,25 @@ function getStudentById(user_id) {
 }
 
 /**
+ * Get study hour entries for a student
+ * @param {*} userId
+ * @returns entries for the student
+ */
+function getStudentStudyHours(userId) {
+  return new Promise((resolve, reject) => {
+    db.all(
+      "SELECT * FROM student_study_log WHERE user_id = ? ORDER BY datetime_of_sign_in",
+      userId,
+      (err, rows) => {
+        if (err) reject(statusError(Responses[500], 500));
+        else if (rows.length > 0) resolve(rows);
+        else reject(statusError(Responses[404], 404));
+      }
+    );
+  });
+}
+
+/**
  *
  * UPDATE QUERIES
  *
@@ -529,7 +548,7 @@ function updateMasterySkill(skillId, newSkillName) {
       if (err) {
         reject(err);
       } else {
-        resolve({ changes: this.changes });
+        resolve();
       }
     });
   });
@@ -579,7 +598,38 @@ function updateStudent(
         if (err) {
           reject(err);
         } else {
-          resolve({ changes: this.changes });
+          resolve();
+        }
+      }
+    );
+  });
+}
+
+/**
+ * Update entry of study hours
+ * @param {*} entryId
+ * @param {*} datetime_of_sign_in
+ * @param {*} datetime_of_sign_out
+ * @param {*} duration_of_study
+ * @returns
+ */
+function updateStudyLog(
+  entryId,
+  datetime_of_sign_in,
+  datetime_of_sign_out,
+  duration_of_study
+) {
+  return new Promise((resolve, reject) => {
+    const query =
+      "UPDATE student_study_log SET datetime_of_sign_in = ?, datetime_of_sign_out = ?, duration_of_study = ? WHERE entry_id = ?";
+    db.run(
+      query,
+      [datetime_of_sign_in, datetime_of_sign_out, duration_of_study, entryId],
+      function (err) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
         }
       }
     );
@@ -733,7 +783,25 @@ function deleteStudent(user_id) {
       if (err) {
         reject(err);
       } else {
-        resolve({ changes: this.changes });
+        resolve();
+      }
+    });
+  });
+}
+
+/**
+ * Delete a study hour entry
+ * @param {*} entryId
+ * @returns none
+ */
+function deleteStudyLog(entryId) {
+  return new Promise((resolve, reject) => {
+    const query = "DELETE FROM student_study_log WHERE entry_id = ?";
+    db.run(query, [entryId], function (err) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
       }
     });
   });
