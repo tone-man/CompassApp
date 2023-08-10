@@ -89,17 +89,17 @@ function createBehaviorConsequence(behaviorId, additionalStudyMinutes) {
  * @param {*} userId
  * @param {*} behaviorId
  * @param {*} dateOfEvent
- * @returns none
+ * @returns id of the entry
  */
-function createBehaviorLog(userId, behaviorId, dateOfEvent) {
+function createBehaviorLog(user_id, behavior_id, date_of_event) {
   return new Promise((resolve, reject) => {
     const query =
       "INSERT INTO student_behavior_log (user_id, behavior_id, date_of_event) VALUES (?, ?, ?)";
-    db.run(query, [userId, behaviorId, dateOfEvent], function (err) {
+    db.run(query, [user_id, behavior_id, date_of_event], function (err) {
       if (err) {
         reject(err);
       } else {
-        resolve();
+        resolve({ entryId: this.lastID });
       }
     });
   });
@@ -281,7 +281,7 @@ function getAllStudentBehaviors() {
     db.all("SELECT * FROM student_behaviors;", (err, rows) => {
       if (err) reject(err);
       else if (rows.length > 0) resolve(rows);
-      else reject(err);
+      else reject();
     });
   });
 }
@@ -302,6 +302,25 @@ function getBehaviorConsequence(behavior_id) {
         resolve(row);
       }
     });
+  });
+}
+
+/**
+ * Gets all behaviors by user_id
+ * @param {*} user_id
+ * @returns
+ */
+function getBehaviorLogByStudent(user_id) {
+  return new Promise((resolve, reject) => {
+    db.all(
+      "SELECT * FROM student_behavior_log WHERE user_id = ? ORDER BY date_of_event",
+      userId,
+      (err, rows) => {
+        if (err) reject(err);
+        else if (rows.length > 0) resolve(rows);
+        else reject();
+      }
+    );
   });
 }
 
@@ -392,6 +411,32 @@ function updateBehaviorConsequence(behavior_id, additional_study_minutes) {
 }
 
 /**
+ * Updates Behavior log entry
+ * @param {*} entry_id
+ * @param {*} user_id
+ * @param {*} behavior_id
+ * @param {*} date_of_event
+ * @returns none
+ */
+function updateBehaviorLog(entry_id, user_id, behavior_id, date_of_event) {
+  return new Promise((resolve, reject) => {
+    const query =
+      "UPDATE student_behavior_log SET user_id = ?, behavior_id = ?, date_of_event = ? WHERE entry_id = ?";
+    db.run(
+      query,
+      [user_id, behavior_id, date_of_event, entry_id],
+      function (err) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      }
+    );
+  });
+}
+
+/**
  *
  * DELETE QUERIES
  *
@@ -463,6 +508,24 @@ function deleteBehaviorConsequence(behavior_id) {
     const query =
       "DELETE FROM student_behavior_consequences WHERE behavior_id = ?";
     db.run(query, [behavior_id], function (err) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
+}
+
+/**
+ * Deletes a entry frow the behavior log
+ * @param {*} entry_id
+ * @returns none
+ */
+function deleteBehaviorLog(entry_id) {
+  return new Promise((resolve, reject) => {
+    const query = "DELETE FROM student_behavior_log WHERE entry_id = ?";
+    db.run(query, [entry_id], function (err) {
       if (err) {
         reject(err);
       } else {
