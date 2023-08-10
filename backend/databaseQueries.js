@@ -181,6 +181,37 @@ function createStudent(
 }
 
 /**
+ * Create a student study log entry
+ * @param {*} user_id
+ * @param {*} datetime_of_sign_in
+ * @param {*} datetime_of_sign_out
+ * @param {*} duration_of_study
+ * @returns userId of entry
+ */
+function createStudentStudyLog(
+  user_id,
+  datetime_of_sign_in,
+  datetime_of_sign_out,
+  duration_of_study
+) {
+  return new Promise((resolve, reject) => {
+    const query =
+      "INSERT INTO student_study_log (user_id, datetime_of_sign_in, datetime_of_sign_out, duration_of_study) VALUES (?, ?, ?, ?)";
+    db.run(
+      query,
+      [user_id, datetime_of_sign_in, datetime_of_sign_out, duration_of_study],
+      function (err) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve({ studentId: user_id });
+        }
+      }
+    );
+  });
+}
+
+/**
  *
  * READ QUERIES
  *
