@@ -218,15 +218,65 @@ function createStudentStudyLog(
  */
 
 /**
+ * Get a single user by Id
+ * @param {*} id
+ * @returns data of user as json
+ */
+function getUserById(id) {
+  return new Promise((resolve, reject) => {
+    const query = "SELECT * FROM users WHERE id = ?";
+    db.get(query, [id], (err, row) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(row);
+      }
+    });
+  });
+}
+
+/**
  *
  * UPDATE QUERIES
  *
  */
 
 /**
+ * Update user info by id
+ * @param {*} id
+ * @param {*} name
+ * @param {*} email
+ * @returns
+ */
+function updateUser(id, name, email) {
+  return new Promise((resolve, reject) => {
+    const query = "UPDATE users SET name = ?, email = ? WHERE id = ?";
+    db.run(query, [name, email, id], function (err) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve({ operation: "update", changes: this.changes });
+      }
+    });
+  });
+}
+
+/**
  *
  * DELETE QUERIES
  *
  */
+function deleteUser(id) {
+  return new Promise((resolve, reject) => {
+    const query = "DELETE FROM users WHERE id = ?";
+    db.run(query, [id], function (err) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve({ operation: "delete", changes: this.changes });
+      }
+    });
+  });
+}
 
 modules.exports = { createUser, createUserRole };
