@@ -1,5 +1,5 @@
 const sqlite3 = require("sqlite3").verbose();
-const db = new sqlite3.Database("users.db");
+const db = new sqlite3.Database("database/CompassDatabase.db");
 
 /**
  *
@@ -41,6 +41,19 @@ function createUserRole(userId, userRole) {
         reject(err);
       } else {
         resolve();
+      }
+    });
+  });
+}
+
+function createStudentBehavior(behaviorName) {
+  return new Promise((resolve, reject) => {
+    const query = "INSERT INTO student_behaviors (behavior_name) VALUES (?)";
+    db.run(query, [behaviorName], function (err) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve({ behaviorId: this.lastID });
       }
     });
   });
