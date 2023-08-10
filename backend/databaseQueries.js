@@ -236,6 +236,25 @@ function getUserById(id) {
 }
 
 /**
+ * Get user role from user id
+ * @param {*} user_id
+ * @returns user role
+ */
+function getUserRoleMapping(user_id) {
+  return new Promise((resolve, reject) => {
+    const query =
+      "SELECT * FROM user_roles_mapping WHERE user_id = ? AND role_id = ?";
+    db.get(query, [user_id, role_id], (err, row) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(row);
+      }
+    });
+  });
+}
+
+/**
  *
  * UPDATE QUERIES
  *
@@ -246,7 +265,7 @@ function getUserById(id) {
  * @param {*} id
  * @param {*} name
  * @param {*} email
- * @returns
+ * @returns none
  */
 function updateUser(id, name, email) {
   return new Promise((resolve, reject) => {
@@ -255,7 +274,7 @@ function updateUser(id, name, email) {
       if (err) {
         reject(err);
       } else {
-        resolve({ operation: "update", changes: this.changes });
+        resolve();
       }
     });
   });
@@ -266,6 +285,12 @@ function updateUser(id, name, email) {
  * DELETE QUERIES
  *
  */
+
+/**
+ * Removes a user
+ * @param {*} id
+ * @returns none
+ */
 function deleteUser(id) {
   return new Promise((resolve, reject) => {
     const query = "DELETE FROM users WHERE id = ?";
@@ -273,7 +298,26 @@ function deleteUser(id) {
       if (err) {
         reject(err);
       } else {
-        resolve({ operation: "delete", changes: this.changes });
+        resolve();
+      }
+    });
+  });
+}
+/**
+ * Deletes a mapping between a user and role
+ * @param {*} user_id
+ * @param {*} role_id
+ * @returns none
+ */
+function deleteUserRoleMapping(user_id, role_id) {
+  return new Promise((resolve, reject) => {
+    const query =
+      "DELETE FROM user_roles_mapping WHERE user_id = ? AND role_id = ?";
+    db.run(query, [user_id, role_id], function (err) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
       }
     });
   });
