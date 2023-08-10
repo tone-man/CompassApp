@@ -106,6 +106,24 @@ function createBehaviorLog(userId, behaviorId, dateOfEvent) {
 }
 
 /**
+ * Create a skill to be tracked
+ * @param {*} skillName
+ * @returns id of skill
+ */
+function createSkill(skillName) {
+  return new Promise((resolve, reject) => {
+    const query = "INSERT INTO skills (skill_name) VALUES (?)";
+    db.run(query, [skillName], function (err) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve({ skillId: this.lastID });
+      }
+    });
+  });
+}
+
+/**
  *
  * READ QUERIES
  *
