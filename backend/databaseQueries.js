@@ -124,6 +124,32 @@ function createSkill(skillName) {
 }
 
 /**
+ * Create a new skill mastery entry
+ * @param {*} userId
+ * @param {*} skillId
+ * @param {*} masteryStatus
+ * @param {*} dateOfEvent
+ * @returns none
+ */
+function createSkillMasteryLog(userId, skillId, masteryStatus, dateOfEvent) {
+  return new Promise((resolve, reject) => {
+    const query =
+      "INSERT INTO skill_mastery_log (user_id, skill_id, mastery_status, date_of_event) VALUES (?, ?, ?, ?)";
+    db.run(
+      query,
+      [userId, skillId, masteryStatus, dateOfEvent],
+      function (err) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      }
+    );
+  });
+}
+
+/**
  *
  * READ QUERIES
  *
