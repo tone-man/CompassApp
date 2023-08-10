@@ -150,6 +150,37 @@ function createSkillMasteryLog(userId, skillId, masteryStatus, dateOfEvent) {
 }
 
 /**
+ * Creates data required for a student
+ * @param {*} user_id
+ * @param {*} study_time_completed
+ * @param {*} study_time_required
+ * @param {*} base_time_required
+ * @returns id of user that student was created for
+ */
+function createStudent(
+  user_id,
+  study_time_completed,
+  study_time_required,
+  base_time_required
+) {
+  return new Promise((resolve, reject) => {
+    const query =
+      "INSERT INTO students (user_id, study_time_completed, study_time_required, base_time_required) VALUES (?, ?, ?, ?)";
+    db.run(
+      query,
+      [user_id, study_time_completed, study_time_required, base_time_required],
+      function (err) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve({ studentId: user_id });
+        }
+      }
+    );
+  });
+}
+
+/**
  *
  * READ QUERIES
  *
