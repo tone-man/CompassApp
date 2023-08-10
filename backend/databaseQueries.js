@@ -110,7 +110,7 @@ function createBehaviorLog(user_id, behavior_id, date_of_event) {
  * @param {*} skillName
  * @returns id of skill
  */
-function createSkill(skillName) {
+function createMasterySkill(skillName) {
   return new Promise((resolve, reject) => {
     const query = "INSERT INTO skills (skill_name) VALUES (?)";
     db.run(query, [skillName], function (err) {
@@ -325,6 +325,42 @@ function getBehaviorLogByStudent(user_id) {
 }
 
 /**
+ * Get Skill by id
+ * @param {*} skillId
+ * @returns skill name
+ */
+function getMasterySkillById(skillId) {
+  return new Promise((resolve, reject) => {
+    const query = "SELECT * FROM skills WHERE skill_id = ?";
+    db.get(query, [skillId], (err, row) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(row);
+      }
+    });
+  });
+}
+
+/**
+ * Get All Skills
+ * @returns all skills
+ */
+function getAllMasterySkills() {
+  return new Promise((resolve, reject) => {
+    db.all("SELECT * FROM skills", (err, rows) => {
+      if (err) {
+        reject(statusError("Internal server error.", 500));
+      } else if (rows.length > 0) {
+        resolve(rows);
+      } else {
+        reject(statusError("Skill categories not found.", 404));
+      }
+    });
+  });
+}
+
+/**
  *
  * UPDATE QUERIES
  *
@@ -437,6 +473,25 @@ function updateBehaviorLog(entry_id, user_id, behavior_id, date_of_event) {
 }
 
 /**
+ * Update skill name
+ * @param {*} skillId
+ * @param {*} newSkillName
+ * @returns
+ */
+function updateMasterySkill(skillId, newSkillName) {
+  return new Promise((resolve, reject) => {
+    const query = "UPDATE skills SET skill_name = ? WHERE skill_id = ?";
+    db.run(query, [newSkillName, skillId], function (err) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve({ changes: this.changes });
+      }
+    });
+  });
+}
+
+/**
  *
  * DELETE QUERIES
  *
@@ -526,6 +581,24 @@ function deleteBehaviorLog(entry_id) {
   return new Promise((resolve, reject) => {
     const query = "DELETE FROM student_behavior_log WHERE entry_id = ?";
     db.run(query, [entry_id], function (err) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
+}
+
+/**
+ * Delete a skill
+ * @param {*} skillId
+ * @returns
+ */
+function deleteMasterySkill(skillId) {
+  return new Promise((resolve, reject) => {
+    const query = "DELETE FROM skills WHERE skill_id = ?";
+    db.run(query, [skillId], function (err) {
       if (err) {
         reject(err);
       } else {
