@@ -302,19 +302,36 @@ function getAllStudentBehaviors(db) {
   return new Promise((resolve, reject) => {
     db.all("SELECT * FROM student_behaviors;", (err, rows) => {
       if (err) reject(err);
-      else if (rows.length > 0) resolve(rows);
-      else reject();
+      else resolve(rows);
     });
   });
 }
 
 /**
- * Gets the consequences of a behavior\
+ * Get all behaviors with consequences
+ * @param {*} db
+ * @returns json of all behaviors with consequences
+ */
+function getAllStudentBehaviorsWithConsequences(db) {
+  return new Promise((resolve, reject) => {
+    db.all(
+      `SELECT * FROM student_behaviors INNER JOIN student_behavior_consequences 
+      ON student_behaviors.behavior_id = student_behavior_consequences.behavior_id;`,
+      (err, rows) => {
+        if (err) reject(err);
+        else resolve(rows);
+      }
+    );
+  });
+}
+
+/**
+ * Gets the consequences of a behavior
  * @param {*} db
  * @param {*} behavior_id
  * @returns
  */
-function getBehaviorConsequence(db, behavior_id) {
+function getBehaviorConsequenceById(db, behavior_id) {
   return new Promise((resolve, reject) => {
     const query =
       "SELECT * FROM student_behavior_consequences WHERE behavior_id = ?";
@@ -324,6 +341,20 @@ function getBehaviorConsequence(db, behavior_id) {
       } else {
         resolve(row);
       }
+    });
+  });
+}
+
+/**
+ * Gets all Behavior Consequences
+ * @param {*} db
+ * @returns
+ */
+function getAllBehaviorConsequences(db) {
+  return new Promise((resolve, reject) => {
+    db.all("SELECT * FROM student_behavior_consequences;", (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
     });
   });
 }
@@ -510,7 +541,7 @@ function updateBehavior(db, behavior_id, behavior_name) {
       if (err) {
         reject(err);
       } else {
-        resolve();
+        resolve({ changes: this.changes });
       }
     });
   });
@@ -531,7 +562,7 @@ function updateBehaviorConsequence(db, behavior_id, additional_study_minutes) {
       if (err) {
         reject(err);
       } else {
-        resolve();
+        resolve({ changes: this.changes });
       }
     });
   });
@@ -864,7 +895,9 @@ module.exports = {
   getAllMasterySkills,
   getAllStudentBehaviors,
   getBehaviorById,
-  getBehaviorConsequence,
+  getBehaviorConsequenceById,
+  getAllBehaviorConsequences,
+  getAllStudentBehaviorsWithConsequences,
   getBehaviorLogByStudent,
   getMasterySkillById,
   getSkillMasteryByStudent,
