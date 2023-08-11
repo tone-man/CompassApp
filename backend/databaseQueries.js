@@ -53,7 +53,7 @@ function createUserRole(db, userId, userRole) {
  * @param {*} behaviorName
  * @returns id of behaviour
  */
-function createStudentBehavior(db, behaviorName) {
+function createBehavior(db, behaviorName) {
   return new Promise((resolve, reject) => {
     const query = "INSERT INTO student_behaviors (behavior_name) VALUES (?)";
     db.run(query, [behaviorName], function (err) {
@@ -81,7 +81,10 @@ function createBehaviorConsequence(db, behaviorId, additionalStudyMinutes) {
       if (err) {
         reject(err);
       } else {
-        resolve({ consequenceId: behaviorId });
+        resolve({
+          behaviorId: behaviorId,
+          additionalStudyMinutes: additionalStudyMinutes,
+        });
       }
     });
   });
@@ -851,12 +854,12 @@ function deleteStudyLog(db, entryId) {
 module.exports = {
   createUser,
   createUserRole,
+  createBehavior,
   createBehaviorConsequence,
   createBehaviorLog,
   createMasterySkill,
   createSkillMasteryLog,
   createStudent,
-  createStudentBehavior,
   createStudyLog,
   getAllMasterySkills,
   getAllStudentBehaviors,
