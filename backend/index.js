@@ -209,6 +209,7 @@ app.get("/api/skill_mastery/:user_id", (req, res) => {
 
 /* Get Student Information */
 function getStudentInfo(userId) {
+  console.log("id:" + userId);
   return new Promise((resolve, reject) => {
     db.get("SELECT * FROM students WHERE user_id = ?", userId, (err, row) => {
       if (err) reject(statusError(Responses[500], 500));

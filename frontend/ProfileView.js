@@ -13,6 +13,7 @@ import { ThemeContext } from "./ThemeContext";
 
 const ProfileView = () => {
   const { signOut, user } = useContext(AuthContext); // get signOut from context
+  console.log(user);
   const navigation = useNavigation(); // get navigation
   const { theme, setTheme } = useContext(ThemeContext); // get theme and setTheme from context
   const setThemeColor = (color) => {

@@ -45,7 +45,6 @@ export const AuthProvider = ({ children }) => {
       // If the user is stores
       setUser(JSON.parse(storedUser)); // Set user state if user is found in async storage
       setIsLoggedIn(true); // Set isLoggedIn state to true
-      console.log("Stored user info:", storedUser); // log the user info (remove later)
     }
   };
 

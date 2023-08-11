@@ -3,7 +3,8 @@
 INSERT INTO users (name, email) VALUES
   ('John Doe', 'john.doe@example.com'),
   ('Jane Smith', 'jane.smith@example.com'),
-  ('Michael Johnson', 'michael.johnson@example.com');
+  ('Michael Johnson', 'michael.johnson@example.com'),
+  ('Michael Daly', 'dalymb@merrimack.edu');
 
 
 INSERT INTO user_roles (role_name) VALUES
@@ -14,7 +15,8 @@ INSERT INTO user_roles (role_name) VALUES
 INSERT INTO user_roles_mapping (user_id, role_id) VALUES
   (1, 1),
   (2, 2),
-  (3, 3);
+  (3, 3),
+  (4, 1);
 
 INSERT INTO student_behaviors (behavior_name) VALUES
   ('Missed Class'),
@@ -72,7 +74,8 @@ VALUES
 
 INSERT INTO students (user_id, study_time_completed, study_time_required, base_time_required)
 VALUES
-  (1, 780, 1200, 1200);
+  (1, 780, 1200, 1200),
+  (4, 0, 1200, 1200);
 
 INSERT INTO student_study_log (user_id, datetime_of_sign_in, datetime_of_sign_out , duration_of_study)
 VALUES

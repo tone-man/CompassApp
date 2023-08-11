@@ -1,32 +1,25 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { StyleSheet } from "react-native";
 import axios from "axios";
 import { DataTable, Text, useTheme, ProgressBar } from "react-native-paper";
 import { View } from "react-native";
+import { AuthContext } from "./AuthContext";
 
 // fetch data from backend
-const fetchData = async () => {
+const fetchData = async (user) => {
   try {
     const response = await axios.get(
-      "http://192.168.4.63:5000/api/users/john.doe@example.com" // need to change email address to whoever is logged in rather than john.doe@example.com
+      "http://192.168.4.63:5000/api/users/" + user.email // need to change email address to whoever is logged in rather than john.doe@example.com
     );
-
     const userId = response.data.user_id;
+    console.log(userId);
     const response2 = await axios.get(
       "http://192.168.4.63:5000/api/students/" + userId + "/"
     );
-    console.log("got data for user", userId, response2.data);
 
     const study_time_completed = response2.data.study_time_completed;
     const study_time_required = response2.data.study_time_required;
     const base_time_required = response2.data.base_time_required;
-    console.log(
-      "-->",
-      study_time_completed,
-      study_time_required,
-      base_time_required,
-      "<--"
-    );
 
     return {
       study_time_completed: study_time_completed,
@@ -56,13 +49,14 @@ const ProgressTracker = () => {
   const [required, setRequired] = useState(0);
   const [base, setBase] = useState(0);
   const [progress, setProgress] = useState(0);
+  const { user } = useContext(AuthContext);
 
   const stylesConfig = styles(colors);
   // fetch data from backend and set states
   useEffect(() => {
     const fetchDataAndSetState = async () => {
       const { study_time_completed, study_time_required, base_study_time } =
-        await fetchData();
+        await fetchData(user);
       setCompleted(study_time_completed);
       setRequired(study_time_required);
       setBase(base_study_time);
@@ -73,7 +67,6 @@ const ProgressTracker = () => {
 
   // calculate progress
   useEffect(() => {
-    console.log(completed, required);
     const validProgress =
       !isNaN(completed) && !isNaN(required) && required !== 0
         ? Math.min(1, completed / required)

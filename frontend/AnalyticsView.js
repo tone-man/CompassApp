@@ -1,7 +1,8 @@
 import { StatusBar } from "expo-status-bar";
 import { LineChart } from "react-native-chart-kit";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import { AuthContext } from "./AuthContext";
+import React, { useEffect, useState, useContext } from "react";
 import {
   StyleSheet,
   Text,
@@ -15,15 +16,14 @@ import TableExample from "./table";
 import ProgressTracker from "./ProgressTracker";
 import { useTheme, ProgressBar, MD3Colors } from "react-native-paper";
 
-const fetchData = async (id) => {
+const fetchData = async (id, user) => {
   // fetch data from backend and set states for eventDates and mastery for each skill
   let eventDates = [];
   let mastery = [];
-  try {
-    const response = await axios.get(
-      "http://192.168.4.63:5000/api/users/john.doe@example.com" // need to change email address to whoever is logged in rather than john.doe@example.com
-    );
 
+  try {
+    const response = await axios.get(user.email);
+    console.log("HERE");
     const userId = response.data.user_id;
     const response2 = await axios.get(
       "http://192.168.4.63:5000/api/skill_mastery/" + userId + "/"
@@ -99,7 +99,7 @@ const ExampleGraph = ({ primaryColor, data1, data2 }) => {
 const AnalyticsView = () => {
   // AnalyticsView component that renders all graphs and tables
   const { colors } = useTheme();
-
+  const { user } = useContext(AuthContext); // get signOut from context
   const styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -128,7 +128,7 @@ const AnalyticsView = () => {
   const [HomeworkMastery, setHomeworkMastery] = useState([]);
   useEffect(() => {
     const fetchDataAndSetState = async () => {
-      const { eventDates, mastery } = await fetchData(1);
+      const { eventDates, mastery } = await fetchData(1, user);
       setHomeworkDates(eventDates);
       setHomeworkMastery(mastery);
     };
@@ -140,7 +140,7 @@ const AnalyticsView = () => {
   const [readingMastery, setReadingMastery] = useState([]);
   useEffect(() => {
     const fetchDataAndSetState = async () => {
-      const { eventDates, mastery } = await fetchData(2);
+      const { eventDates, mastery } = await fetchData(2, user);
       setReadingDates(eventDates);
       setReadingMastery(mastery);
     };
@@ -153,7 +153,7 @@ const AnalyticsView = () => {
 
   useEffect(() => {
     const fetchDataAndSetState = async () => {
-      const { eventDates, mastery } = await fetchData(3);
+      const { eventDates, mastery } = await fetchData(3, user);
       setWritingDates(eventDates);
       setWritingMastery(mastery);
     };
@@ -166,7 +166,7 @@ const AnalyticsView = () => {
 
   useEffect(() => {
     const fetchDataAndSetState = async () => {
-      const { eventDates, mastery } = await fetchData(4);
+      const { eventDates, mastery } = await fetchData(4, user);
       setNotetakingDates(eventDates);
       setNotetakingMastery(mastery);
     };
@@ -178,7 +178,7 @@ const AnalyticsView = () => {
   const [mindsetMastery, setMindsetMastery] = useState([]);
   useEffect(() => {
     const fetchDataAndSetState = async () => {
-      const { eventDates, mastery } = await fetchData(5);
+      const { eventDates, mastery } = await fetchData(5, user);
       setMindsetDates(eventDates);
       setMindsetMastery(mastery);
     };
