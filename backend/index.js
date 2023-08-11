@@ -1,13 +1,33 @@
-const sqlite3 = require("sqlite3").verbose();
 const express = require("express");
+const sqlite3 = require("sqlite3").verbose();
+const { body, param, validationResult } = require("express-validator");
 const app = express();
 
 app.use(express.json()); //JSON to read headers
 
 const port = 5000;
+const route = "/api/v1";
 
 const Responses = require("./statusMessages");
 const { statusError, formatResponse } = require("./utils");
+
+const {
+  createUser,
+  getUserById,
+  createSkillMasteryLog,
+  createBehavior,
+  createBehaviorConsequence,
+  updateBehavior,
+  updateBehaviorConsequence,
+  deleteBehavior,
+  deleteBehaviorConsequence,
+  getBehaviorById,
+  getAllStudentBehaviors,
+  getAllBehaviorConsequences,
+  getBehaviorConsequenceById,
+  getAllStudentBehaviorsWithConsequences,
+} = require("./databaseQueries");
+
 const {
   validateUser,
   validateBehavior,
@@ -20,6 +40,291 @@ const {
 
 /* Opens Database Connection */
 const db = new sqlite3.Database("database/CompassDatabase.db");
+
+/**
+ * USERS ENDPOINT
+ */
+
+// POST users
+
+const validateCreateUser = [
+  body("name").trim().isLength({ min: 1 }).withMessage("Name is required"),
+  body("email").trim().isEmail().withMessage("Invalid email format"),
+];
+
+app.post(
+  route + "/users",
+  validateCreateUser,
+  handleValidationErrors,
+  (req, res) => {
+    const { name, email } = req.body;
+
+    createUser(db, name, email)
+      .then((result) => {
+        res
+          .status(201)
+          .json({ id: result.id, message: "User created successfully" });
+      })
+      .catch((error) => {
+        console.error("Error creating user:", error);
+        res
+          .status(500)
+          .json({ error: "An error occurred while creating the user" });
+      });
+  }
+);
+
+// GET User by Id
+
+app.get(
+  route + "/users/:id",
+  [param("id").isInt().toInt()],
+  handleValidationErrors,
+  (req, res) => {
+    const userId = req.params.id;
+
+    getUserById(db, userId)
+      .then((user) => {
+        if (!user) {
+          return res.status(404).json({ error: "User not found" });
+        }
+        res.json(user);
+      })
+      .catch((error) => {
+        console.log(error);
+        res
+          .status(500)
+          .json({ error: "An error occurred while fetching the user" });
+      });
+  }
+);
+
+/**
+ * USER-ROLES ENDPOINT
+ */
+
+/**
+ * STUDENTS ENDPOINT
+ */
+
+/**
+ * MASTERY-SKILLS ENDPOINT
+ */
+
+// POST Mastery
+
+/**
+ * MASTERY-SKILL-LOGS ENDPOINT
+ */
+
+const validateCreateMastery = [
+  body("userId").isInt(),
+  body("skillId").isInt(),
+  body("masteryStatus").isFloat({ min: 0, max: 5 }),
+  // body("dateOfEvent").isISO8601(), TODO
+];
+
+app.post(
+  route + "/skill-mastery",
+  validateCreateMastery,
+  handleValidationErrors,
+  (req, res) => {
+    const { userId, skillId, masteryStatus, dateOfEvent } = req.body;
+
+    createSkillMasteryLog(db, userId, skillId, masteryStatus, dateOfEvent)
+      .then((result) => {
+        res.status(201).json({ entryId: result.entryId });
+      })
+      .catch((error) => {
+        console.error("Error creating skill mastery log:", error);
+        res.status(500).json({ error: "Internal server error" });
+      });
+  }
+);
+
+/**
+ * BEHAVIORS ENDPOINT
+ */
+
+// POST Create Behavior
+
+const validateCreateBehavior = [
+  body("behavior")
+    .trim()
+    .isLength({ min: 1 })
+    .withMessage("Behavior is required"),
+  body("additionalStudyTime").isInt({ min: 0 }),
+];
+
+app.post(
+  route + "/behaviors",
+  validateCreateBehavior,
+  handleValidationErrors,
+  (req, res) => {
+    const { behavior, additionalStudyTime } = req.body;
+
+    createBehavior(db, behavior)
+      .then((result) =>
+        createBehaviorConsequence(db, result.behaviorId, additionalStudyTime)
+      )
+      .then((result) => {
+        res.status(201).json({ result });
+      })
+      .catch((error) => {
+        console.error("Error creating behavior:", error);
+        res.status(500).json({ error: "Internal server error" });
+      });
+  }
+);
+
+// GET Behavior by Id
+
+app.get(
+  route + "/behaviors/:behaviorId",
+  [param("behaviorId").isInt().toInt()],
+  handleValidationErrors,
+  (req, res) => {
+    const behaviorId = req.params.behaviorId;
+
+    getBehaviorById(db, behaviorId)
+      .then((behavior) => {
+        if (!behavior) {
+          return res.status(404).json({ error: "Behavior not found" });
+        }
+        res.json(behavior);
+      })
+      .catch((error) => {
+        console.log(error);
+        res
+          .status(500)
+          .json({ error: "An error occurred while fetching the behavior" });
+      });
+  }
+);
+
+// GET All Behaviors Only
+
+app.get(route + "/behaviors", (req, res) => {
+  getAllStudentBehaviors(db).then((results) => {
+    if (results.length <= 0)
+      res.status(404).json({ error: "No Student Behaviors Found" });
+    else res.json(results);
+  });
+});
+
+// GET All Behaviors With Consequences
+
+app.get(route + "/behaviors-verbose", (req, res) => {
+  getAllStudentBehaviorsWithConsequences(db).then((results) => {
+    if (results.length <= 0)
+      res.status(404).json({ error: "No Student Behaviors Found" });
+    else res.json(results);
+  });
+});
+
+// UPDATE Behavior
+
+const validateUpdateBehavior = [
+  param("behaviorId").isInt(),
+  body("behavior")
+    .trim()
+    .isLength({ min: 1 })
+    .withMessage("Behavior is required"),
+  body("additionalStudyTime").isInt({ min: 0 }),
+];
+
+app.put(
+  route + "/behaviors/:behaviorId",
+  validateUpdateBehavior,
+  handleValidationErrors,
+  (req, res) => {
+    const behaviorId = req.params.behaviorId;
+    const { behavior, additionalStudyTime } = req.body;
+    updateBehavior(db, behaviorId, behavior)
+      .then(updateBehaviorConsequence(db, behaviorId, additionalStudyTime))
+      .then((result) => {
+        res.status(201).json({ result });
+      })
+      .catch((error) => {
+        console.error("Error updating behavior:", error);
+        res.status(500).json({ error: "Internal server error" });
+      });
+  }
+);
+
+// DELETE Behavior Category
+
+app.delete(
+  route + "/behaviors/:behaviorId",
+  [param("behaviorId").isInt().toInt()],
+  handleValidationErrors,
+  (req, res) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const behaviorId = req.params.behaviorId;
+
+    deleteBehavior(db, behaviorId)
+      .then(deleteBehaviorConsequence(db, behaviorId))
+      .then(() => {
+        res.status(204).end(); // Successfully deleted
+      })
+      .catch((error) => {
+        res
+          .status(500)
+          .json({ error: "An error occurred while deleting the behavior." });
+      });
+  }
+);
+
+/**
+ * BEHAVIOR CONSEQUENCES
+ */
+
+// GET Consequences By Id
+app.get(
+  route + "/behavior-consequences/:behaviorId",
+  [param("behaviorId").isInt()],
+  handleValidationErrors,
+  (req, res) => {
+    const behaviorId = req.params.behaviorId;
+
+    getBehaviorConsequenceById(db, behaviorId)
+      .then((consequence) => {
+        if (!consequence) {
+          return res.status(404).json({ error: "Consequence not found" });
+        }
+        res.json(consequence);
+      })
+      .catch((error) => {
+        console.log(error);
+        res
+          .status(500)
+          .json({ error: "An error occurred while fetching the consequence" });
+      });
+  }
+);
+
+// Get All Consequences
+
+app.get(route + "/behavior-consequences", (req, res) => {
+  getAllBehaviorConsequences(db).then((results) => {
+    if (results.length <= 0)
+      res.status(404).json({ error: "No Student Behaviors Found" });
+    else res.json(results);
+  });
+});
+
+/**
+ * BEHAVIOR-LOGS ENDPOINT
+ */
+
+/**
+ * STUDONT-STUDY-HOURS ENDPOINT
+ */
 
 /* Get User Information */
 
@@ -787,6 +1092,16 @@ function rollbackUpdateToBehaviorLog(params) {
       );
     }
   });
+}
+
+// Middleware for validation errors
+
+function handleValidationErrors(req, res, next) {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+  next();
 }
 
 /* App Start */
