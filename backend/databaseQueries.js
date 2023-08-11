@@ -1,5 +1,4 @@
 const sqlite3 = require("sqlite3").verbose();
-const db = new sqlite3.Database("database/CompassDatabase.db");
 
 /**
  *
@@ -9,11 +8,12 @@ const db = new sqlite3.Database("database/CompassDatabase.db");
 
 /**
  * Creates a user
+ * @param {*} db
  * @param {*} name
  * @param {*} email
  * @returns id of user
  */
-function createUser(name, email) {
+function createUser(db, name, email) {
   return new Promise((resolve, reject) => {
     const query = "INSERT INTO users (name, email) VALUES (?, ?)";
     db.run(query, [name, email], function (err) {
@@ -28,11 +28,12 @@ function createUser(name, email) {
 
 /**
  * Creates a mapping between user amd a role
+ * @param {*} db
  * @param {*} userId
  * @param {*} userRole
  * @returns nothing
  */
-function createUserRole(userId, userRole) {
+function createUserRole(db, userId, userRole) {
   return new Promise((resolve, reject) => {
     const query =
       "INSERT INTO user_role_mapping (user_id, role_id) VALUES (?, ?)";
@@ -48,10 +49,11 @@ function createUserRole(userId, userRole) {
 
 /**
  * Creates a new behaviour
+ * @param {*} db
  * @param {*} behaviorName
  * @returns id of behaviour
  */
-function createStudentBehavior(behaviorName) {
+function createStudentBehavior(db, behaviorName) {
   return new Promise((resolve, reject) => {
     const query = "INSERT INTO student_behaviors (behavior_name) VALUES (?)";
     db.run(query, [behaviorName], function (err) {
@@ -66,11 +68,12 @@ function createStudentBehavior(behaviorName) {
 
 /**
  * Create behaviour consequences
+ * @param {*} db
  * @param {*} behaviorId
  * @param {*} additionalStudyMinutes
  * @returns the id of the behavior mapped
  */
-function createBehaviorConsequence(behaviorId, additionalStudyMinutes) {
+function createBehaviorConsequence(db, behaviorId, additionalStudyMinutes) {
   return new Promise((resolve, reject) => {
     const query =
       "INSERT INTO student_behavior_consequences (behavior_id, additional_study_minutes) VALUES (?, ?)";
@@ -86,12 +89,13 @@ function createBehaviorConsequence(behaviorId, additionalStudyMinutes) {
 
 /**
  * Create a behavior entry
+ * @param {*} db
  * @param {*} userId
  * @param {*} behaviorId
  * @param {*} dateOfEvent
  * @returns id of the entry
  */
-function createBehaviorLog(user_id, behavior_id, date_of_event) {
+function createBehaviorLog(db, user_id, behavior_id, date_of_event) {
   return new Promise((resolve, reject) => {
     const query =
       "INSERT INTO student_behavior_log (user_id, behavior_id, date_of_event) VALUES (?, ?, ?)";
@@ -107,10 +111,11 @@ function createBehaviorLog(user_id, behavior_id, date_of_event) {
 
 /**
  * Create a skill to be tracked
+ * @param {*} db
  * @param {*} skillName
  * @returns id of skill
  */
-function createMasterySkill(skillName) {
+function createMasterySkill(db, skillName) {
   return new Promise((resolve, reject) => {
     const query = "INSERT INTO skills (skill_name) VALUES (?)";
     db.run(query, [skillName], function (err) {
@@ -125,6 +130,7 @@ function createMasterySkill(skillName) {
 
 /**
  * Create a new skill mastery entry
+ * @param {*} db
  * @param {*} userId
  * @param {*} skillId
  * @param {*} masteryStatus
@@ -132,6 +138,7 @@ function createMasterySkill(skillName) {
  * @returns none
  */
 function createSkillMasteryLog(
+  db,
   user_id,
   skill_id,
   mastery_status,
@@ -156,6 +163,7 @@ function createSkillMasteryLog(
 
 /**
  * Creates data required for a student
+ * @param {*} db
  * @param {*} user_id
  * @param {*} study_time_completed
  * @param {*} study_time_required
@@ -163,6 +171,7 @@ function createSkillMasteryLog(
  * @returns id of user that student was created for
  */
 function createStudent(
+  db,
   user_id,
   study_time_completed,
   study_time_required,
@@ -187,6 +196,7 @@ function createStudent(
 
 /**
  * Create a student study log entry
+ * @param {*} db
  * @param {*} user_id
  * @param {*} datetime_of_sign_in
  * @param {*} datetime_of_sign_out
@@ -194,6 +204,7 @@ function createStudent(
  * @returns userId of entry
  */
 function createStudyLog(
+  db,
   user_id,
   datetime_of_sign_in,
   datetime_of_sign_out,
@@ -227,9 +238,9 @@ function createStudyLog(
  * @param {*} id
  * @returns data of user as json
  */
-function getUserById(id) {
+function getUserById(db, id) {
   return new Promise((resolve, reject) => {
-    const query = "SELECT * FROM users WHERE id = ?";
+    const query = "SELECT * FROM users WHERE user_id = ?";
     db.get(query, [id], (err, row) => {
       if (err) {
         reject(err);
@@ -242,10 +253,11 @@ function getUserById(id) {
 
 /**
  * Get user role from user id
+ * @param {*} db
  * @param {*} user_id
  * @returns user role
  */
-function getUserRoleMapping(user_id) {
+function getUserRoleMapping(db, user_id) {
   return new Promise((resolve, reject) => {
     const query =
       "SELECT * FROM user_roles_mapping WHERE user_id = ? AND role_id = ?";
@@ -261,10 +273,11 @@ function getUserRoleMapping(user_id) {
 
 /**
  * Get a behavior by id
+ * @param {*} db
  * @param {*} behavior_id
  * @returns
  */
-function getBehaviorById(behavior_id) {
+function getBehaviorById(db, behavior_id) {
   return new Promise((resolve, reject) => {
     const query = "SELECT * FROM student_behaviors WHERE behavior_id = ?";
     db.get(query, [behavior_id], (err, row) => {
@@ -279,9 +292,10 @@ function getBehaviorById(behavior_id) {
 
 /**
  * Get all behaviors
+ * @param {*} db
  * @returns json of all behaviors
  */
-function getAllStudentBehaviors() {
+function getAllStudentBehaviors(db) {
   return new Promise((resolve, reject) => {
     db.all("SELECT * FROM student_behaviors;", (err, rows) => {
       if (err) reject(err);
@@ -292,11 +306,12 @@ function getAllStudentBehaviors() {
 }
 
 /**
- * Gets the consequences of a behavior
+ * Gets the consequences of a behavior\
+ * @param {*} db
  * @param {*} behavior_id
  * @returns
  */
-function getBehaviorConsequence(behavior_id) {
+function getBehaviorConsequence(db, behavior_id) {
   return new Promise((resolve, reject) => {
     const query =
       "SELECT * FROM student_behavior_consequences WHERE behavior_id = ?";
@@ -312,10 +327,11 @@ function getBehaviorConsequence(behavior_id) {
 
 /**
  * Gets all behaviors by user_id
+ * @param {*} db
  * @param {*} user_id
  * @returns
  */
-function getBehaviorLogByStudent(user_id) {
+function getBehaviorLogByStudent(db, user_id) {
   return new Promise((resolve, reject) => {
     db.all(
       "SELECT * FROM student_behavior_log WHERE user_id = ? ORDER BY date_of_event",
@@ -331,10 +347,11 @@ function getBehaviorLogByStudent(user_id) {
 
 /**
  * Get Skill by id
+ * @param {*} db
  * @param {*} skillId
  * @returns skill name
  */
-function getMasterySkillById(skillId) {
+function getMasterySkillById(db, skillId) {
   return new Promise((resolve, reject) => {
     const query = "SELECT * FROM skills WHERE skill_id = ?";
     db.get(query, [skillId], (err, row) => {
@@ -349,9 +366,10 @@ function getMasterySkillById(skillId) {
 
 /**
  * Get All Skills
+ * @param {*} db
  * @returns all skills
  */
-function getAllMasterySkills() {
+function getAllMasterySkills(db) {
   return new Promise((resolve, reject) => {
     db.all("SELECT * FROM skills", (err, rows) => {
       if (err) {
@@ -367,10 +385,11 @@ function getAllMasterySkills() {
 
 /**
  * Get Mastery Entries for a student
+ * @param {*} db
  * @param {*} userId
  * @returns list of entries in json
  */
-function getSkillMasteryByStudent(userId) {
+function getSkillMasteryByStudent(db, userId) {
   return new Promise((resolve, reject) => {
     db.all(
       "SELECT * FROM skill_mastery_log WHERE user_id = ? ORDER BY skill_id, date_of_event",
@@ -388,10 +407,11 @@ function getSkillMasteryByStudent(userId) {
 
 /**
  * Get Student info based off user id
+ * @param {*} db
  * @param {*} user_id
  * @returns data from student
  */
-function getStudentById(user_id) {
+function getStudentById(db, user_id) {
   return new Promise((resolve, reject) => {
     const query = "SELECT * FROM students WHERE user_id = ?";
     db.get(query, [user_id], (err, row) => {
@@ -406,10 +426,11 @@ function getStudentById(user_id) {
 
 /**
  * Get study hour entries for a student
+ * @param {*} db
  * @param {*} userId
  * @returns entries for the student
  */
-function getStudentStudyHours(userId) {
+function getStudentStudyHours(db, userId) {
   return new Promise((resolve, reject) => {
     db.all(
       "SELECT * FROM student_study_log WHERE user_id = ? ORDER BY datetime_of_sign_in",
@@ -431,12 +452,13 @@ function getStudentStudyHours(userId) {
 
 /**
  * Update user info by id
+ * @param {*} db
  * @param {*} id
  * @param {*} name
  * @param {*} email
  * @returns none
  */
-function updateUser(id, name, email) {
+function updateUser(db, id, name, email) {
   return new Promise((resolve, reject) => {
     const query = "UPDATE users SET name = ?, email = ? WHERE id = ?";
     db.run(query, [name, email, id], function (err) {
@@ -451,12 +473,13 @@ function updateUser(id, name, email) {
 
 /**
  * Update user role by id
+ * @param {*} db
  * @param {*} id
  * @param {*} name
  * @param {*} email
  * @returns none
  */
-function updateUserRole(user_id, role_id) {
+function updateUserRole(db, user_id, role_id) {
   return new Promise((resolve, reject) => {
     const query = "UPDATE user_roles_mapping SET role_id = ? WHERE user_id = ?";
     db.run(query, [user_id, role_id], function (err) {
@@ -471,11 +494,12 @@ function updateUserRole(user_id, role_id) {
 
 /**
  * Update the name of a behavior
+ * @param {*} db
  * @param {*} behavior_id
  * @param {*} behavior_name
  * @returns none
  */
-function updateBehavior(behavior_id, behavior_name) {
+function updateBehavior(db, behavior_id, behavior_name) {
   return new Promise((resolve, reject) => {
     const query =
       "UPDATE student_behaviors SET behavior_name = ? WHERE behavior_id = ?";
@@ -491,11 +515,12 @@ function updateBehavior(behavior_id, behavior_name) {
 
 /**
  * Updates the consequences of a behavior
+ * @param {*} db
  * @param {*} behavior_id
  * @param {*} additional_study_minutes
  * @returns none
  */
-function updateBehaviorConsequence(behavior_id, additional_study_minutes) {
+function updateBehaviorConsequence(db, behavior_id, additional_study_minutes) {
   return new Promise((resolve, reject) => {
     const query =
       "UPDATE student_behavior_consequences SET additional_study_minutes = ? WHERE behavior_id = ?";
@@ -511,13 +536,14 @@ function updateBehaviorConsequence(behavior_id, additional_study_minutes) {
 
 /**
  * Updates Behavior log entry
+ * @param {*} db
  * @param {*} entry_id
  * @param {*} user_id
  * @param {*} behavior_id
  * @param {*} date_of_event
  * @returns none
  */
-function updateBehaviorLog(entry_id, user_id, behavior_id, date_of_event) {
+function updateBehaviorLog(db, entry_id, user_id, behavior_id, date_of_event) {
   return new Promise((resolve, reject) => {
     const query =
       "UPDATE student_behavior_log SET user_id = ?, behavior_id = ?, date_of_event = ? WHERE entry_id = ?";
@@ -537,11 +563,12 @@ function updateBehaviorLog(entry_id, user_id, behavior_id, date_of_event) {
 
 /**
  * Update skill name
+ * @param {*} db
  * @param {*} skillId
  * @param {*} newSkillName
  * @returns
  */
-function updateMasterySkill(skillId, newSkillName) {
+function updateMasterySkill(db, skillId, newSkillName) {
   return new Promise((resolve, reject) => {
     const query = "UPDATE skills SET skill_name = ? WHERE skill_id = ?";
     db.run(query, [newSkillName, skillId], function (err) {
@@ -556,11 +583,12 @@ function updateMasterySkill(skillId, newSkillName) {
 
 /**
  * Update a mastery entry by id
+ * @param {*} db
  * @param {*} entry_id
  * @param {*} mastery_status
  * @returns none
  */
-function updateSkillMasteryLog(entry_id, mastery_status) {
+function updateSkillMasteryLog(db, entry_id, mastery_status) {
   return new Promise((resolve, reject) => {
     const query =
       "UPDATE skill_mastery_log SET mastery_status = ? WHERE entry_id = ?";
@@ -576,6 +604,7 @@ function updateSkillMasteryLog(entry_id, mastery_status) {
 
 /**
  * Updates data for a specific student
+ * @param {*} db
  * @param {*} user_id
  * @param {*} study_time_completed
  * @param {*} study_time_required
@@ -583,6 +612,7 @@ function updateSkillMasteryLog(entry_id, mastery_status) {
  * @returns
  */
 function updateStudent(
+  db,
   user_id,
   study_time_completed,
   study_time_required,
@@ -607,6 +637,7 @@ function updateStudent(
 
 /**
  * Update entry of study hours
+ * @param {*} db
  * @param {*} entryId
  * @param {*} datetime_of_sign_in
  * @param {*} datetime_of_sign_out
@@ -614,6 +645,7 @@ function updateStudent(
  * @returns
  */
 function updateStudyLog(
+  db,
   entryId,
   datetime_of_sign_in,
   datetime_of_sign_out,
@@ -644,10 +676,11 @@ function updateStudyLog(
 
 /**
  * Removes a user
+ * @param {*} db
  * @param {*} id
  * @returns none
  */
-function deleteUser(id) {
+function deleteUser(db, id) {
   return new Promise((resolve, reject) => {
     const query = "DELETE FROM users WHERE id = ?";
     db.run(query, [id], function (err) {
@@ -662,11 +695,12 @@ function deleteUser(id) {
 
 /**
  * Deletes a mapping between a user and role
+ * @param {*} db
  * @param {*} user_id
  * @param {*} role_id
  * @returns none
  */
-function deleteUserRoleMapping(user_id, role_id) {
+function deleteUserRoleMapping(db, user_id, role_id) {
   return new Promise((resolve, reject) => {
     const query =
       "DELETE FROM user_roles_mapping WHERE user_id = ? AND role_id = ?";
@@ -682,10 +716,11 @@ function deleteUserRoleMapping(user_id, role_id) {
 
 /**
  * Deletes behavior of a given id
+ * @param {*} db
  * @param {*} behavior_id
  * @returns none
  */
-function deleteBehavior(behavior_id) {
+function deleteBehavior(db, behavior_id) {
   return new Promise((resolve, reject) => {
     const query = "DELETE FROM student_behaviors WHERE behavior_id = ?";
     db.run(query, [behavior_id], function (err) {
@@ -700,10 +735,11 @@ function deleteBehavior(behavior_id) {
 
 /**
  * Deletes the behavior consequences
+ * @param {*} db
  * @param {*} behavior_id
  * @returns none
  */
-function deleteBehaviorConsequence(behavior_id) {
+function deleteBehaviorConsequence(db, behavior_id) {
   return new Promise((resolve, reject) => {
     const query =
       "DELETE FROM student_behavior_consequences WHERE behavior_id = ?";
@@ -719,10 +755,11 @@ function deleteBehaviorConsequence(behavior_id) {
 
 /**
  * Deletes a entry frow the behavior log
+ * @param {*} db
  * @param {*} entry_id
  * @returns none
  */
-function deleteBehaviorLog(entry_id) {
+function deleteBehaviorLog(db, entry_id) {
   return new Promise((resolve, reject) => {
     const query = "DELETE FROM student_behavior_log WHERE entry_id = ?";
     db.run(query, [entry_id], function (err) {
@@ -737,10 +774,11 @@ function deleteBehaviorLog(entry_id) {
 
 /**
  * Delete a skill
+ * @param {*} db
  * @param {*} skillId
  * @returns
  */
-function deleteMasterySkill(skillId) {
+function deleteMasterySkill(db, skillId) {
   return new Promise((resolve, reject) => {
     const query = "DELETE FROM skills WHERE skill_id = ?";
     db.run(query, [skillId], function (err) {
@@ -755,10 +793,11 @@ function deleteMasterySkill(skillId) {
 
 /**
  * Delete a mastery entry
+ * @param {*} db
  * @param {*} entry_id
  * @returns none
  */
-function deleteSkillMasteryLog(entry_id) {
+function deleteSkillMasteryLog(db, entry_id) {
   return new Promise((resolve, reject) => {
     const query = "DELETE FROM skill_mastery_log WHERE entry_id = ?";
     db.run(query, [entry_id], function (err) {
@@ -772,11 +811,12 @@ function deleteSkillMasteryLog(entry_id) {
 }
 
 /**
- * Delete Student Information for a Usor
+ * Delete Student Information for a User
+ * @param {*} db
  * @param {*} user_id
  * @returns
  */
-function deleteStudent(user_id) {
+function deleteStudent(db, user_id) {
   return new Promise((resolve, reject) => {
     const query = "DELETE FROM students WHERE user_id = ?";
     db.run(query, [user_id], function (err) {
@@ -791,10 +831,11 @@ function deleteStudent(user_id) {
 
 /**
  * Delete a study hour entry
+ * @param {*} db
  * @param {*} entryId
  * @returns none
  */
-function deleteStudyLog(entryId) {
+function deleteStudyLog(db, entryId) {
   return new Promise((resolve, reject) => {
     const query = "DELETE FROM student_study_log WHERE entry_id = ?";
     db.run(query, [entryId], function (err) {
@@ -807,7 +848,7 @@ function deleteStudyLog(entryId) {
   });
 }
 
-modules.exports = {
+module.exports = {
   createUser,
   createUserRole,
   createBehaviorConsequence,
@@ -836,6 +877,7 @@ modules.exports = {
   updateStudyLog,
   updateUser,
   updateUserRole,
+  updateSkillMasteryLog,
   deleteBehavior,
   deleteBehaviorConsequence,
   deleteBehaviorLog,
