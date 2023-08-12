@@ -483,7 +483,7 @@ function getStudentById(db, user_id) {
  * @param {*} userId
  * @returns entries for the student
  */
-function getStudentStudyHours(db, userId) {
+function getStudyHoursByStudent(db, userId) {
   return new Promise((resolve, reject) => {
     db.all(
       "SELECT * FROM student_study_log WHERE user_id = ? ORDER BY datetime_of_sign_in",
@@ -922,7 +922,7 @@ module.exports = {
   getMasterySkillById,
   getSkillMasteryByStudent,
   getStudentById,
-  getStudentStudyHours,
+  getStudyHoursByStudent,
   getUserById,
   getUserRoleMapping,
   updateBehavior,

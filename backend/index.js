@@ -39,6 +39,10 @@ const {
   getSkillMasteryByStudent,
   updateSkillMasteryLog,
   deleteSkillMasteryLog,
+  createStudyLog,
+  updateStudyLog,
+  getStudyHoursByStudent,
+  deleteStudyLog,
 } = require("./databaseQueries");
 
 const {
@@ -644,8 +648,126 @@ app.delete(
 );
 
 /**
- * STUDENT-STUDY-HOURS ENDPOINT
+ * STUDENT-STUDY-LOG ENDPOINT
  */
+
+// Post Create Study Hours Log
+const validateCreateStudyHoursLog = [
+  body("userId").isInt({ min: 0 }),
+  // TODO body("dateTimeOfLogIn").isISO8601(),
+  // TODO body("dateTimeOfLogOut").isISO8601(),
+  body("durationOfStudy").isInt({ min: 0 }),
+];
+
+app.post(
+  route + "/study-hour-logs",
+  validateCreateStudyHoursLog,
+  handleValidationErrors,
+  (req, res) => {
+    const { userId, dateTimeOfLogIn, dateTimeOfLogOut, durationOfStudy } =
+      req.body;
+
+    createStudyLog(
+      db,
+      userId,
+      dateTimeOfLogIn,
+      dateTimeOfLogOut,
+      durationOfStudy
+    )
+      .then((result) => {
+        res.status(201).json({ result });
+      })
+      .catch((error) => {
+        console.error("Error creating skill:", error);
+        res.status(500).json({ error: "Internal server error" });
+      });
+  }
+);
+
+// GET Study Hour Logs By Student ID
+
+app.get(
+  route + "/students/:studentId/study-hour-logs",
+  [param("studentId").isInt().toInt()],
+  handleValidationErrors,
+  (req, res) => {
+    const studentId = req.params.studentId;
+
+    getStudyHoursByStudent(db, studentId)
+      .then((results) => {
+        if (results.length <= 0) {
+          return res
+            .status(404)
+            .json({ error: "Behavior log not found for student" });
+        }
+        res.json(results);
+      })
+      .catch((error) => {
+        console.log(error);
+        res
+          .status(500)
+          .json({ error: "An error occurred while fetching the behavior" });
+      });
+  }
+);
+
+// UPDATE Study Hour Log by Entry ID
+
+const validateUpdateStudyHourLog = [
+  param("entryId").isInt({ min: 0 }),
+  // TODO body("dateTimeOfLogIn").isISO8601(),
+  // TODO body("dateTimeOfLogOut").isISO8601(),
+  body("durationOfStudy").isInt({ min: 0 }),
+];
+
+app.put(
+  route + "/study-hour-logs/:entryId",
+  validateUpdateStudyHourLog,
+  handleValidationErrors,
+  (req, res) => {
+    const entryId = req.params.entryId;
+    const { dateTimeOfLogIn, dateTimeOfLogOut, durationOfStudy } = req.body;
+
+    updateStudyLog(
+      db,
+      entryId,
+      dateTimeOfLogIn,
+      dateTimeOfLogOut,
+      durationOfStudy
+    )
+      .then((result) => {
+        res.status(201).json({ result });
+      })
+      .catch((error) => {
+        console.error("Error updating study hours:", error);
+        res.status(500).json({ error: "Internal server error" });
+      });
+  }
+);
+
+// DELETE Study Hour Log By Entry ID
+
+app.delete(
+  route + "/study-hour-logs/:entryId",
+  [param("entryId").isInt().toInt()],
+  handleValidationErrors,
+  (req, res) => {
+    const entryId = req.params.entryId;
+
+    deleteStudyLog(db, entryId)
+      .then(() => {
+        res.status(204).end(); // Successfully deleted
+      })
+      .catch((error) => {
+        console.log(error);
+        res
+          .status(500)
+          .json({
+            error: "An error occurred while deleting the study hour log.",
+          });
+      });
+  }
+);
 
 /* Get User Information */
 
