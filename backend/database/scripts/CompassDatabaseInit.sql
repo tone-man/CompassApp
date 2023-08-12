@@ -11,9 +11,8 @@ CREATE TABLE IF NOT EXISTS user_roles (
 );
 
 CREATE TABLE IF NOT EXISTS user_roles_mapping (
-  user_id INTEGER,
+  user_id INTEGER PRIMARY KEY,
   role_id INTEGER,
-  PRIMARY KEY user_id,
   FOREIGN KEY (user_id) REFERENCES users(user_id),
   FOREIGN KEY (role_id) REFERENCES user_roles(role_id)
 );
@@ -30,6 +29,7 @@ CREATE TABLE  IF NOT EXISTS student_behavior_consequences (
 );
 
 CREATE TABLE  IF NOT EXISTS student_behavior_log (
+  entry_id INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id INTEGER,
   behavior_id INTEGER,
   date_of_event DATE NOT NULL,
