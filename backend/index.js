@@ -36,6 +36,9 @@ const {
   getAllMasterySkills,
   updateMasterySkill,
   deleteMasterySkill,
+  getSkillMasteryByStudent,
+  updateSkillMasteryLog,
+  deleteSkillMasteryLog,
 } = require("./databaseQueries");
 
 const {
@@ -229,6 +232,8 @@ app.delete(
  * MASTERY-SKILL-LOGS ENDPOINT
  */
 
+// POST Create Mastery Log
+
 const validateCreateMastery = [
   body("userId").isInt(),
   body("skillId").isInt(),
@@ -250,6 +255,80 @@ app.post(
       .catch((error) => {
         console.error("Error creating skill mastery log:", error);
         res.status(500).json({ error: "Internal server error" });
+      });
+  }
+);
+
+// GET Mastery Logs By Student
+
+app.get(
+  route + "/students/:studentId/mastery-logs",
+  [param("studentId").isInt().toInt()],
+  handleValidationErrors,
+  (req, res) => {
+    const studentId = req.params.studentId;
+
+    getSkillMasteryByStudent(db, studentId)
+      .then((results) => {
+        if (results.length <= 0) {
+          return res
+            .status(404)
+            .json({ error: "Behavior log not found for student" });
+        }
+        res.json(results);
+      })
+      .catch((error) => {
+        console.log(error);
+        res
+          .status(500)
+          .json({ error: "An error occurred while fetching the behavior" });
+      });
+  }
+);
+
+// UPDATE Mastery Log by ID
+
+const validateUpdateMasteryLog = [
+  param("entryId").isInt(),
+  body("masteryStatus").isFloat({ min: 0, max: 5 }),
+];
+
+app.put(
+  route + "/mastery-logs/:entryId",
+  validateUpdateMasteryLog,
+  handleValidationErrors,
+  (req, res) => {
+    const entryId = req.params.entryId;
+    const { masteryStatus } = req.body;
+
+    updateSkillMasteryLog(db, entryId, masteryStatus)
+      .then((result) => {
+        res.status(201).json({ result });
+      })
+      .catch((error) => {
+        console.error("Error updating behavior:", error);
+        res.status(500).json({ error: "Internal server error" });
+      });
+  }
+);
+
+// DELETE Mastery Log By ID
+app.delete(
+  route + "/mastery-logs/:entryId",
+  [param("entryId").isInt().toInt()],
+  handleValidationErrors,
+  (req, res) => {
+    const entryId = req.params.entryId;
+
+    deleteSkillMasteryLog(db, entryId)
+      .then(() => {
+        res.status(204).end(); // Successfully deleted
+      })
+      .catch((error) => {
+        console.log(error);
+        res
+          .status(500)
+          .json({ error: "An error occurred while deleting the behavior." });
       });
   }
 );
