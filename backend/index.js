@@ -17,6 +17,7 @@ const {
   createSkillMasteryLog,
   createBehavior,
   createBehaviorConsequence,
+  createBehaviorLog,
   updateBehavior,
   updateBehaviorConsequence,
   deleteBehavior,
@@ -26,6 +27,15 @@ const {
   getAllBehaviorConsequences,
   getBehaviorConsequenceById,
   getAllStudentBehaviorsWithConsequences,
+  getBehaviorLogByStudent,
+  getBehaviorLogById,
+  updateBehaviorLog,
+  deleteBehaviorLog,
+  createMasterySkill,
+  getMasterySkillById,
+  getAllMasterySkills,
+  updateMasterySkill,
+  deleteMasterySkill,
 } = require("./databaseQueries");
 
 const {
@@ -111,7 +121,109 @@ app.get(
  * MASTERY-SKILLS ENDPOINT
  */
 
-// POST Mastery
+// CREATE New Skill
+
+const validateCreateSkill = [
+  body("name").trim().isLength({ min: 1 }).withMessage("name is required"),
+];
+
+app.post(
+  route + "/skills",
+  validateCreateSkill,
+  handleValidationErrors,
+  (req, res) => {
+    const { name } = req.body;
+
+    createMasterySkill(db, name)
+      .then((result) => {
+        res.status(201).json({ result });
+      })
+      .catch((error) => {
+        console.error("Error creating skill:", error);
+        res.status(500).json({ error: "Internal server error" });
+      });
+  }
+);
+
+// GET Skill by Id
+
+app.get(
+  route + "/skills/:skillId",
+  [param("skillId").isInt().toInt()],
+  handleValidationErrors,
+  (req, res) => {
+    const skillId = req.params.skillId;
+
+    getMasterySkillById(db, skillId)
+      .then((skill) => {
+        if (!skill) {
+          return res.status(404).json({ error: "Skill not found" });
+        }
+        res.json(skill);
+      })
+      .catch((error) => {
+        console.log(error);
+        res
+          .status(500)
+          .json({ error: "An error occurred while fetching the skill" });
+      });
+  }
+);
+
+// GET All Skill
+
+app.get(route + "/skills", (req, res) => {
+  getAllMasterySkills(db).then((results) => {
+    if (results.length <= 0) res.status(404).json({ error: "No Skills Found" });
+    else res.json(results);
+  });
+});
+
+// UPDATE Skill
+
+const validateUpdateSkill = [
+  param("skillId").isInt(),
+  body("name").trim().isLength({ min: 1 }).withMessage("name is required"),
+];
+
+app.put(
+  route + "/skills/:skillId",
+  validateUpdateSkill,
+  handleValidationErrors,
+  (req, res) => {
+    const skillId = req.params.skillId;
+    const name = req.body.name;
+    updateMasterySkill(db, skillId, name)
+      .then((result) => {
+        res.status(201).json({ result });
+      })
+      .catch((error) => {
+        console.error("Error updating skill:", error);
+        res.status(500).json({ error: "Internal server error" });
+      });
+  }
+);
+
+// DELETE Behavior Category
+
+app.delete(
+  route + "/skills/:skillId",
+  [param("skillId").isInt().toInt()],
+  handleValidationErrors,
+  (req, res) => {
+    const skillId = req.params.skillId;
+
+    deleteMasterySkill(db, skillId)
+      .then(() => {
+        res.status(204).end(); // Successfully deleted
+      })
+      .catch((error) => {
+        res
+          .status(500)
+          .json({ error: "An error occurred while deleting the skill." });
+      });
+  }
+);
 
 /**
  * MASTERY-SKILL-LOGS ENDPOINT
@@ -281,7 +393,7 @@ app.delete(
 );
 
 /**
- * BEHAVIOR CONSEQUENCES
+ * BEHAVIOR CONSEQUENCES ENDPOINT
  */
 
 // GET Consequences By Id
@@ -322,8 +434,138 @@ app.get(route + "/behavior-consequences", (req, res) => {
  * BEHAVIOR-LOGS ENDPOINT
  */
 
+// POST Create Log
+
+const validateCreateBehaviorLog = [
+  body("userId").isInt().notEmpty(),
+  body("behaviorId").isInt().notEmpty(),
+  // TODO body("dateOfEvent").isDate().notEmpty(),
+];
+
+app.post(
+  route + "/behavior-logs",
+  validateCreateBehaviorLog,
+  handleValidationErrors,
+  (req, res) => {
+    const { userId, behaviorId, dateOfEvent } = req.body;
+
+    createBehaviorLog(db, userId, behaviorId, dateOfEvent)
+      .then((result) => {
+        res.status(201).json(result);
+      })
+      .catch((error) => {
+        res.status(500).json({
+          error: "An error occurred while creating the behavior log entry.",
+        });
+      });
+  }
+);
+
+// GET Log By Entry ID
+
+app.get(
+  route + "/behavior-logs/:entryId",
+  [param("entryId").isInt()],
+  handleValidationErrors,
+  (req, res) => {
+    const entryId = req.params.entryId;
+
+    getBehaviorLogById(db, entryId)
+      .then((behavior) => {
+        if (!behavior) {
+          return res.status(404).json({ error: "Behavior not found" });
+        }
+        res.json(behavior);
+      })
+      .catch((error) => {
+        console.log(error);
+        res.status(500).json({
+          error: "An error occurred while fetching the behavior entry",
+        });
+      });
+  }
+);
+
+// GET Logs By Student ID
+
+app.get(
+  route + "/students/:studentId/behavior-logs",
+  [param("studentId").isInt().toInt()],
+  handleValidationErrors,
+  (req, res) => {
+    const studentId = req.params.studentId;
+
+    getBehaviorLogByStudent(db, studentId)
+      .then((results) => {
+        if (results.length <= 0) {
+          return res
+            .status(404)
+            .json({ error: "Behavior log not found for student" });
+        }
+        res.json(results);
+      })
+      .catch((error) => {
+        console.log(error);
+        res
+          .status(500)
+          .json({ error: "An error occurred while fetching the behavior" });
+      });
+  }
+);
+
+// TODO GET All Logs
+// app.get(route + "/behavior-logs");
+
+// UPDATE Log by Entry ID
+
+const validateUpdateBehaviorLog = [
+  body("userId").isInt().notEmpty(),
+  body("behaviorId").isInt().notEmpty(),
+  // TODO body("dateOfEvent").isDate().notEmpty(),
+];
+
+app.put(
+  route + "/behavior-logs/:entryId",
+  validateUpdateBehaviorLog,
+  handleValidationErrors,
+  (req, res) => {
+    const entryId = req.params.entryId;
+    const { userId, behaviorId, dateOfEvent } = req.body;
+
+    updateBehaviorLog(db, entryId, userId, behaviorId, dateOfEvent)
+      .then((result) => {
+        res.status(201).json({ result });
+      })
+      .catch((error) => {
+        console.error("Error updating behavior:", error);
+        res.status(500).json({ error: "Internal server error" });
+      });
+  }
+);
+
+// DELETE Log By Entry ID
+app.delete(
+  route + "/behavior-logs/:entryId",
+  [param("entryId").isInt().toInt()],
+  handleValidationErrors,
+  (req, res) => {
+    const entryId = req.params.entryId;
+
+    deleteBehaviorLog(db, entryId)
+      .then(() => {
+        res.status(204).end(); // Successfully deleted
+      })
+      .catch((error) => {
+        console.log(error);
+        res
+          .status(500)
+          .json({ error: "An error occurred while deleting the behavior." });
+      });
+  }
+);
+
 /**
- * STUDONT-STUDY-HOURS ENDPOINT
+ * STUDENT-STUDY-HOURS ENDPOINT
  */
 
 /* Get User Information */
