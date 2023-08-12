@@ -360,6 +360,25 @@ function getAllBehaviorConsequences(db) {
 }
 
 /**
+ * Gets Behavior Log by Id
+ * @param {*} db
+ * @param {*} behavior_id
+ * @returns
+ */
+function getBehaviorLogById(db, entry_id) {
+  return new Promise((resolve, reject) => {
+    const query = "SELECT * FROM student_behavior_log WHERE entry_id = ?";
+    db.get(query, [entry_id], (err, row) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(row);
+      }
+    });
+  });
+}
+
+/**
  * Gets all behaviors by user_id
  * @param {*} db
  * @param {*} user_id
@@ -369,7 +388,7 @@ function getBehaviorLogByStudent(db, user_id) {
   return new Promise((resolve, reject) => {
     db.all(
       "SELECT * FROM student_behavior_log WHERE user_id = ? ORDER BY date_of_event",
-      userId,
+      user_id,
       (err, rows) => {
         if (err) reject(err);
         else if (rows.length > 0) resolve(rows);
@@ -898,6 +917,7 @@ module.exports = {
   getBehaviorConsequenceById,
   getAllBehaviorConsequences,
   getAllStudentBehaviorsWithConsequences,
+  getBehaviorLogById,
   getBehaviorLogByStudent,
   getMasterySkillById,
   getSkillMasteryByStudent,
