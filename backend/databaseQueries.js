@@ -36,7 +36,7 @@ function createUser(db, name, email) {
 function createUserRole(db, userId, userRole) {
   return new Promise((resolve, reject) => {
     const query =
-      "INSERT INTO user_role_mapping (user_id, role_id) VALUES (?, ?)";
+      "INSERT INTO user_roles_mapping (user_id, role_id) VALUES (?, ?)";
     db.run(query, [userId, userRole], function (err) {
       if (err) {
         reject(err);
@@ -262,9 +262,8 @@ function getUserById(db, id) {
  */
 function getUserRoleMapping(db, user_id) {
   return new Promise((resolve, reject) => {
-    const query =
-      "SELECT * FROM user_roles_mapping WHERE user_id = ? AND role_id = ?";
-    db.get(query, [user_id, role_id], (err, row) => {
+    const query = "SELECT * FROM user_roles_mapping WHERE user_id = ?";
+    db.get(query, [user_id], (err, row) => {
       if (err) {
         reject(err);
       } else {
@@ -513,7 +512,7 @@ function getStudyHoursByStudent(db, userId) {
  */
 function updateUser(db, id, name, email) {
   return new Promise((resolve, reject) => {
-    const query = "UPDATE users SET name = ?, email = ? WHERE id = ?";
+    const query = "UPDATE users SET name = ?, email = ? WHERE user_id = ?";
     db.run(query, [name, email, id], function (err) {
       if (err) {
         reject(err);
@@ -532,7 +531,7 @@ function updateUser(db, id, name, email) {
  * @param {*} email
  * @returns none
  */
-function updateUserRole(db, user_id, role_id) {
+function updateUserRoleMapping(db, user_id, role_id) {
   return new Promise((resolve, reject) => {
     const query = "UPDATE user_roles_mapping SET role_id = ? WHERE user_id = ?";
     db.run(query, [user_id, role_id], function (err) {
@@ -735,7 +734,7 @@ function updateStudyLog(
  */
 function deleteUser(db, id) {
   return new Promise((resolve, reject) => {
-    const query = "DELETE FROM users WHERE id = ?";
+    const query = "DELETE FROM users WHERE user_id = ?";
     db.run(query, [id], function (err) {
       if (err) {
         reject(err);
@@ -753,11 +752,10 @@ function deleteUser(db, id) {
  * @param {*} role_id
  * @returns none
  */
-function deleteUserRoleMapping(db, user_id, role_id) {
+function deleteUserRoleMapping(db, user_id) {
   return new Promise((resolve, reject) => {
-    const query =
-      "DELETE FROM user_roles_mapping WHERE user_id = ? AND role_id = ?";
-    db.run(query, [user_id, role_id], function (err) {
+    const query = "DELETE FROM user_roles_mapping WHERE user_id = ?";
+    db.run(query, [user_id], function (err) {
       if (err) {
         reject(err);
       } else {
@@ -932,7 +930,7 @@ module.exports = {
   updateStudent,
   updateStudyLog,
   updateUser,
-  updateUserRole,
+  updateUserRoleMapping,
   updateSkillMasteryLog,
   deleteBehavior,
   deleteBehaviorConsequence,
