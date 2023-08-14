@@ -425,11 +425,9 @@ function getAllMasterySkills(db) {
   return new Promise((resolve, reject) => {
     db.all("SELECT * FROM skills", (err, rows) => {
       if (err) {
-        reject(statusError("Internal server error.", 500));
-      } else if (rows.length > 0) {
-        resolve(rows);
+        reject(err);
       } else {
-        reject(statusError("Skill categories not found.", 404));
+        resolve(rows);
       }
     });
   });
@@ -471,6 +469,25 @@ function getStudentById(db, user_id) {
         reject(err);
       } else {
         resolve(row);
+      }
+    });
+  });
+}
+
+/**
+ * Get Student info based off user id
+ * @param {*} db
+ * @param {*} user_id
+ * @returns data from student
+ */
+function getAllStudents(db) {
+  return new Promise((resolve, reject) => {
+    const query = "SELECT * FROM students";
+    db.all(query, (err, rows) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(rows);
       }
     });
   });
@@ -534,7 +551,7 @@ function updateUser(db, id, name, email) {
 function updateUserRoleMapping(db, user_id, role_id) {
   return new Promise((resolve, reject) => {
     const query = "UPDATE user_roles_mapping SET role_id = ? WHERE user_id = ?";
-    db.run(query, [user_id, role_id], function (err) {
+    db.run(query, [role_id, user_id], function (err) {
       if (err) {
         reject(err);
       } else {
@@ -919,6 +936,7 @@ module.exports = {
   getBehaviorLogByStudent,
   getMasterySkillById,
   getSkillMasteryByStudent,
+  getAllStudents,
   getStudentById,
   getStudyHoursByStudent,
   getUserById,

@@ -51,6 +51,8 @@ const {
   getUserRoleMapping,
   deleteStudent,
   updateUserRoleMapping,
+  getStudentById,
+  getAllStudents,
 } = require("./databaseQueries");
 
 const {
@@ -91,7 +93,7 @@ app.post(
         return result.id;
       })
       .then((result) => {
-        if (userRole == 1) return createStudent(db, result.id, 0, 1200, 1200);
+        if (userRole == 1) return createStudent(db, result, 0, 1200, 1200);
         return result;
       })
       .then((result) => {
@@ -130,6 +132,14 @@ app.get(
       });
   }
 );
+
+// Get All Users
+app.get(route + "/users", (req, res) => {
+  getAllUsers(db).then((results) => {
+    if (results.length <= 0) res.status(404).json({ error: "No Users Found" });
+    else res.json(results);
+  });
+});
 
 // UPDATE USER INFO By Id
 
@@ -223,6 +233,40 @@ app.put(
 /**
  * STUDENTS ENDPOINT
  */
+
+//Get Student By Id
+app.get(
+  route + "/students/:id",
+  [param("id").isInt().toInt()],
+  handleValidationErrors,
+  (req, res) => {
+    const studentId = req.params.id;
+
+    getStudentById(db, studentId)
+      .then((student) => {
+        if (!student) {
+          return res.status(404).json({ error: "Student not found" });
+        }
+        res.json(student);
+      })
+      .catch((error) => {
+        console.log(error);
+        res
+          .status(500)
+          .json({ error: "An error occurred while fetching the Student" });
+      });
+  }
+);
+
+//Get All Students
+
+app.get(route + "/students", (req, res) => {
+  getAllStudents(db).then((results) => {
+    if (results.length <= 0)
+      res.status(404).json({ error: "No Students Found" });
+    else res.json(results);
+  });
+});
 
 /**
  * MASTERY-SKILLS ENDPOINT
@@ -696,9 +740,6 @@ app.get(
   }
 );
 
-// TODO GET All Logs
-// app.get(route + "/behavior-logs");
-
 // UPDATE Log by Entry ID
 
 const validateUpdateBehaviorLog = [
@@ -869,7 +910,7 @@ app.delete(
 
 /* Get User Information */
 
-function getUserInfo(email) {
+function getUserByEmail(email) {
   return new Promise((resolve, reject) => {
     db.get("SELECT * FROM users WHERE email = ?", email, (err, row) => {
       if (err) reject(statusError("Internal server error.", 500));
