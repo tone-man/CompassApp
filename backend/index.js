@@ -43,6 +43,13 @@ const {
   updateStudyLog,
   getStudyHoursByStudent,
   deleteStudyLog,
+  createUserRole,
+  createStudent,
+  updateUser,
+  deleteUser,
+  deleteUserRoleMapping,
+  getUserRoleMapping,
+  deleteStudent,
 } = require("./databaseQueries");
 
 const {
@@ -62,11 +69,12 @@ const db = new sqlite3.Database("database/CompassDatabase.db");
  * USERS ENDPOINT
  */
 
-// POST users
+// POST Create Users
 
 const validateCreateUser = [
   body("name").trim().isLength({ min: 1 }).withMessage("Name is required"),
   body("email").trim().isEmail().withMessage("Invalid email format"),
+  body("userRole").isInt({ min: 1 }).withMessage("Role must be greater than 0"),
 ];
 
 app.post(
@@ -74,13 +82,19 @@ app.post(
   validateCreateUser,
   handleValidationErrors,
   (req, res) => {
-    const { name, email } = req.body;
+    const { name, email, userRole } = req.body;
 
     createUser(db, name, email)
       .then((result) => {
-        res
-          .status(201)
-          .json({ id: result.id, message: "User created successfully" });
+        createUserRole(db, result.id, userRole);
+        return result.id;
+      })
+      .then((result) => {
+        if (userRole == 1) return createStudent(db, result.id, 0, 1200, 1200);
+        return result;
+      })
+      .then((result) => {
+        res.status(201).json({ message: "User created successfully" });
       })
       .catch((error) => {
         console.error("Error creating user:", error);
@@ -112,6 +126,61 @@ app.get(
         res
           .status(500)
           .json({ error: "An error occurred while fetching the user" });
+      });
+  }
+);
+
+// UPDATE USER INFO By Id
+
+const validateUpdateUser = [
+  param("id").isInt(),
+  body("name").trim().isLength({ min: 1 }).withMessage("Name is required"),
+  body("email").trim().isEmail().withMessage("Invalid email format"),
+];
+
+app.put(
+  route + "/users/:id",
+  validateUpdateUser,
+  handleValidationErrors,
+  (req, res) => {
+    const userId = req.params.id;
+    const { email, name } = req.body;
+
+    updateUser(db, userId, name, email)
+      .then((result) => {
+        res.status(201).json({ result });
+      })
+      .catch((error) => {
+        console.error("Error updating user:", error);
+        res.status(500).json({ error: "Internal server error" });
+      });
+  }
+);
+
+// DELETE User By ID
+
+app.delete(
+  route + "/users/:id",
+  [param("id").isInt().toInt()],
+  handleValidationErrors,
+  (req, res) => {
+    const userId = req.params.id;
+    getUserRoleMapping(db, userId)
+      .then((row) => {
+        if (row.role_id == 1) return deleteStudent(db, userId);
+
+        return row;
+      })
+      .then(deleteUserRoleMapping(db, userId))
+      .then(deleteUser(db, userId))
+      .then(() => {
+        res.status(204).end(); // Successfully deleted
+      })
+      .catch((error) => {
+        console.log(error);
+        res
+          .status(500)
+          .json({ error: "An error occurred while deleting the user." });
       });
   }
 );
@@ -760,11 +829,9 @@ app.delete(
       })
       .catch((error) => {
         console.log(error);
-        res
-          .status(500)
-          .json({
-            error: "An error occurred while deleting the study hour log.",
-          });
+        res.status(500).json({
+          error: "An error occurred while deleting the study hour log.",
+        });
       });
   }
 );
