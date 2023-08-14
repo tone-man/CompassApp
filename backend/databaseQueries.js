@@ -463,7 +463,8 @@ function getSkillMasteryByStudent(db, userId) {
  */
 function getStudentById(db, user_id) {
   return new Promise((resolve, reject) => {
-    const query = "SELECT * FROM students WHERE user_id = ?";
+    const query =
+      "SELECT * FROM users  INNER JOIN students ON students.user_id = users.user_id WHERE users.user_id= ?";
     db.get(query, [user_id], (err, row) => {
       if (err) {
         reject(err);
@@ -482,7 +483,8 @@ function getStudentById(db, user_id) {
  */
 function getAllStudents(db) {
   return new Promise((resolve, reject) => {
-    const query = "SELECT * FROM students";
+    const query =
+      "SELECT * FROM users  INNER JOIN students ON students.user_id = users.user_id";
     db.all(query, (err, rows) => {
       if (err) {
         reject(err);
