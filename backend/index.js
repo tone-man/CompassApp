@@ -50,6 +50,7 @@ const {
   deleteUserRoleMapping,
   getUserRoleMapping,
   deleteStudent,
+  updateUserRoleMapping,
 } = require("./databaseQueries");
 
 const {
@@ -188,6 +189,36 @@ app.delete(
 /**
  * USER-ROLES ENDPOINT
  */
+
+// Update Role Mapping by User Id
+
+app.put(
+  route + "/user-roles/:id",
+  [param("id").isInt({ min: 0 }), body("newRoleId").isInt({ min: 0 })],
+  handleValidationErrors,
+  (req, res) => {
+    const userId = req.params.id;
+    const { newRoleId } = req.body;
+
+    getUserRoleMapping(db, userId)
+      .then((row) => {
+        if (row.role_id != newRoleId && newRoleId == 1)
+          return createStudent(db, userId, 0, 1200, 1200);
+        if (row.role_id != newRoleId && row.role_id == 1)
+          return deleteStudent(db, userId);
+
+        return row;
+      })
+      .then(updateUserRoleMapping(db, userId, newRoleId))
+      .then((result) => {
+        res.status(201).json({ result });
+      })
+      .catch((error) => {
+        console.error("Error updating user role mapping:", error);
+        res.status(500).json({ error: "Internal server error" });
+      });
+  }
+);
 
 /**
  * STUDENTS ENDPOINT
