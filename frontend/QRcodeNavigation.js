@@ -10,8 +10,12 @@ function QRcodeNavigation() {
   const { colors } = useTheme();
   return (
     <Tab.Navigator
-      tabBarOptions={{
-        indicatorStyle: { backgroundColor: colors.primary }, // Customize the underline color here
+      screenOptions={{
+        activeTintColor: "#000",
+        inactiveTintColor: "#fff",
+
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: "gray",
       }}
     >
       <Tab.Screen name="QRcodeScanner" component={QRcodeScannerView} />

@@ -4,6 +4,7 @@ import { DataTable, Text, useTheme } from "react-native-paper";
 import axios from "axios";
 
 const fetchData = async (id) => {
+  // fetch data from backend and set states for eventDates and mastery for each skill (this is the similiar to the fetchData function in AnalyticsView.js)
   try {
     const response = await axios.get(
       "http://192.168.4.63:5000/api/users/john.doe@example.com"
@@ -26,8 +27,14 @@ const fetchData = async (id) => {
       }
       return count;
     }, 0);
-    const incompleteAssignments = response2.data.reduce((count, behavior) => {
+    const missedAssignments = response2.data.reduce((count, behavior) => {
       if (behavior.behavior_id === 3) {
+        return count + 1;
+      }
+      return count;
+    }, 0);
+    const lateAssignments = response2.data.reduce((count, behavior) => {
+      if (behavior.behavior_id === 4) {
         return count + 1;
       }
       return count;
@@ -36,34 +43,40 @@ const fetchData = async (id) => {
     return {
       missedClass,
       missedCoachingMeeting,
-      incompleteAssignments,
+      missedAssignments,
+      lateAssignments,
     };
   } catch (error) {
     console.error(error);
     return {
       missedClass: null,
       missedCoachingMeeting: null,
-      incompleteAssignments: null,
+      missedAssignments: null,
+      lateAssignments: null,
     };
   }
 };
 
 const TableExample = () => {
+  // set up states for eventDates and mastery for each skill
   const [missedClass, setMissedClass] = useState(0);
   const [missedCoachingMeeting, setMissedCoachingMeeting] = useState(0);
-  const [incompleteAssignments, setIncompleteAssignments] = useState(0);
+  const [missedAssignments, setMissedAssignments] = useState(0);
+  const [lateAssignments, setLateAssignments] = useState(0);
 
   useEffect(() => {
     const fetchDataAndSetState = async () => {
       const {
         missedClass: fetchedMissedClass,
         missedCoachingMeeting: fetchedMissedCoachingMeeting,
-        incompleteAssignments: fetchedIncompleteAssignments,
+        missedAssignments: fetchedMissedAssignments,
+        lateAssignments: fetchedLateAssignments,
       } = await fetchData(1);
 
       setMissedClass(fetchedMissedClass || 0);
       setMissedCoachingMeeting(fetchedMissedCoachingMeeting || 0);
-      setIncompleteAssignments(fetchedIncompleteAssignments || 0);
+      setMissedAssignments(fetchedMissedAssignments || 0);
+      setLateAssignments(fetchedLateAssignments || 0);
     };
 
     fetchDataAndSetState();
@@ -73,6 +86,7 @@ const TableExample = () => {
   const stylesConfig = styles(colors);
 
   return (
+    // set up a table that contains the behaviors and the number of times they have occurred
     <DataTable style={stylesConfig.graph}>
       <DataTable.Header>
         <DataTable.Title>
@@ -107,8 +121,26 @@ const TableExample = () => {
           <Text style={stylesConfig.tableCellText}>Missed Assignments</Text>
         </DataTable.Cell>
         <DataTable.Cell numeric>
+          <Text style={stylesConfig.tableCellText}>{missedAssignments}</Text>
+        </DataTable.Cell>
+      </DataTable.Row>
+
+      <DataTable.Row>
+        <DataTable.Cell>
+          <Text style={stylesConfig.tableCellText}>Late Assignments</Text>
+        </DataTable.Cell>
+        <DataTable.Cell numeric>
+          <Text style={stylesConfig.tableCellText}>{lateAssignments}</Text>
+        </DataTable.Cell>
+      </DataTable.Row>
+
+      <DataTable.Row>
+        <DataTable.Cell>
+          <Text style={stylesConfig.tableCellText}>Missing Assignments</Text>
+        </DataTable.Cell>
+        <DataTable.Cell numeric>
           <Text style={stylesConfig.tableCellText}>
-            {incompleteAssignments}
+            {missedAssignments - lateAssignments}
           </Text>
         </DataTable.Cell>
       </DataTable.Row>
@@ -117,7 +149,7 @@ const TableExample = () => {
 };
 
 export default TableExample;
-
+// set up styles for the container, title text, text inputs, and button
 const styles = (colors) =>
   StyleSheet.create({
     container: {

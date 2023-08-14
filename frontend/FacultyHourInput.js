@@ -14,6 +14,7 @@ import Icon from "react-native-vector-icons/FontAwesome";
 import axios from "axios";
 
 export default function FacultyBehaviorInput() {
+  // set states for student, mastery, date, studentsList, filteredStudents
   const [student, setStudent] = useState("");
   const [mastery, setMastery] = useState("");
   const [date, setDate] = useState("");
@@ -28,6 +29,7 @@ export default function FacultyBehaviorInput() {
 
   const fetchIDFromName = async (name) => {
     try {
+      // fetch user ID from name from backend and return user ID if found or an error if not found
       const response = await axios.get("http://192.168.4.63:5000/api/users");
       const user = response.data.find((user) => user.name === name);
       return user.user_id;
@@ -37,6 +39,7 @@ export default function FacultyBehaviorInput() {
   };
 
   const fetchStudentNames = async () => {
+    // fetch student names from backend and set studentsList to list of student names from backend or an error if not found
     try {
       const response = await axios.get("http://192.168.4.63:5000/api/users");
       setStudentsList(response.data.map((user) => user.name));
@@ -46,6 +49,7 @@ export default function FacultyBehaviorInput() {
   };
 
   const handleStudentChange = (text) => {
+    // set student to text and set filteredStudents to list of students that match text
     setStudent(text);
     if (text !== "") {
       const filtered = studentsList.filter((student) =>
@@ -58,6 +62,7 @@ export default function FacultyBehaviorInput() {
   };
 
   const renderItem = ({ item }) => (
+    // render list of students that match text and set student to selected student
     <TouchableOpacity
       onPress={() => {
         setStudent(item);
@@ -69,8 +74,9 @@ export default function FacultyBehaviorInput() {
   );
 
   const handleSave = async () => {
+    // handle save button press
     const errorMessages = [];
-
+    // check if student, mastery, and date are empty and add error message if so
     if (student === "") {
       errorMessages.push("Student is required");
     }
@@ -84,6 +90,7 @@ export default function FacultyBehaviorInput() {
     }
 
     if (errorMessages.length > 0) {
+      // display error messages if any
       const displayAlerts = (index) => {
         Alert.alert(errorMessages[index], "", [
           {
@@ -99,21 +106,26 @@ export default function FacultyBehaviorInput() {
 
       displayAlerts(0);
     } else {
+      // fetch user ID from name
       const userId = await fetchIDFromName(student);
       if (userId) {
+        // post request to backend
         const data = {
           user_id: userId,
           skill_id: mastery,
           mastery_status: mastery,
           date_of_event: date,
         };
-        console.log(data);
+        //const response = await axios.post(
+
+        // alert user that data was saved successfully
         Alert.alert("Saved!");
       }
     }
   };
 
   return (
+    // display form for faculty to input student mastery
     <PaperProvider theme={theme}>
       <View style={styles.container}>
         <View style={styles.formContainer}>

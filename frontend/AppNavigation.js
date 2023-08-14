@@ -1,113 +1,75 @@
-// Tabs.js
-import { TouchableOpacity, View, StyleSheet, Text } from "react-native";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { createStackNavigator } from "@react-navigation/stack";
-import { useNavigation } from "@react-navigation/native";
+import * as React from "react";
+import {
+  createDrawerNavigator,
+  DrawerContentScrollView,
+  DrawerItem,
+} from "@react-navigation/drawer";
 import { useTheme } from "react-native-paper";
 import AnalyticsView from "./AnalyticsView";
 import ProfileView from "./ProfileView";
-
-import React, { useContext } from "react";
-
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import tableView from "./tableView";
 import QRcodeNavigation from "./QRcodeNavigation";
 import facultyInputNavigation from "./facultyInputNavigation";
-import QRcodeView from "./QRcodeView";
-import StudentMasteryInputView from "./StudentMasteryInputView";
-import { AuthContext } from "./AuthContext";
-import { useState } from "react";
-import LoginPage from "./loginPage";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
-const Tab = createBottomTabNavigator();
-const Stack = createStackNavigator();
+const Drawer = createDrawerNavigator();
 
-const ProfileIcon = ({ navigation }) => {
-  return (
-    <TouchableOpacity onPress={() => navigation.navigate("ProfileView")}>
-      <Icon name="account-circle-outline" size={30} color="#000" />
-    </TouchableOpacity>
-  );
-};
-
-const StackNavigator = () => {
-  const { isLoggedIn } = useContext(AuthContext);
-
-  return (
-    <Stack.Navigator>
-      {isLoggedIn ? (
-        <>
-          <Stack.Screen
-            name="Main"
-            component={TabNavigator}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen name="ProfileView" component={ProfileView} />
-        </>
-      ) : (
-        <Stack.Screen name="Login">
-          {(props) => (
-            <LoginPage {...props} onLogin={() => setIsLoggedIn(true)} />
-          )}
-        </Stack.Screen>
-      )}
-    </Stack.Navigator>
-  );
-};
-
-function TabNavigator() {
-  const navigation = useNavigation();
+function CustomDrawerContent(props) {
   const { colors } = useTheme();
+
   return (
-    <Tab.Navigator
-      screenOptions={{
-        activeTintColor: colors.primary,
-      }}
-      tabBarOptions={{
-        activeTintColor: colors.primary,
-      }}
-    >
-      <Tab.Screen
-        name="Analytics"
-        component={AnalyticsView}
-        options={{
-          tabBarIcon: (props) => (
-            <Icon name="google-analytics" size={24} color={props.color} />
-          ),
-          headerRight: () => <ProfileIcon navigation={navigation} />,
-        }}
+    <DrawerContentScrollView {...props}>
+      <DrawerItem
+        icon={({ color, size }) => (
+          <Icon name="google-analytics" size={size} color={color} />
+        )}
+        label="Analytics"
+        onPress={() => props.navigation.navigate("Analytics")}
       />
-      <Tab.Screen
-        name="QR Code"
-        component={QRcodeNavigation}
-        options={{
-          tabBarIcon: (props) => (
-            <Icon name="qrcode-scan" size={24} color={props.color} />
-          ),
-          headerRight: () => <ProfileIcon navigation={navigation} />,
-        }}
+      <DrawerItem
+        icon={({ color, size }) => (
+          <Icon name="qrcode-scan" size={size} color={color} />
+        )}
+        label="QR Code"
+        onPress={() => props.navigation.navigate("QR Code")}
       />
-      <Tab.Screen
-        name="Data Input"
-        // component={StudentMasteryInputView} // for student view
-        component={facultyInputNavigation} // for faculty view
-        options={{
-          tabBarIcon: (props) => (
-            <Icon name="plus-circle-outline" size={24} color={props.color} />
-          ),
-          headerRight: () => <ProfileIcon navigation={navigation} />,
-        }}
+      <DrawerItem
+        icon={({ color, size }) => (
+          <Icon name="plus-circle-outline" size={size} color={color} />
+        )}
+        label="Data Input"
+        onPress={() => props.navigation.navigate("Data Input")}
       />
-    </Tab.Navigator>
+      <DrawerItem
+        icon={({ color, size }) => (
+          <Icon name="account" size={size} color={color} />
+        )}
+        label="Profile"
+        onPress={() => props.navigation.navigate("Profile")}
+      />
+
+      <DrawerItem
+        icon={({ color, size }) => (
+          <Icon name="table" size={size} color={color} />
+        )}
+        label="Table"
+        onPress={() => props.navigation.navigate("Table")}
+      />
+    </DrawerContentScrollView>
   );
 }
 
-export default StackNavigator;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
+export default function App() {
+  return (
+    <Drawer.Navigator
+      initialRouteName="Analytics"
+      drawerContent={(props) => <CustomDrawerContent {...props} />}
+    >
+      <Drawer.Screen name="Analytics" component={AnalyticsView} />
+      <Drawer.Screen name="QR Code" component={QRcodeNavigation} />
+      <Drawer.Screen name="Data Input" component={facultyInputNavigation} />
+      <Drawer.Screen name="Profile" component={ProfileView} />
+      <Drawer.Screen name="Table" component={tableView} />
+    </Drawer.Navigator>
+  );
+}

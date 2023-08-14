@@ -1,39 +1,41 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { StyleSheet } from "react-native";
 import axios from "axios";
 import { DataTable, Text, useTheme, ProgressBar } from "react-native-paper";
 import { View } from "react-native";
+import { AuthContext } from "./AuthContext";
 
-const fetchData = async () => {
+// fetch data from backend
+const fetchData = async (user) => {
   try {
     const response = await axios.get(
-      "http://192.168.4.63:5000/api/users/john.doe@example.com"
+      "http://192.168.4.63:5000/api/users/" + user.email // need to change email address to whoever is logged in rather than john.doe@example.com
     );
-
     const userId = response.data.user_id;
+    console.log(userId);
     const response2 = await axios.get(
       "http://192.168.4.63:5000/api/students/" + userId + "/"
     );
 
-    const study_minutes_completed = response2.data.study_minutes_completed;
-    const study_minutes_required = response2.data.study_minutes_required;
-    const base_study_minutes = response2.data.base_study_minutes;
+    const study_time_completed = response2.data.study_time_completed;
+    const study_time_required = response2.data.study_time_required;
+    const base_time_required = response2.data.base_time_required;
 
     return {
-      study_minutes_completed,
-      study_minutes_required,
-      base_study_minutes,
+      study_time_completed: study_time_completed,
+      study_time_required: study_time_required,
+      base_study_time: base_time_required,
     };
   } catch (error) {
     console.error(error);
     return {
-      study_minutes_completed: null,
-      study_minutes_required: null,
-      base_study_minutes: null,
+      study_time_completed: null,
+      study_time_required: null,
+      base_study_time: null,
     };
   }
 };
-
+// format time to hours and minutes for display in table
 const formatTime = (minutes) => {
   const hours = Math.floor(minutes / 60);
   const remainingMinutes = minutes % 60;
@@ -42,29 +44,28 @@ const formatTime = (minutes) => {
 
 const ProgressTracker = () => {
   const { colors } = useTheme();
-
+  // set states for completed, required, base, and progress
   const [completed, setCompleted] = useState(0);
   const [required, setRequired] = useState(0);
   const [base, setBase] = useState(0);
   const [progress, setProgress] = useState(0);
+  const { user } = useContext(AuthContext);
 
   const stylesConfig = styles(colors);
-
+  // fetch data from backend and set states
   useEffect(() => {
     const fetchDataAndSetState = async () => {
-      const {
-        study_minutes_completed,
-        study_minutes_required,
-        base_study_minutes,
-      } = await fetchData();
-      setCompleted(study_minutes_completed);
-      setRequired(study_minutes_required);
-      setBase(base_study_minutes);
+      const { study_time_completed, study_time_required, base_study_time } =
+        await fetchData(user);
+      setCompleted(study_time_completed);
+      setRequired(study_time_required);
+      setBase(base_study_time);
     };
 
     fetchDataAndSetState();
   }, []);
 
+  // calculate progress
   useEffect(() => {
     const validProgress =
       !isNaN(completed) && !isNaN(required) && required !== 0
@@ -74,18 +75,19 @@ const ProgressTracker = () => {
   }, [completed, required]);
 
   return (
+    // display progress bar and table
     <View style={styles.container}>
-      <ProgressBar progress={progress} color={colors.primary} />
       <DataTable style={stylesConfig.graph}>
         <DataTable.Header>
           <DataTable.Title>
             <Text style={stylesConfig.tableHeaderText}>Study Time</Text>
           </DataTable.Title>
         </DataTable.Header>
+        <ProgressBar progress={progress} color={"yellow"} />
 
         <DataTable.Row>
           <DataTable.Cell>
-            <Text style={stylesConfig.tableCellText}>Study Time Done</Text>
+            <Text style={stylesConfig.tableCellText}>Complete</Text>
           </DataTable.Cell>
           <DataTable.Cell numeric>
             <Text style={stylesConfig.tableCellText}>
@@ -96,7 +98,19 @@ const ProgressTracker = () => {
 
         <DataTable.Row>
           <DataTable.Cell>
-            <Text style={stylesConfig.tableCellText}>Study Time Goal</Text>
+            <Text style={stylesConfig.tableCellText}>Remaining</Text>
+          </DataTable.Cell>
+          <DataTable.Cell numeric>
+            <Text style={stylesConfig.tableCellText}>
+              {required - completed <= 0
+                ? "0 hours 0 minutes"
+                : formatTime(required - completed)}
+            </Text>
+          </DataTable.Cell>
+        </DataTable.Row>
+        <DataTable.Row>
+          <DataTable.Cell>
+            <Text style={stylesConfig.tableCellText}>Required</Text>
           </DataTable.Cell>
           <DataTable.Cell numeric>
             <Text style={stylesConfig.tableCellText}>
@@ -104,22 +118,13 @@ const ProgressTracker = () => {
             </Text>
           </DataTable.Cell>
         </DataTable.Row>
-
-        <DataTable.Row>
-          <DataTable.Cell>
-            <Text style={stylesConfig.tableCellText}>Study Time Base</Text>
-          </DataTable.Cell>
-          <DataTable.Cell numeric>
-            <Text style={stylesConfig.tableCellText}>{formatTime(base)}</Text>
-          </DataTable.Cell>
-        </DataTable.Row>
       </DataTable>
     </View>
   );
 };
-
+// export ProgressTracker
 export default ProgressTracker;
-
+// styles for ProgressTracker
 const styles = (colors) =>
   StyleSheet.create({
     container: {

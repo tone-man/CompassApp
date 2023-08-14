@@ -1,7 +1,8 @@
 import { StatusBar } from "expo-status-bar";
 import { LineChart } from "react-native-chart-kit";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import { AuthContext } from "./AuthContext";
+import React, { useEffect, useState, useContext } from "react";
 import {
   StyleSheet,
   Text,
@@ -15,20 +16,21 @@ import TableExample from "./table";
 import ProgressTracker from "./ProgressTracker";
 import { useTheme, ProgressBar, MD3Colors } from "react-native-paper";
 
-const fetchData = async (id) => {
+const fetchData = async (id, user) => {
+  // fetch data from backend and set states for eventDates and mastery for each skill
   let eventDates = [];
   let mastery = [];
-  try {
-    const response = await axios.get(
-      "http://192.168.4.63:5000/api/users/john.doe@example.com"
-    );
 
+  try {
+    const response = await axios.get(user.email);
+    console.log("HERE");
     const userId = response.data.user_id;
     const response2 = await axios.get(
       "http://192.168.4.63:5000/api/skill_mastery/" + userId + "/"
     );
 
     response2.data.forEach((item) => {
+      // format date and push to eventDates array
       if (item.skill_id === id) {
         const date = item.date_of_event;
         const formattedDate = date
@@ -42,13 +44,13 @@ const fetchData = async (id) => {
 
     return { eventDates, mastery };
   } catch (error) {
-    console.error(error);
     return { eventDates, mastery };
   }
 };
 
 const ExampleGraph = ({ primaryColor, data1, data2 }) => {
   const chartConfig = {
+    // graph styling
     backgroundGradientFromOpacity: 0,
     backgroundGradientToOpacity: 0,
     decimalPlaces: 1,
@@ -69,6 +71,7 @@ const ExampleGraph = ({ primaryColor, data1, data2 }) => {
   }
 
   return (
+    // LineChart component from react-native-chart-kit
     <LineChart
       data={{
         labels: data1,
@@ -94,8 +97,9 @@ const ExampleGraph = ({ primaryColor, data1, data2 }) => {
 };
 
 const AnalyticsView = () => {
+  // AnalyticsView component that renders all graphs and tables
   const { colors } = useTheme();
-
+  const { user } = useContext(AuthContext); // get signOut from context
   const styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -119,12 +123,24 @@ const AnalyticsView = () => {
       fontWeight: "bold",
     },
   });
+  // set states for Homework, Reading, Writing, Notetaking, and Mindset skills and their respective eventDates and mastery
+  const [HomeworkDates, setHomeworkDates] = useState([]);
+  const [HomeworkMastery, setHomeworkMastery] = useState([]);
+  useEffect(() => {
+    const fetchDataAndSetState = async () => {
+      const { eventDates, mastery } = await fetchData(1, user);
+      setHomeworkDates(eventDates);
+      setHomeworkMastery(mastery);
+    };
+
+    fetchDataAndSetState();
+  }, []);
 
   const [readingDates, setReadingDates] = useState([]);
   const [readingMastery, setReadingMastery] = useState([]);
   useEffect(() => {
     const fetchDataAndSetState = async () => {
-      const { eventDates, mastery } = await fetchData(2);
+      const { eventDates, mastery } = await fetchData(2, user);
       setReadingDates(eventDates);
       setReadingMastery(mastery);
     };
@@ -137,7 +153,7 @@ const AnalyticsView = () => {
 
   useEffect(() => {
     const fetchDataAndSetState = async () => {
-      const { eventDates, mastery } = await fetchData(3);
+      const { eventDates, mastery } = await fetchData(3, user);
       setWritingDates(eventDates);
       setWritingMastery(mastery);
     };
@@ -150,7 +166,7 @@ const AnalyticsView = () => {
 
   useEffect(() => {
     const fetchDataAndSetState = async () => {
-      const { eventDates, mastery } = await fetchData(4);
+      const { eventDates, mastery } = await fetchData(4, user);
       setNotetakingDates(eventDates);
       setNotetakingMastery(mastery);
     };
@@ -162,7 +178,7 @@ const AnalyticsView = () => {
   const [mindsetMastery, setMindsetMastery] = useState([]);
   useEffect(() => {
     const fetchDataAndSetState = async () => {
-      const { eventDates, mastery } = await fetchData(5);
+      const { eventDates, mastery } = await fetchData(5, user);
       setMindsetDates(eventDates);
       setMindsetMastery(mastery);
     };
@@ -170,9 +186,18 @@ const AnalyticsView = () => {
   }, []);
 
   return (
+    // render all graphs and tables in a scrollable view that is contained in a safe area view that is contained in a view
     <View style={styles.container}>
       <SafeAreaView>
         <ScrollView>
+          <View style={[styles.container, styles.graphContainer]}>
+            <Text style={styles.graphText}>Homework</Text>
+            <ExampleGraph
+              primaryColor={colors.primary}
+              data1={HomeworkDates}
+              data2={HomeworkMastery}
+            />
+          </View>
           <View style={[styles.container, styles.graphContainer]}>
             <Text style={styles.graphText}>Reading</Text>
             <ExampleGraph

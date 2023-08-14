@@ -1,13 +1,11 @@
-import React, { useContext } from "react";
+// LoginPage.js
+
+import React from "react";
 import { View, Image, TouchableOpacity } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import { AuthContext } from "./AuthContext";
 
 const LoginPage = ({ onLogin }) => {
-  const navigation = useNavigation();
-  const { signIn } = useContext(AuthContext);
   const handleImageClick = () => {
-    signIn();
+    onLogin();
   };
 
   return (
