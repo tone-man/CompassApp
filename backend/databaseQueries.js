@@ -398,6 +398,28 @@ function getBehaviorLogByStudent(db, user_id) {
 }
 
 /**
+ * Gets the additional Study Time For a Student
+ */
+function getSumStudentRequiredStudyTime(db, userId) {
+  return new Promise((resolve, reject) => {
+    db.get(
+      `SELECT SUM(additional_study_minutes) 
+    AS sumBehaviorMinutes
+    FROM student_behavior_log
+    JOIN student_behavior_consequences
+    ON student_behavior_log.behavior_id=student_behavior_consequences.behavior_id
+    WHERE user_id = ?;`,
+      userId,
+      (error, row) => {
+        if (error) reject(error);
+        else if (row) resolve(row.sumBehaviorMinutes);
+        else reject();
+      }
+    );
+  });
+}
+
+/**
  * Get Skill by id
  * @param {*} db
  * @param {*} skillId
@@ -490,6 +512,26 @@ function getAllStudents(db) {
         reject(err);
       } else {
         resolve(rows);
+      }
+    });
+  });
+}
+
+/**
+ * Get a Students Base Study Time
+ * @param {*} db
+ * @param {*} userId
+ * @returns
+ */
+function getBaseStudyTime(db, user_id) {
+  return new Promise((resolve, reject) => {
+    const query =
+      "SELECT (base_time_required) FROM students WHERE user_id = ?;";
+    db.get(query, [user_id], (err, row) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(row.base_time_required);
       }
     });
   });
@@ -703,6 +745,48 @@ function updateStudent(
         }
       }
     );
+  });
+}
+
+/**
+ * Updates Student Completed Study Time
+ * @param {*} user_id
+ * @param {*}  totalTimeCompleted
+ * @returns
+ */
+function updateStudentCompletedStudyTime(user_id, totalTimeCompleted) {
+  return new Promise((resolve, reject) => {
+    const query = `UPDATE students
+    SET study_time_completed = ?
+    WHERE user_id = ?`;
+    db.run(query, [user_id, totalTimeCompleted], function (err) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
+}
+
+/**
+ * Updates Student Required Study Time
+ * @param {*} user_id
+ * @param {*} totalTimeRemaining
+ * @returns
+ */
+function updateStudentRequiredStudyTime(db, user_id, totalTimeRemaining) {
+  return new Promise((resolve, reject) => {
+    const query = `UPDATE students
+    SET study_time_required = ?
+    WHERE user_id = ?`;
+    db.run(query, [totalTimeRemaining, user_id], function (err) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
   });
 }
 
@@ -943,6 +1027,8 @@ module.exports = {
   getStudyHoursByStudent,
   getUserById,
   getUserRoleMapping,
+  getBaseStudyTime,
+  getSumStudentRequiredStudyTime,
   updateBehavior,
   updateBehaviorConsequence,
   updateBehaviorLog,
@@ -952,6 +1038,7 @@ module.exports = {
   updateUser,
   updateUserRoleMapping,
   updateSkillMasteryLog,
+  updateStudentRequiredStudyTime,
   deleteBehavior,
   deleteBehaviorConsequence,
   deleteBehaviorLog,

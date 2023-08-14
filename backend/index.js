@@ -53,6 +53,9 @@ const {
   updateUserRoleMapping,
   getStudentById,
   getAllStudents,
+  getBaseStudyTime,
+  getSumStudentRequiredStudyTime,
+  updateStudentRequiredStudyTime,
 } = require("./databaseQueries");
 
 const {
@@ -675,8 +678,18 @@ app.post(
   handleValidationErrors,
   (req, res) => {
     const { userId, behaviorId, dateOfEvent } = req.body;
-
+    let baseStudyTime = 1200;
     createBehaviorLog(db, userId, behaviorId, dateOfEvent)
+      .then(() => {
+        return getBaseStudyTime(db, userId);
+      })
+      .then((base) => {
+        baseStudyTime = base;
+        return getSumStudentRequiredStudyTime(db, userId);
+      })
+      .then((sum) => {
+        updateStudentRequiredStudyTime(db, userId, baseStudyTime + sum);
+      })
       .then((result) => {
         res.status(201).json(result);
       })
