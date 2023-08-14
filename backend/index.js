@@ -58,6 +58,7 @@ const {
   updateStudentRequiredStudyTime,
   getSumStudentCompletedStudyTime,
   updateStudentCompletedStudyTime,
+  getAllUsers,
 } = require("./databaseQueries");
 
 const {
@@ -930,7 +931,7 @@ app.delete(
   }
 );
 
-/* Get User Information */
+/* Get User Information 
 
 function getUserByEmail(email) {
   return new Promise((resolve, reject) => {
@@ -958,7 +959,7 @@ app.get("/api/users/:email", (req, res) => {
     });
 });
 
-/* Get All Users Query */
+/* Get All Users Query 
 
 function getAllUsers() {
   return new Promise((resolve, reject) => {
@@ -983,7 +984,7 @@ app.get("/api/users", (req, res) => {
     });
 });
 
-/* Get User Role */
+/* Get User Role 
 app.get("/api/user_roles/:user_id", (req, res) => {
   const userId = req.params.user_id;
 
@@ -1061,7 +1062,7 @@ app.post("/api/users/", (req, res) => {
     });
 });
 
-/* Get Skill Categories */
+/* Get Skill Categories 
 app.get("/api/skills/", (req, res) => {
   getSkillCategories()
     .then((rows) => {
@@ -1089,7 +1090,7 @@ function getSkillCategories() {
   });
 }
 
-/* Get Student Skill Mastery Data */
+/* Get Student Skill Mastery Data 
 
 function getSkillMasteryLog(userId) {
   return new Promise((resolve, reject) => {
@@ -1126,7 +1127,7 @@ app.get("/api/skill_mastery/:user_id", (req, res) => {
     });
 });
 
-/* Get Student Information */
+/* Get Student Information 
 function getStudentInfo(userId) {
   return new Promise((resolve, reject) => {
     db.get("SELECT * FROM students WHERE user_id = ?", userId, (err, row) => {
@@ -1152,7 +1153,7 @@ app.get("/api/students/:user_id", (req, res) => {
     });
 });
 
-/* Get Student Study Hours */
+/* Get Student Study Hours 
 function getStudentStudyHours(userId) {
   return new Promise((resolve, reject) => {
     db.all(
@@ -1182,7 +1183,7 @@ app.get("/api/study_hours/:user_id", (req, res) => {
     });
 });
 
-/* Get Student Bad Behaviors */
+/* Get Student Bad Behaviors 
 function getStudentBehaviorEvents(userId) {
   return new Promise((resolve, reject) => {
     db.all(
@@ -1212,7 +1213,7 @@ app.get("/api/behavior_events/:user_id", (req, res) => {
     });
 });
 
-/* Get Behavior Categories */
+/* Get Behavior Categories 
 
 function getStudentBehaviors() {
   return new Promise((resolve, reject) => {
@@ -1237,7 +1238,7 @@ app.get("/api/behaviors", (req, res) => {
     });
 });
 
-/* Get Behavior Consequences For Given Behavior */
+/* Get Behavior Consequences For Given Behavior 
 
 function getStudentBehaviorConsequence(behaviorId) {
   return new Promise((resolve, reject) => {
@@ -1296,7 +1297,7 @@ function insertBehavior(params) {
   });
 }
 
-/* Add a Behavior to a Specific Student */
+/* Add a Behavior to a Specific Student 
 app.post("/api/behavior_events", (req, res) => {
   const { userId, behaviorId, dateOfEvent } = req.body;
 
@@ -1362,7 +1363,7 @@ function insertSkillMastery(params) {
   });
 }
 
-/* Add a Mastery Event to a Specific Student */
+/* Add a Mastery Event to a Specific Student 
 app.post("/api/skill_mastery", (req, res) => {
   const { userId, skillId, masteryStatus, dateOfEvent } = req.body;
 
@@ -1430,7 +1431,7 @@ function insertStudyHours(params) {
   });
 }
 
-/* Add Study Hours for a Specific Student */
+/* Add Study Hours for a Specific Student 
 app.post("/api/study_hours", (req, res) => {
   const { userId, datetimeOfLogIn, datetimeOfLogOut, durationOfStudy } =
     req.body;
@@ -1507,7 +1508,7 @@ function insertMappingQuery(params) {
   });
 }
 
-/* Sub Query For Updating Student Study Hours Completed*/
+/* Sub Query For Updating Student Study Hours Completed
 
 const sumStudentStudyTimeQuery = `SELECT SUM(duration_of_study)
   AS sumStudentStudyTime
@@ -1566,7 +1567,7 @@ function updateStudentStudyHoursCompleted(userId) {
   });
 }
 
-/* Sub Query For Updating Student Study Hours Required*/
+/* Sub Query For Updating Student Study Hours Required
 
 const baseStudentStudyTimeQuery = `SELECT (base_time_required) 
   FROM students
@@ -1645,7 +1646,7 @@ function updateStudentStudyHoursRemaining(userId) {
   });
 }
 
-/* Rollback Functions for when one transaction passes but another fails. */
+/* Rollback Functions for when one transaction passes but another fails. 
 
 const rollbackUpdateToStudentStudyLogQuery = `UPDATE student_study_hours
   SET log_out_time = NULL AND study_duration = NULL,
@@ -1697,6 +1698,8 @@ function rollbackUpdateToBehaviorLog(params) {
     }
   });
 }
+
+*/
 
 // Middleware for validation errors
 

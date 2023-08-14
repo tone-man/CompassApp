@@ -255,6 +255,24 @@ function getUserById(db, id) {
 }
 
 /**
+ * Gets All users
+ * @param {*} db
+ * @returns
+ */
+function getAllUsers(db) {
+  return new Promise((resolve, reject) => {
+    const query = "SELECT * FROM users";
+    db.all(query, (err, row) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(row);
+      }
+    });
+  });
+}
+
+/**
  * Get user role from user id
  * @param {*} db
  * @param {*} user_id
@@ -1034,6 +1052,7 @@ module.exports = {
   createSkillMasteryLog,
   createStudent,
   createStudyLog,
+  getAllUsers,
   getAllMasterySkills,
   getAllStudentBehaviors,
   getBehaviorById,
