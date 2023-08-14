@@ -398,7 +398,10 @@ function getBehaviorLogByStudent(db, user_id) {
 }
 
 /**
- * Gets the additional Study Time For a Student
+ * Gets the Sum of Additional Study Time For a Student
+ * @param {*} db
+ * @param {*} userId
+ * @returns
  */
 function getSumStudentRequiredStudyTime(db, userId) {
   return new Promise((resolve, reject) => {
@@ -419,6 +422,25 @@ function getSumStudentRequiredStudyTime(db, userId) {
   });
 }
 
+function getSumStudentCompletedStudyTime(db, userId) {
+  return new Promise((resolve, reject) => {
+    const query = `SELECT SUM(duration_of_study)
+  AS sumStudentStudyTime
+  FROM student_study_log
+  WHERE user_id = ?;`;
+
+    db.get(query, userId, (err, row) => {
+      if (err) {
+        console.log(err);
+        reject(statusError("Database Rejected Query.", 500));
+      } else if (row) {
+        resolve(row.sumStudentStudyTime);
+      } else {
+        resolve(0);
+      }
+    });
+  });
+}
 /**
  * Get Skill by id
  * @param {*} db
@@ -754,12 +776,12 @@ function updateStudent(
  * @param {*}  totalTimeCompleted
  * @returns
  */
-function updateStudentCompletedStudyTime(user_id, totalTimeCompleted) {
+function updateStudentCompletedStudyTime(db, user_id, totalTimeCompleted) {
   return new Promise((resolve, reject) => {
     const query = `UPDATE students
     SET study_time_completed = ?
     WHERE user_id = ?`;
-    db.run(query, [user_id, totalTimeCompleted], function (err) {
+    db.run(query, [totalTimeCompleted, user_id], function (err) {
       if (err) {
         reject(err);
       } else {
@@ -1029,6 +1051,7 @@ module.exports = {
   getUserRoleMapping,
   getBaseStudyTime,
   getSumStudentRequiredStudyTime,
+  getSumStudentCompletedStudyTime,
   updateBehavior,
   updateBehaviorConsequence,
   updateBehaviorLog,
@@ -1039,6 +1062,7 @@ module.exports = {
   updateUserRoleMapping,
   updateSkillMasteryLog,
   updateStudentRequiredStudyTime,
+  updateStudentCompletedStudyTime,
   deleteBehavior,
   deleteBehaviorConsequence,
   deleteBehaviorLog,

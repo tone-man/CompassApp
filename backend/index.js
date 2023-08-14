@@ -56,6 +56,8 @@ const {
   getBaseStudyTime,
   getSumStudentRequiredStudyTime,
   updateStudentRequiredStudyTime,
+  getSumStudentCompletedStudyTime,
+  updateStudentCompletedStudyTime,
 } = require("./databaseQueries");
 
 const {
@@ -828,6 +830,13 @@ app.post(
       dateTimeOfLogOut,
       durationOfStudy
     )
+      .then(() => {
+        return getSumStudentCompletedStudyTime(db, userId);
+      })
+      .then((sum) => {
+        console.log(sum);
+        updateStudentCompletedStudyTime(db, userId, sum);
+      })
       .then((result) => {
         res.status(201).json({ result });
       })
