@@ -39,7 +39,9 @@ export default function FacultyBehaviorInput() {
   const fetchIDFromName = async (name) => {
     // fetch user ID from name from backend and return user ID if found or an error if not found
     try {
-      const response = await axios.get("http://192.168.4.63:5000/api/users");
+      const response = await axios.get(
+        "http://10.0.0.140:5000/api/v1/students/"
+      );
       const user = response.data.find((user) => user.name === name);
       return user.user_id;
     } catch (error) {
@@ -50,7 +52,9 @@ export default function FacultyBehaviorInput() {
   const fetchStudentNames = async () => {
     // fetch student names from backend and set studentsList to list of student names from backend or an error if not found
     try {
-      const response = await axios.get("http://192.168.4.63:5000/api/users");
+      const response = await axios.get(
+        "http://10.0.0.140:5000/api/v1/students/"
+      );
       setStudentsList(response.data.map((user) => user.name));
     } catch (error) {
       console.error("Error fetching student names:", error);

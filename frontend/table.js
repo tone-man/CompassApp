@@ -1,18 +1,19 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { StyleSheet } from "react-native";
 import { DataTable, Text, useTheme } from "react-native-paper";
 import axios from "axios";
+import { AuthContext } from "./AuthContext";
 
-const fetchData = async (id) => {
+const fetchData = async (id, user) => {
   // fetch data from backend and set states for eventDates and mastery for each skill (this is the similiar to the fetchData function in AnalyticsView.js)
   try {
-    const response = await axios.get(
-      "http://192.168.4.63:5000/api/users/john.doe@example.com"
+    const axiosUserId = await axios.get(
+      "http://10.0.0.140:5000/api/v1/users-email/" + user.email
     );
+    const userId = axiosUserId.data.user_id;
 
-    const userId = response.data.user_id;
     const response2 = await axios.get(
-      "http://192.168.4.63:5000/api/behavior_events/" + userId + "/"
+      "http://10.0.0.140:5000/api/v1/students/" + userId + "/behavior-logs"
     );
 
     const missedClass = response2.data.reduce((count, behavior) => {
@@ -63,6 +64,7 @@ const TableExample = () => {
   const [missedCoachingMeeting, setMissedCoachingMeeting] = useState(0);
   const [missedAssignments, setMissedAssignments] = useState(0);
   const [lateAssignments, setLateAssignments] = useState(0);
+  const { user } = useContext(AuthContext); // get signOut from context
 
   useEffect(() => {
     const fetchDataAndSetState = async () => {
@@ -71,7 +73,7 @@ const TableExample = () => {
         missedCoachingMeeting: fetchedMissedCoachingMeeting,
         missedAssignments: fetchedMissedAssignments,
         lateAssignments: fetchedLateAssignments,
-      } = await fetchData(1);
+      } = await fetchData(1, user);
 
       setMissedClass(fetchedMissedClass || 0);
       setMissedCoachingMeeting(fetchedMissedCoachingMeeting || 0);

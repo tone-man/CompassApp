@@ -53,7 +53,7 @@ export default function QRcodeScannerView() {
     const saveData = async () => {
       if (timeOut !== 0) {
         try {
-          await axios.post("http://192.168.4.63:5000/api/study_hours", {
+          await axios.post("http://10.0.0.140:5000/api/v1/study-hour-logs/", {
             userId: 1,
             datetimeOfLogIn: dateString,
             datetimeOfLogOut: dateString2,

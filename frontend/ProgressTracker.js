@@ -8,15 +8,15 @@ import { AuthContext } from "./AuthContext";
 // fetch data from backend
 const fetchData = async (user) => {
   try {
-    const response = await axios.get(
-      "http://192.168.4.63:5000/api/users/" + user.email // need to change email address to whoever is logged in rather than john.doe@example.com
+    const axiosUserId = await axios.get(
+      "http://10.0.0.140:5000/api/v1/users-email/" + user.email
     );
-    const userId = response.data.user_id;
-    console.log(userId);
+    const userId = axiosUserId.data.user_id;
     const response2 = await axios.get(
-      "http://192.168.4.63:5000/api/students/" + userId + "/"
+      "http://10.0.0.140:5000/api/v1/students/" + userId
     );
 
+    console.log("Data:" + response2.data.study_time_completed);
     const study_time_completed = response2.data.study_time_completed;
     const study_time_required = response2.data.study_time_required;
     const base_time_required = response2.data.base_time_required;

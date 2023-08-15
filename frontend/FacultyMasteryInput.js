@@ -42,7 +42,9 @@ export default function FacultyMasteryInput() {
   const fetchIDFromName = async (name) => {
     // fetch user ID from name
     try {
-      const response = await axios.get("http://192.168.4.63:5000/api/users");
+      const response = await axios.get(
+        "http://10.0.0.140:5000/api/v1/students/"
+      );
       const user = response.data.find((user) => user.name === name);
       return user.user_id;
     } catch (error) {
@@ -53,7 +55,9 @@ export default function FacultyMasteryInput() {
   const fetchStudentNames = async () => {
     // fetch student names from backend
     try {
-      const response = await axios.get("http://192.168.4.63:5000/api/users");
+      const response = await axios.get(
+        "http://10.0.0.140:5000/api/v1/students/"
+      );
       setStudentsList(response.data.map((user) => user.name));
     } catch (error) {
       console.error("Error fetching student names:", error);
@@ -63,7 +67,7 @@ export default function FacultyMasteryInput() {
   const fetchMasteryList = async () => {
     // fetch mastery list from backend
     try {
-      const response = await axios.get("http://192.168.4.63:5000/api/skills");
+      const response = await axios.get("http://10.0.0.140:5000/api/v1/skills");
       setMasteryList(response.data);
     } catch (error) {
       console.error("Error fetching mastery list:", error);
@@ -176,7 +180,7 @@ export default function FacultyMasteryInput() {
       if (student_id && skill_id) {
         try {
           // post request to backend
-          await axios.post("http://192.168.4.63:5000/api/skill_mastery", {
+          await axios.post("http://10.0.0.140:5000/api/v1/skill_mastery", {
             userId: student_id,
             skillId: skill_id,
             masteryStatus: masteryLevel,
