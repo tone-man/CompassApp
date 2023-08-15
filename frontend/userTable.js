@@ -17,7 +17,7 @@ import {
   MenuProvider,
 } from "react-native-popup-menu";
 
-const tableView = () => {
+const TableView = () => {
   const screenWidth = Dimensions.get("window").width;
   const defaultWidth = 100;
   const headerData = ["User ID", "Email", "Role ID"];
@@ -174,4 +174,4 @@ const tableStyles = StyleSheet.create({
   },
 });
 
-export default tableView;
+export default TableView;
