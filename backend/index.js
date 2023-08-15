@@ -59,6 +59,7 @@ const {
   getSumStudentCompletedStudyTime,
   updateStudentCompletedStudyTime,
   getAllUsers,
+  getUserByEmail,
 } = require("./databaseQueries");
 
 const {
@@ -145,6 +146,20 @@ app.get(route + "/users", (req, res) => {
     if (results.length <= 0) res.status(404).json({ error: "No Users Found" });
     else res.json(results);
   });
+});
+
+//Get User By Email
+app.get(route + "/users-email/:email", (req, res) => {
+  const email = req.params.email;
+  getUserByEmail(db, email)
+    .then((result) => {
+      if (!result) res.status(404).json({ error: "No User Found" });
+      else res.json(result);
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).json({ error: "Internal server error" });
+    });
 });
 
 // UPDATE USER INFO By Id
