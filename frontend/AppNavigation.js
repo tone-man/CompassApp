@@ -7,7 +7,8 @@ import {
 import { useTheme } from "react-native-paper";
 import AnalyticsView from "./AnalyticsView";
 import ProfileView from "./ProfileView";
-import tableView from "./tableView";
+import userTable from "./userTable";
+import tableNavigation from "./tableNavigation";
 import QRcodeNavigation from "./QRcodeNavigation";
 import facultyInputNavigation from "./facultyInputNavigation";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -55,6 +56,13 @@ function CustomDrawerContent(props) {
         label="Table"
         onPress={() => props.navigation.navigate("Table")}
       />
+      <DrawerItem
+        icon={({ color, size }) => (
+          <Icon name="account-multiple" size={size} color={color} />
+        )}
+        label="Add or remove Users"
+        onPress={() => props.navigation.navigate("Add or remove People")}
+      />
     </DrawerContentScrollView>
   );
 }
@@ -69,7 +77,8 @@ export default function App() {
       <Drawer.Screen name="QR Code" component={QRcodeNavigation} />
       <Drawer.Screen name="Data Input" component={facultyInputNavigation} />
       <Drawer.Screen name="Profile" component={ProfileView} />
-      <Drawer.Screen name="Table" component={tableView} />
+      <Drawer.Screen name="Table" component={tableNavigation} />
+      <Drawer.Screen name="Add or remove People" component={userTable} />
     </Drawer.Navigator>
   );
 }
