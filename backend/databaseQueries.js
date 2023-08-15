@@ -257,13 +257,12 @@ function getUserById(db, id) {
 
 function getUserByEmail(db, email) {
   return new Promise((resolve, reject) => {
-    const query =
-      "SELECT * FROM users u INNER JOIN user_roles_mapping urm ON u.user_id = urm.user_id  WHERE email = ?";
+    const query = "SELECT * FROM users WHERE email = ?";
     db.get(query, [email], (err, row) => {
       if (err) {
         reject(err);
       } else {
-        resolve(row);
+        resolve(row.user_id);
       }
     });
   });
