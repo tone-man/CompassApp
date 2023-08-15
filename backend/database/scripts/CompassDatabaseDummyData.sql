@@ -1,10 +1,10 @@
 --Fills the tables with dummy data
 
 INSERT INTO users (name, email) VALUES
+  ('Michael Daly', 'dalymb@merrimack.edu'),
   ('John Doe', 'john.doe@example.com'),
   ('Jane Smith', 'jane.smith@example.com'),
-  ('Michael Johnson', 'michael.johnson@example.com'),
-  ('Michael Daly', 'dalymb@merrimack.edu');
+  ('Michael Johnson', 'michael.johnson@example.com');
 
 
 INSERT INTO user_roles (role_name) VALUES

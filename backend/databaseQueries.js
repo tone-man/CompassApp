@@ -244,7 +244,7 @@ function createStudyLog(
 function getUserById(db, id) {
   return new Promise((resolve, reject) => {
     const query =
-      "SELECT * FROM users u INNER JOIN user_roles_mapping urm ON u.user_id = urm.user_id WHERE u.user_id = ? ";
+      "SELECT * FROM users u INNER JOIN user_roles_mapping urm ON u.user_id = urm.user_id u INNER JOIN user_roles_mapping urm ON u.user_id = urm.user_id WHERE u.u.user_id = ?  ";
     db.get(query, [id], (err, row) => {
       if (err) {
         reject(err);
@@ -268,6 +268,20 @@ function getUserByEmail(db, email) {
   });
 }
 
+function getUserByEmail(db, email) {
+  return new Promise((resolve, reject) => {
+    const query =
+      "SELECT * FROM users u INNER JOIN user_roles_mapping urm ON u.user_id = urm.user_id  WHERE email = ?";
+    db.get(query, [email], (err, row) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(row);
+      }
+    });
+  });
+}
+
 /**
  * Gets All users
  * @param {*} db
@@ -276,7 +290,7 @@ function getUserByEmail(db, email) {
 function getAllUsers(db) {
   return new Promise((resolve, reject) => {
     const query =
-      "SELECT * FROM users u INNER JOIN user_roles_mapping urm ON u.user_id = urm.user_id ";
+      "SELECT * FROM users u INNER JOIN user_roles_mapping urm ON u.user_id = urm.user_id  u INNER JOIN user_roles_mapping urm ON u.user_id = urm.user_id ";
     db.all(query, (err, row) => {
       if (err) {
         reject(err);
