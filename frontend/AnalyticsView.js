@@ -15,6 +15,7 @@ import {
 import TableExample from "./table";
 import ProgressTracker from "./ProgressTracker";
 import { useTheme, ProgressBar, MD3Colors } from "react-native-paper";
+import { parseJsonSourceFileConfigFileContent } from "typescript";
 
 const fetchData = async (id, user) => {
   // fetch data from backend and set states for eventDates and mastery for each skill
@@ -22,12 +23,15 @@ const fetchData = async (id, user) => {
   let mastery = [];
 
   try {
-    const response = await axios.get(user.email);
-    console.log("HERE");
-    const userId = response.data.user_id;
-    const response2 = await axios.get(
-      "http://192.168.4.63:5000/api/skill_mastery/" + userId + "/"
+    console.log("user email: " + user.email);
+    const userId = await axios.get(
+      "http://10.0.0.140:5000/api/v1/users-email/" + user.email
     );
+    console.log("USER ID: " + userId);
+    const response2 = await axios.get(
+      "http://10.0.0.140:5000/api/v1/students/" + userId + "/mastery-logs"
+    );
+    console.log("Data: " + response2);
 
     response2.data.forEach((item) => {
       // format date and push to eventDates array
@@ -44,6 +48,7 @@ const fetchData = async (id, user) => {
 
     return { eventDates, mastery };
   } catch (error) {
+    console.error("An error occcured: " + error);
     return { eventDates, mastery };
   }
 };
