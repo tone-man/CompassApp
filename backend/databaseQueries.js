@@ -262,7 +262,7 @@ function getUserByEmail(db, email) {
       if (err) {
         reject(err);
       } else {
-        resolve(row.user_id);
+        resolve(row);
       }
     });
   });
