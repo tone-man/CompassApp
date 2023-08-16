@@ -4,7 +4,8 @@ INSERT INTO users (name, email) VALUES
   ('Michael Daly', 'dalymb@merrimack.edu'),
   ('John Doe', 'john.doe@example.com'),
   ('Jane Smith', 'jane.smith@example.com'),
-  ('Michael Johnson', 'michael.johnson@example.com');
+  ('Michael Johnson', 'michael.johnson@example.com'),
+  ('Antonio Craveiro', 'craveiroa@merrimack.edu');
 
 
 INSERT INTO user_roles (role_name) VALUES
@@ -16,12 +17,13 @@ INSERT INTO user_roles_mapping (user_id, role_id) VALUES
   (1, 1),
   (2, 2),
   (3, 3),
-  (4, 1);
+  (4, 1),
+  (5, 1);
 
 INSERT INTO student_behaviors (behavior_name) VALUES
   ('Missed Class'),
   ('Missed Coaching Meeting'),
-  ('Incomplete Assignment'),
+  ('Missing Assignment'),
   ('Assignment Completed Late');
 
 INSERT INTO student_behavior_consequences (behavior_id, additional_study_minutes) VALUES
@@ -70,12 +72,19 @@ VALUES
   (1, 5, 2.5, date('now', '-7 day')),
   (1, 5, 2, date('now', '-14 days')),
   (1, 5, 2.4, date('now', '-21 days')),
-  (1, 5, 4, date('now', '-28 days'));
+  (1, 5, 4, date('now', '-28 days')),
+
+  (5, 1, 0, date('now')),
+  (5, 2, 0, date('now')),
+  (5, 3, 0, date('now')),
+  (5, 4, 0, date('now')),
+  (5, 5, 0, date('now'));
 
 INSERT INTO students (user_id, study_time_completed, study_time_required, base_time_required)
 VALUES
   (1, 780, 1200, 1200),
-  (4, 0, 1200, 1200);
+  (4, 0, 1200, 1200),
+  (5, 420, 1200, 1200);
 
 INSERT INTO student_study_log (user_id, datetime_of_sign_in, datetime_of_sign_out , duration_of_study)
 VALUES
@@ -83,7 +92,10 @@ VALUES
   (1, datetime('now', '-1 day'), datetime('now','-1 day', '+4 hours'), 240),
   (1, datetime('now', '-2 days'), datetime('now','-2 day', '+2 hours'),  120),
   (1, datetime('now', '-3 days'), datetime('now','-3 day', '+2 hours'), 120),
-  (1, datetime('now', '-4 days'), datetime('now','-4 day', '+2 hours'), 120);
+  (1, datetime('now', '-4 days'), datetime('now','-4 day', '+2 hours'), 120),
+
+  (1, datetime('now'), datetime('now', '+3 hours'), 180),
+  (1, datetime('now', '-1 day'), datetime('now','-1 day', '+4 hours'), 240);
 
 
 
