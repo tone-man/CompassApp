@@ -4,16 +4,21 @@ import { DataTable, Text, useTheme } from "react-native-paper";
 import axios from "axios";
 import { AuthContext } from "./AuthContext";
 
+// CHANGE THIS AS YOU NEED FOR DEMO
+
+const hostIp = "10.0.0.155";
+const port = "5000";
+
 const fetchData = async (id, user) => {
   // fetch data from backend and set states for eventDates and mastery for each skill (this is the similiar to the fetchData function in AnalyticsView.js)
   try {
     const axiosUserId = await axios.get(
-      "http://10.0.0.140:5000/api/v1/users-email/" + user.email
+      "http://" + hostIp + ":" + port +"/api/v1/users-email/" + user.email
     );
     const userId = axiosUserId.data.user_id;
 
     const response2 = await axios.get(
-      "http://10.0.0.140:5000/api/v1/students/" + userId + "/behavior-logs"
+      "http://" + hostIp + ":" + port +"/api/v1/students/" + userId + "/behavior-logs"
     );
 
     const missedClass = response2.data.reduce((count, behavior) => {

@@ -17,6 +17,11 @@ import {
   MenuProvider,
 } from "react-native-popup-menu";
 
+// CHANGE THIS AS YOU NEED FOR DEMO
+
+const hostIp = "10.0.0.155";
+const port = "5000";
+
 const tableView = () => {
   const screenWidth = Dimensions.get("window").width;
   const defaultWidth = 100;

@@ -14,6 +14,11 @@ import Icon from "react-native-vector-icons/FontAwesome";
 import axios from "axios";
 import RNPickerSelect from "react-native-picker-select";
 
+// CHANGE THIS AS YOU NEED FOR DEMO
+
+const hostIp = "10.0.0.155";
+const port = "5000";
+
 export default function FacultyMasteryInput() {
   // set states for student, mastery, masteryLevel, date, studentsList, filteredStudents,
   // masteryList, filteredMastery, masteryLevelError, dateError
@@ -43,7 +48,7 @@ export default function FacultyMasteryInput() {
     // fetch user ID from name
     try {
       const response = await axios.get(
-        "http://10.0.0.140:5000/api/v1/students/"
+        "http://" + hostIp + ":" + port +"/api/v1/students/"
       );
       const user = response.data.find((user) => user.name === name);
       return user.user_id;
@@ -56,7 +61,7 @@ export default function FacultyMasteryInput() {
     // fetch student names from backend
     try {
       const response = await axios.get(
-        "http://10.0.0.140:5000/api/v1/students/"
+        "http://" + hostIp + ":" + port +"/api/v1/students/"
       );
       setStudentsList(response.data.map((user) => user.name));
     } catch (error) {
@@ -67,7 +72,7 @@ export default function FacultyMasteryInput() {
   const fetchMasteryList = async () => {
     // fetch mastery list from backend
     try {
-      const response = await axios.get("http://10.0.0.140:5000/api/v1/skills");
+      const response = await axios.get("http://" + hostIp + ":" + port +"/api/v1/skills");
       setMasteryList(response.data);
     } catch (error) {
       console.error("Error fetching mastery list:", error);
@@ -180,7 +185,7 @@ export default function FacultyMasteryInput() {
       if (student_id && skill_id) {
         try {
           // post request to backend
-          await axios.post("http://10.0.0.140:5000/api/v1/skill_mastery", {
+          await axios.post("http://" + hostIp + ":" + port +"/api/v1/skill-mastery", {
             userId: student_id,
             skillId: skill_id,
             masteryStatus: masteryLevel,

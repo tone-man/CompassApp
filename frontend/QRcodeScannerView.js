@@ -12,6 +12,11 @@ import {
 import axios from "axios";
 import { BarCodeScanner } from "expo-barcode-scanner";
 
+// CHANGE THIS AS YOU NEED FOR DEMO
+
+const hostIp = "10.0.0.155";
+const port = "5000";
+
 export default function QRcodeScannerView() {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
@@ -53,10 +58,10 @@ export default function QRcodeScannerView() {
     const saveData = async () => {
       if (timeOut !== 0) {
         try {
-          await axios.post("http://10.0.0.140:5000/api/v1/study-hour-logs/", {
+          await axios.post("http://" + hostIp + ":" + port +"/api/v1/study-hour-logs/", {
             userId: 1,
-            datetimeOfLogIn: dateString,
-            datetimeOfLogOut: dateString2,
+            dateTimeOfLogIn: dateString,
+            dateTimeOfLogOut: dateString2,
             durationOfStudy: timeOut - timeIn,
           });
           console.log("user id: 1");
@@ -68,6 +73,10 @@ export default function QRcodeScannerView() {
           setTimeOut(0);
         } catch (error) {
           console.error("Failed to save data:", error);
+          console.log("user id: 1");
+          console.log("datetime of log in: " + dateString);
+          console.log("datetime of log out: " + dateString2);
+          console.log("duration of study: " + (timeOut - timeIn));
         }
       }
     };

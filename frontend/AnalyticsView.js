@@ -17,6 +17,12 @@ import ProgressTracker from "./ProgressTracker";
 import { useTheme, ProgressBar, MD3Colors } from "react-native-paper";
 import { parseJsonSourceFileConfigFileContent } from "typescript";
 
+// CHANGE THIS AS YOU NEED FOR DEMO
+
+const hostIp = "10.0.0.155";
+const port = "5000";
+
+
 const fetchData = async (id, user) => {
   // fetch data from backend and set states for eventDates and mastery for each skill
   let eventDates = [];
@@ -24,11 +30,11 @@ const fetchData = async (id, user) => {
 
   try {
     const axiosUserId = await axios.get(
-      "http://10.0.0.140:5000/api/v1/users-email/" + user.email
+      "http://" + hostIp + ":" + port +"/api/v1/users-email/" + user.email
     );
     const userId = axiosUserId.data.user_id;
     const response2 = await axios.get(
-      "http://10.0.0.140:5000/api/v1/students/" + userId + "/mastery-logs"
+      "http://" + hostIp + ":" + port +"/api/v1/students/" + userId + "/mastery-logs"
     );
 
     response2.data.forEach((item) => {

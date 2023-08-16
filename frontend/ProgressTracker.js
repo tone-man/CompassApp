@@ -5,15 +5,20 @@ import { DataTable, Text, useTheme, ProgressBar } from "react-native-paper";
 import { View } from "react-native";
 import { AuthContext } from "./AuthContext";
 
+// CHANGE THIS AS YOU NEED FOR DEMO
+
+const hostIp = "10.0.0.155";
+const port = "5000";
+
 // fetch data from backend
 const fetchData = async (user) => {
   try {
     const axiosUserId = await axios.get(
-      "http://10.0.0.140:5000/api/v1/users-email/" + user.email
+      "http://" + hostIp + ":" + port + "/api/v1/users-email/" + user.email
     );
     const userId = axiosUserId.data.user_id;
     const response2 = await axios.get(
-      "http://10.0.0.140:5000/api/v1/students/" + userId
+      "http://" + hostIp + ":" + port + "/api/v1/students/" + userId
     );
 
     console.log("Data:" + response2.data.study_time_completed);
