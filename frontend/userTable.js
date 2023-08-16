@@ -16,6 +16,7 @@ import {
   MenuTrigger,
   MenuProvider,
 } from "react-native-popup-menu";
+import axios from "axios";
 
 // CHANGE THIS AS YOU NEED FOR DEMO
 
@@ -70,6 +71,16 @@ const TableView = () => {
 
   useEffect(() => {
     adjustColumnWidths();
+
+    axios.get("http://" + hostIp + ":" + port +"/api/v1/users")
+    .then(response => {
+      const transformedData = response.data.map(user => [user.name, user.email, user.role_id]); // Adjust property names
+      setTableData(transformedData);
+    })
+    .catch(error => {
+      console.error('Error fetching data:', error);
+    });
+
   }, [tableData]);
 
   const renderEditableCell = (data, rowIndex, cellIndex) => (
