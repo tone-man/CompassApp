@@ -19,9 +19,8 @@ import { parseJsonSourceFileConfigFileContent } from "typescript";
 
 // CHANGE THIS AS YOU NEED FOR DEMO
 
-const hostIp = "10.0.0.155";
+const hostIp = "10.0.0.140";
 const port = "5000";
-
 
 const fetchData = async (id, user) => {
   // fetch data from backend and set states for eventDates and mastery for each skill
@@ -30,11 +29,17 @@ const fetchData = async (id, user) => {
 
   try {
     const axiosUserId = await axios.get(
-      "http://" + hostIp + ":" + port +"/api/v1/users-email/" + user.email
+      "http://" + hostIp + ":" + port + "/api/v1/users-email/" + user.email
     );
     const userId = axiosUserId.data.user_id;
     const response2 = await axios.get(
-      "http://" + hostIp + ":" + port +"/api/v1/students/" + userId + "/mastery-logs"
+      "http://" +
+        hostIp +
+        ":" +
+        port +
+        "/api/v1/students/" +
+        userId +
+        "/mastery-logs"
     );
 
     response2.data.forEach((item) => {

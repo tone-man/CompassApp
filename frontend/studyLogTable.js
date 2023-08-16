@@ -20,7 +20,7 @@ import axios from "axios";
 
 // CHANGE THIS AS YOU NEED FOR DEMO
 
-const hostIp = "10.0.0.155";
+const hostIp = "10.0.0.140";
 const port = "5000";
 
 const TableView = () => {
@@ -72,14 +72,27 @@ const TableView = () => {
   useEffect(() => {
     adjustColumnWidths();
 
-    axios.get("http://" + hostIp + ":" + port +"/api/v1/students/"+ 1 +"/study-hour-logs") //TODO INSERT USERID
-    .then(response => {
-      const transformedData = response.data.map(entry => [entry.datetime_of_sign_in, entry.datetime_of_sign_out, entry.duration_of_study]); // Adjust property names
-      setTableData(transformedData);
-    })
-    .catch(error => {
-      console.error('Error fetching data:', error);
-    });
+    axios
+      .get(
+        "http://" +
+          hostIp +
+          ":" +
+          port +
+          "/api/v1/students/" +
+          1 +
+          "/study-hour-logs"
+      ) //TODO INSERT USERID
+      .then((response) => {
+        const transformedData = response.data.map((entry) => [
+          entry.datetime_of_sign_in,
+          entry.datetime_of_sign_out,
+          entry.duration_of_study,
+        ]); // Adjust property names
+        setTableData(transformedData);
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+      });
   }, [tableData]);
 
   const renderEditableCell = (data, rowIndex, cellIndex) => (

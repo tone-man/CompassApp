@@ -7,7 +7,7 @@ import { AuthContext } from "./AuthContext";
 
 // CHANGE THIS AS YOU NEED FOR DEMO
 
-const hostIp = "10.0.0.155";
+const hostIp = "10.0.0.140";
 const port = "5000";
 
 // fetch data from backend

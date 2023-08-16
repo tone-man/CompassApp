@@ -19,12 +19,12 @@ import axios from "axios";
 
 // CHANGE THIS AS YOU NEED FOR DEMO
 
-const hostIp = "10.0.0.155";
+const hostIp = "10.0.0.140";
 const port = "5000";
 
 const TableView = () => {
   const defaultWidth = 100;
-  const headerData = ["Skill", "Mastery","Date"];
+  const headerData = ["Skill", "Mastery", "Date"];
   const [tableData, setTableData] = useState([
     ["Homework", 0, "2023-08-15"],
     ["Reading", 0, "2023-08-15"],
@@ -61,13 +61,26 @@ const TableView = () => {
   useEffect(() => {
     calculateColumnWidths();
 
-    axios.get("http://" + hostIp + ":" + port +"/api/v1/students/"+ 1 +"/mastery-logs") //TODO INSERT USERID
-      .then(response => {
-        const transformedData = response.data.map(entry => [entry.skill_id, entry.mastery_status, entry.date_of_event]); // Adjust property names
+    axios
+      .get(
+        "http://" +
+          hostIp +
+          ":" +
+          port +
+          "/api/v1/students/" +
+          1 +
+          "/mastery-logs"
+      ) //TODO INSERT USERID
+      .then((response) => {
+        const transformedData = response.data.map((entry) => [
+          entry.skill_id,
+          entry.mastery_status,
+          entry.date_of_event,
+        ]); // Adjust property names
         setTableData(transformedData);
       })
-      .catch(error => {
-        console.error('Error fetching data:', error);
+      .catch((error) => {
+        console.error("Error fetching data:", error);
       });
   }, []);
 

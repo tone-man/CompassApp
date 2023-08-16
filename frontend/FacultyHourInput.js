@@ -15,7 +15,7 @@ import axios from "axios";
 
 // CHANGE THIS AS YOU NEED FOR DEMO
 
-const hostIp = "10.0.0.155";
+const hostIp = "10.0.0.140";
 const port = "5000";
 
 export default function FacultyBehaviorInput() {
@@ -36,7 +36,7 @@ export default function FacultyBehaviorInput() {
     try {
       // fetch user ID from name from backend and return user ID if found or an error if not found
       const response = await axios.get(
-        "http://" + hostIp + ":" + port +"/api/v1/students/"
+        "http://" + hostIp + ":" + port + "/api/v1/students/"
       );
       const user = response.data.find((user) => user.name === name);
       return user.user_id;
@@ -49,7 +49,7 @@ export default function FacultyBehaviorInput() {
     // fetch student names from backend and set studentsList to list of student names from backend or an error if not found
     try {
       const response = await axios.get(
-        "http://" + hostIp + ":" + port +"/api/v1/students/"
+        "http://" + hostIp + ":" + port + "/api/v1/students/"
       );
       setStudentsList(response.data.map((user) => user.name));
     } catch (error) {

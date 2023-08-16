@@ -16,7 +16,7 @@ import RNPickerSelect from "react-native-picker-select";
 
 // CHANGE THIS AS YOU NEED FOR DEMO
 
-const hostIp = "10.0.0.155";
+const hostIp = "10.0.0.140";
 const port = "5000";
 
 export default function FacultyMasteryInput() {
@@ -48,7 +48,7 @@ export default function FacultyMasteryInput() {
     // fetch user ID from name
     try {
       const response = await axios.get(
-        "http://" + hostIp + ":" + port +"/api/v1/students/"
+        "http://" + hostIp + ":" + port + "/api/v1/students/"
       );
       const user = response.data.find((user) => user.name === name);
       return user.user_id;
@@ -61,7 +61,7 @@ export default function FacultyMasteryInput() {
     // fetch student names from backend
     try {
       const response = await axios.get(
-        "http://" + hostIp + ":" + port +"/api/v1/students/"
+        "http://" + hostIp + ":" + port + "/api/v1/students/"
       );
       setStudentsList(response.data.map((user) => user.name));
     } catch (error) {
@@ -72,7 +72,9 @@ export default function FacultyMasteryInput() {
   const fetchMasteryList = async () => {
     // fetch mastery list from backend
     try {
-      const response = await axios.get("http://" + hostIp + ":" + port +"/api/v1/skills");
+      const response = await axios.get(
+        "http://" + hostIp + ":" + port + "/api/v1/skills"
+      );
       setMasteryList(response.data);
     } catch (error) {
       console.error("Error fetching mastery list:", error);
@@ -185,12 +187,15 @@ export default function FacultyMasteryInput() {
       if (student_id && skill_id) {
         try {
           // post request to backend
-          await axios.post("http://" + hostIp + ":" + port +"/api/v1/skill-mastery", {
-            userId: student_id,
-            skillId: skill_id,
-            masteryStatus: masteryLevel,
-            dateOfEvent: date,
-          });
+          await axios.post(
+            "http://" + hostIp + ":" + port + "/api/v1/skill-mastery",
+            {
+              userId: student_id,
+              skillId: skill_id,
+              masteryStatus: masteryLevel,
+              dateOfEvent: date,
+            }
+          );
           // alert the user that the data has been saved
           Alert.alert("Data saved successfully");
         } catch (error) {
