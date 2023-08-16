@@ -64,10 +64,6 @@ export default function QRcodeScannerView() {
             dateTimeOfLogOut: dateString2,
             durationOfStudy: timeOut - timeIn,
           });
-          console.log("user id: 1");
-          console.log("datetime of log in: " + dateString);
-          console.log("datetime of log out: " + dateString2);
-          console.log("duration of study: " + (timeOut - timeIn));
           Alert.alert("Data saved successfully");
           setTimeIn(0);
           setTimeOut(0);
