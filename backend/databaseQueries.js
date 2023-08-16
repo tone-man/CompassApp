@@ -290,7 +290,7 @@ function getUserByEmail(db, email) {
 function getAllUsers(db) {
   return new Promise((resolve, reject) => {
     const query =
-      "SELECT * FROM users u INNER JOIN user_roles_mapping urm ON u.user_id = urm.user_id  u INNER JOIN user_roles_mapping urm ON u.user_id = urm.user_id ";
+      "SELECT * FROM users u INNER JOIN user_roles_mapping urm ON u.user_id = urm.user_id";
     db.all(query, (err, row) => {
       if (err) {
         reject(err);
