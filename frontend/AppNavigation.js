@@ -12,6 +12,7 @@ import tableNavigation from "./tableNavigation";
 import QRcodeNavigation from "./QRcodeNavigation";
 import facultyInputNavigation from "./facultyInputNavigation";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import EditDataNavigator from "./tableNavigation";
 
 const Drawer = createDrawerNavigator();
 
@@ -54,14 +55,14 @@ function CustomDrawerContent(props) {
           <Icon name="table" size={size} color={color} />
         )}
         label="Table"
-        onPress={() => props.navigation.navigate("Table")}
+        onPress={() => props.navigation.navigate("Edit Data")}
       />
       <DrawerItem
         icon={({ color, size }) => (
           <Icon name="account-multiple" size={size} color={color} />
         )}
-        label="Add or remove Users"
-        onPress={() => props.navigation.navigate("Add or remove People")}
+        label="Add/Remove Users"
+        onPress={() => props.navigation.navigate("Add/Remove Users")}
       />
     </DrawerContentScrollView>
   );
@@ -77,8 +78,8 @@ export default function App() {
       <Drawer.Screen name="QR Code" component={QRcodeNavigation} />
       <Drawer.Screen name="Data Input" component={facultyInputNavigation} />
       <Drawer.Screen name="Profile" component={ProfileView} />
-      <Drawer.Screen name="Table" component={tableNavigation} />
-      <Drawer.Screen name="Add or remove People" component={userTable} />
+      <Drawer.Screen name="Edit Data" component={EditDataNavigator} />
+      <Drawer.Screen name="Add/Remove Users" component={userTable} />
     </Drawer.Navigator>
   );
 }
