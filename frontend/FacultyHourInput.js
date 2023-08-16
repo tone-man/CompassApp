@@ -13,6 +13,11 @@ import { Provider as PaperProvider, useTheme } from "react-native-paper";
 import Icon from "react-native-vector-icons/FontAwesome";
 import axios from "axios";
 
+// CHANGE THIS AS YOU NEED FOR DEMO
+
+const hostIp = "10.0.0.155";
+const port = "5000";
+
 export default function FacultyBehaviorInput() {
   // set states for student, mastery, date, studentsList, filteredStudents
   const [student, setStudent] = useState("");
@@ -30,7 +35,9 @@ export default function FacultyBehaviorInput() {
   const fetchIDFromName = async (name) => {
     try {
       // fetch user ID from name from backend and return user ID if found or an error if not found
-      const response = await axios.get("http://192.168.4.63:5000/api/users");
+      const response = await axios.get(
+        "http://" + hostIp + ":" + port +"/api/v1/students/"
+      );
       const user = response.data.find((user) => user.name === name);
       return user.user_id;
     } catch (error) {
@@ -41,7 +48,9 @@ export default function FacultyBehaviorInput() {
   const fetchStudentNames = async () => {
     // fetch student names from backend and set studentsList to list of student names from backend or an error if not found
     try {
-      const response = await axios.get("http://192.168.4.63:5000/api/users");
+      const response = await axios.get(
+        "http://" + hostIp + ":" + port +"/api/v1/students/"
+      );
       setStudentsList(response.data.map((user) => user.name));
     } catch (error) {
       console.error("Error fetching student names:", error);

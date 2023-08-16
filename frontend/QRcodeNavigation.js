@@ -19,7 +19,7 @@ function QRcodeNavigation() {
       }}
     >
       <Tab.Screen name="QRcodeScanner" component={QRcodeScannerView} />
-      <Tab.Screen name="QRcodeView" component={QRcodeView} />
+      {/*<Tab.Screen name="QRcodeView" component={QRcodeView} /> */}
     </Tab.Navigator>
   );
 }

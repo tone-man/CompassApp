@@ -7,7 +7,7 @@ import studyLogTable from "./studyLogTable";
 
 const Tab = createMaterialTopTabNavigator();
 
-function QRcodeNavigation() {
+function EditDataNavigator() {
   const { colors } = useTheme();
   return (
     <Tab.Navigator
@@ -26,4 +26,4 @@ function QRcodeNavigation() {
   );
 }
 
-export default QRcodeNavigation;
+export default EditDataNavigator;

@@ -16,16 +16,22 @@ import {
   MenuTrigger,
   MenuProvider,
 } from "react-native-popup-menu";
+import axios from "axios";
 
-const tableView = () => {
+// CHANGE THIS AS YOU NEED FOR DEMO
+
+const hostIp = "10.0.0.155";
+const port = "5000";
+
+const TableView = () => {
   const screenWidth = Dimensions.get("window").width;
   const defaultWidth = 100;
-  const headerData = ["Behaviors", "Count"];
+  const headerData = ["Behavior", "Date"];
   const [tableData, setTableData] = useState([
-    ["Missed Classes", 1],
-    ["Missed Coaching Meetings", 0],
-    ["Missed Assignments", 0],
-    ["Late Assignments", 0],
+    ["Missed Class", "2023-08-15"],
+    ["Missed Coaching Meeting", "2023-08-15"],
+    ["Missed Assignment", "2023-08-15"],
+    ["Late Assignments", "2023-08-15"],
   ]);
   const [columnWidths, setColumnWidths] = useState(
     new Array(headerData.length).fill(defaultWidth)
@@ -65,6 +71,15 @@ const tableView = () => {
 
   useEffect(() => {
     adjustColumnWidths();
+
+    axios.get("http://" + hostIp + ":" + port +"/api/v1/students/"+ 1 +"/behavior-logs") //TODO INSERT USERID
+      .then(response => {
+        const transformedData = response.data.map(behavior => [behavior.behavior_id, behavior.date_of_event]); // Adjust property names
+        setTableData(transformedData);
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+      });
   }, []);
 
   const renderEditableCell = (data, rowIndex, cellIndex) => (
@@ -173,4 +188,4 @@ const tableStyles = StyleSheet.create({
   },
 });
 
-export default tableView;
+export default TableView;

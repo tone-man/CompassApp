@@ -16,8 +16,14 @@ import {
   MenuTrigger,
   MenuProvider,
 } from "react-native-popup-menu";
+import axios from "axios";
 
-const tableView = () => {
+// CHANGE THIS AS YOU NEED FOR DEMO
+
+const hostIp = "10.0.0.155";
+const port = "5000";
+
+const TableView = () => {
   const screenWidth = Dimensions.get("window").width;
   const defaultWidth = 100;
   const headerData = ["Student ID", "Log In Time", "Log out Time"];
@@ -65,6 +71,15 @@ const tableView = () => {
 
   useEffect(() => {
     adjustColumnWidths();
+
+    axios.get("http://" + hostIp + ":" + port +"/api/v1/students/"+ 1 +"/study-hour-logs") //TODO INSERT USERID
+    .then(response => {
+      const transformedData = response.data.map(entry => [entry.datetime_of_sign_in, entry.datetime_of_sign_out, entry.duration_of_study]); // Adjust property names
+      setTableData(transformedData);
+    })
+    .catch(error => {
+      console.error('Error fetching data:', error);
+    });
   }, [tableData]);
 
   const renderEditableCell = (data, rowIndex, cellIndex) => (
@@ -174,4 +189,4 @@ const tableStyles = StyleSheet.create({
   },
 });
 
-export default tableView;
+export default TableView;
