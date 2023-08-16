@@ -10,40 +10,30 @@ import {
   SafeAreaView,
   Dimensions,
   ScrollView,
+  Platform,
 } from "react-native";
 
 import TableExample from "./table";
 import ProgressTracker from "./ProgressTracker";
 import { useTheme, ProgressBar, MD3Colors } from "react-native-paper";
-import { parseJsonSourceFileConfigFileContent } from "typescript";
-
-// CHANGE THIS AS YOU NEED FOR DEMO
 
 const hostIp = "10.0.0.140";
 const port = "5000";
 
 const fetchData = async (id, user) => {
-  // fetch data from backend and set states for eventDates and mastery for each skill
   let eventDates = [];
   let mastery = [];
 
   try {
     const axiosUserId = await axios.get(
-      "http://" + hostIp + ":" + port + "/api/v1/users-email/" + user.email
+      `http://${hostIp}:${port}/api/v1/users-email/${user.email}`
     );
     const userId = axiosUserId.data.user_id;
     const response2 = await axios.get(
-      "http://" +
-        hostIp +
-        ":" +
-        port +
-        "/api/v1/students/" +
-        userId +
-        "/mastery-logs"
+      `http://${hostIp}:${port}/api/v1/students/${userId}/mastery-logs`
     );
 
     response2.data.forEach((item) => {
-      // format date and push to eventDates array
       if (item.skill_id === id) {
         const date = item.date_of_event;
         const formattedDate = date
@@ -57,14 +47,17 @@ const fetchData = async (id, user) => {
 
     return { eventDates, mastery };
   } catch (error) {
-    console.error("An error occcured: " + error);
+    console.log(
+      "An error occured with axios: " + error.response.data,
+      error.response.status,
+      error.response.headers
+    );
     return { eventDates, mastery };
   }
 };
 
 const ExampleGraph = ({ primaryColor, data1, data2 }) => {
   const chartConfig = {
-    // graph styling
     backgroundGradientFromOpacity: 0,
     backgroundGradientToOpacity: 0,
     decimalPlaces: 1,
@@ -85,7 +78,6 @@ const ExampleGraph = ({ primaryColor, data1, data2 }) => {
   }
 
   return (
-    // LineChart component from react-native-chart-kit
     <LineChart
       data={{
         labels: data1,
@@ -111,9 +103,9 @@ const ExampleGraph = ({ primaryColor, data1, data2 }) => {
 };
 
 const AnalyticsView = () => {
-  // AnalyticsView component that renders all graphs and tables
   const { colors } = useTheme();
-  const { user } = useContext(AuthContext); // get signOut from context
+  const { user } = useContext(AuthContext);
+
   const styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -126,6 +118,7 @@ const AnalyticsView = () => {
       marginBottom: "2.5%",
       borderRadius: 20,
       backgroundColor: colors.primary,
+      paddingTop: Platform.OS === "web" ? 100 : 0, // Apply padding only for web
     },
     table: {
       container: {
@@ -202,7 +195,8 @@ const AnalyticsView = () => {
   return (
     // render all graphs and tables in a scrollable view that is contained in a safe area view that is contained in a view
     <View style={styles.container}>
-      <SafeAreaView>
+      {/* add padding to safearea view on web only */}
+      <SafeAreaView style={{ paddingTop: Platform.OS === "web" ? 100 : 0 }}>
         <ScrollView>
           <View style={[styles.container, styles.graphContainer]}>
             <Text style={styles.graphText}>Homework</Text>

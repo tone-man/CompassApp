@@ -7,6 +7,7 @@ import StackNavigator from "./AppNavigation";
 import { AuthProvider, AuthContext } from "./AuthContext";
 import LoginPage from "./loginPage";
 import { ThemeContext } from "./ThemeContext";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const Main = () => {
   const { isLoggedIn, signIn } = useContext(AuthContext);
@@ -22,15 +23,17 @@ const App = () => {
   const [theme, setTheme] = useState(DefaultTheme); // maintain theme state
 
   return (
-    <AuthProvider>
-      <ThemeContext.Provider value={{ theme, setTheme }}>
-        <PaperProvider theme={theme}>
-          <NavigationContainer theme={theme}>
-            <Main />
-          </NavigationContainer>
-        </PaperProvider>
-      </ThemeContext.Provider>
-    </AuthProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <AuthProvider>
+        <ThemeContext.Provider value={{ theme, setTheme }}>
+          <PaperProvider theme={theme}>
+            <NavigationContainer theme={theme}>
+              <Main />
+            </NavigationContainer>
+          </PaperProvider>
+        </ThemeContext.Provider>
+      </AuthProvider>
+    </GestureHandlerRootView>
   );
 };
 

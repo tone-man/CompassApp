@@ -2,8 +2,10 @@
   "dependencies": {
     "@react-native-picker/picker": "^2.4.10",
     "react-native-autocomplete-input": "^5.3.2",
+    "react-native-gesture-handler": "2.12",
     "react-native-linear-gradient": "^2.7.1",
     "react-native-popup-menu": "^0.16.1",
+    "react-native-reanimated": "^2.9.0",
     "react-native-table-component": "^1.2.2",
     "react-spreadsheet-grid": "^2.3.1"
   }

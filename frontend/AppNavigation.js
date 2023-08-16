@@ -4,7 +4,8 @@ import {
   DrawerContentScrollView,
   DrawerItem,
 } from "@react-navigation/drawer";
-import { useTheme } from "react-native-paper";
+import { useTheme, Alert } from "react-native-paper";
+import { Linking } from "react-native"; // 1. Import the Linking API
 import AnalyticsView from "./AnalyticsView";
 import ProfileView from "./ProfileView";
 import userTable from "./userTable";
@@ -18,6 +19,16 @@ const Drawer = createDrawerNavigator();
 
 function CustomDrawerContent(props) {
   const { colors } = useTheme();
+
+  // 2. Create a function that will open the email app
+  const handleBugReport = () => {
+    const email = "compasslearningapplication@gmail.com"; // Replace with your email
+    const subject = encodeURIComponent("Bug Report");
+
+    Linking.openURL(`mailto:${email}?subject=${subject}`).catch(() => {
+      Alert.alert("Unable to open email app");
+    });
+  };
 
   return (
     <DrawerContentScrollView {...props}>
@@ -63,6 +74,14 @@ function CustomDrawerContent(props) {
         )}
         label="Add/Remove Users"
         onPress={() => props.navigation.navigate("Add/Remove Users")}
+      />
+      {/* add an option to report a bug */}
+      <DrawerItem
+        icon={({ color, size }) => (
+          <Icon name="bug" size={size} color={color} />
+        )}
+        label="Report a Bug"
+        onPress={handleBugReport} // use the function here
       />
     </DrawerContentScrollView>
   );
