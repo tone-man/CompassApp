@@ -19,7 +19,7 @@ function FacultyInputNavigation() {
     >
       <Tab.Screen name="Behavior" component={FacultyBehaviorInput} />
       <Tab.Screen name="Mastery" component={FacultyMasteryInput} />
-      <Tab.Screen name="Hours" component={FacultyHourInput} />
+      {/*<Tab.Screen name="Hours" component={FacultyHourInput} /> */}
     </Tab.Navigator>
   );
 }
