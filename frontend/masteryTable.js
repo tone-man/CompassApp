@@ -15,29 +15,22 @@ import {
   MenuTrigger,
   MenuProvider,
 } from "react-native-popup-menu";
+import axios from "axios";
 
 // CHANGE THIS AS YOU NEED FOR DEMO
 
 const hostIp = "10.0.0.155";
 const port = "5000";
 
-const tableView = () => {
+const TableView = () => {
   const defaultWidth = 100;
-  const headerData = [
-    "Mastery",
-    "9/1/23",
-    "9/2/23",
-    "9/3/23",
-    "9/4/23",
-    "9/5/23",
-    "9/6/23",
-  ];
+  const headerData = ["Skill", "Mastery","Date"];
   const [tableData, setTableData] = useState([
-    ["Homework", 1, 1, 0, 1, 0, 1],
-    ["Reading", 0, 0, 1, 2, 3, 3.5],
-    ["Writing", 0, 1, 0, 1, 2, 3],
-    ["Notetaking", 0, 0, 1, 1, 2, 2],
-    ["Growth Mindset", 1, 2, 2, 1, 2, 3],
+    ["Homework", 0, "2023-08-15"],
+    ["Reading", 0, "2023-08-15"],
+    ["Writing", 0, "2023-08-15"],
+    ["Notetaking", 0, "2023-08-15"],
+    ["Growth Mindset", 0, "2023-08-15"],
   ]);
   const [columnWidths, setColumnWidths] = useState(
     new Array(headerData.length).fill(0)
@@ -67,6 +60,15 @@ const tableView = () => {
 
   useEffect(() => {
     calculateColumnWidths();
+
+    axios.get("http://" + hostIp + ":" + port +"/api/v1/students/"+ 1 +"/mastery-logs") //TODO INSERT USERID
+      .then(response => {
+        const transformedData = response.data.map(entry => [entry.skill_id, entry.mastery_status, entry.date_of_event]); // Adjust property names
+        setTableData(transformedData);
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+      });
   }, []);
 
   const renderEditableCell = (data, rowIndex, cellIndex) => (
@@ -175,4 +177,4 @@ const tableStyles = StyleSheet.create({
   },
 });
 
-export default tableView;
+export default TableView;
