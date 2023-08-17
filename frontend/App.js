@@ -10,13 +10,12 @@ import { ThemeContext } from "./ThemeContext";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const Main = () => {
-  const { isLoggedIn, signIn } = useContext(AuthContext);
+  const { isLoggedIn, signIn, user } = useContext(AuthContext);
 
   if (!isLoggedIn) {
     return <LoginPage onLogin={signIn} />;
   }
-
-  return <StackNavigator />;
+  return <StackNavigator roleId={user.role_id} />;
 };
 
 const App = () => {
