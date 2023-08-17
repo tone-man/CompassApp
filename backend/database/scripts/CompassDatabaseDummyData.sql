@@ -5,7 +5,8 @@ INSERT INTO users (name, email) VALUES
   ('John Doe', 'john.doe@example.com'),
   ('Jane Smith', 'jane.smith@example.com'),
   ('Michael Johnson', 'michael.johnson@example.com'),
-  ('Antonio Craveiro', 'craveiroa@merrimack.edu');
+  ('Antonio Craveiro', 'craveiroa@merrimack.edu'),
+  ('Michael Daly', 'michaelbriandaly@gmail.com');
 
 
 INSERT INTO user_roles (role_name) VALUES
@@ -18,7 +19,8 @@ INSERT INTO user_roles_mapping (user_id, role_id) VALUES
   (2, 2),
   (3, 3),
   (4, 1),
-  (5, 1);
+  (5, 1),
+  (6, 3);
 
 INSERT INTO student_behaviors (behavior_name) VALUES
   ('Missed Class'),
