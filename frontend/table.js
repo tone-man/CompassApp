@@ -3,11 +3,11 @@ import { StyleSheet } from "react-native";
 import { DataTable, Text, useTheme } from "react-native-paper";
 import axios from "axios";
 import { AuthContext } from "./AuthContext";
+import { ip, hostPort } from "./globals.js";
+import { DataContext } from "./DataContext";
 
-// CHANGE THIS AS YOU NEED FOR DEMO
-
-const hostIp = "10.0.0.140";
-const port = "5000";
+const hostIp = ip;
+const port = hostPort;
 
 const fetchData = async (id, user) => {
   // fetch data from backend and set states for eventDates and mastery for each skill (this is the similiar to the fetchData function in AnalyticsView.js)
@@ -76,6 +76,7 @@ const TableExample = () => {
   const [missedAssignments, setMissedAssignments] = useState(0);
   const [lateAssignments, setLateAssignments] = useState(0);
   const { user } = useContext(AuthContext); // get signOut from context
+  const { refreshData, setRefreshData } = useContext(DataContext);
 
   useEffect(() => {
     const fetchDataAndSetState = async () => {
@@ -90,10 +91,13 @@ const TableExample = () => {
       setMissedCoachingMeeting(fetchedMissedCoachingMeeting || 0);
       setMissedAssignments(fetchedMissedAssignments || 0);
       setLateAssignments(fetchedLateAssignments || 0);
+
+      // Reset the refreshData flag after fetching
+      setRefreshData(false);
     };
 
     fetchDataAndSetState();
-  }, []);
+  }, [refreshData, user]); // Note: `refreshData` and `user` are added to the dependency array
 
   const { colors } = useTheme();
   const stylesConfig = styles(colors);

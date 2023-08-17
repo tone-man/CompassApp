@@ -4,11 +4,10 @@ import axios from "axios";
 import { DataTable, Text, useTheme, ProgressBar } from "react-native-paper";
 import { View } from "react-native";
 import { AuthContext } from "./AuthContext";
+import { ip, hostPort } from "./globals.js";
 
-// CHANGE THIS AS YOU NEED FOR DEMO
-
-const hostIp = "10.0.0.140";
-const port = "5000";
+const hostIp = ip;
+const port = hostPort;
 
 // fetch data from backend
 const fetchData = async (user) => {

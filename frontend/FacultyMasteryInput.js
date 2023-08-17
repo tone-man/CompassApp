@@ -13,11 +13,10 @@ import { Provider as PaperProvider, useTheme } from "react-native-paper";
 import Icon from "react-native-vector-icons/FontAwesome";
 import axios from "axios";
 import RNPickerSelect from "react-native-picker-select";
+import { ip, hostPort } from "./globals.js";
 
-// CHANGE THIS AS YOU NEED FOR DEMO
-
-const hostIp = "10.0.0.140";
-const port = "5000";
+const hostIp = ip;
+const port = hostPort;
 
 export default function FacultyMasteryInput() {
   // set states for student, mastery, masteryLevel, date, studentsList, filteredStudents,

@@ -8,6 +8,7 @@ import { AuthProvider, AuthContext } from "./AuthContext";
 import LoginPage from "./loginPage";
 import { ThemeContext } from "./ThemeContext";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { DataContext } from "./DataContext";
 
 const Main = () => {
   const { isLoggedIn, signIn } = useContext(AuthContext);
@@ -21,19 +22,22 @@ const Main = () => {
 
 const App = () => {
   const [theme, setTheme] = useState(DefaultTheme); // maintain theme state
+  const [refreshData, setRefreshData] = useState(false);
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <AuthProvider>
-        <ThemeContext.Provider value={{ theme, setTheme }}>
-          <PaperProvider theme={theme}>
-            <NavigationContainer theme={theme}>
-              <Main />
-            </NavigationContainer>
-          </PaperProvider>
-        </ThemeContext.Provider>
-      </AuthProvider>
-    </GestureHandlerRootView>
+    <DataContext.Provider value={{ refreshData, setRefreshData }}>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <AuthProvider>
+          <ThemeContext.Provider value={{ theme, setTheme }}>
+            <PaperProvider theme={theme}>
+              <NavigationContainer theme={theme}>
+                <Main />
+              </NavigationContainer>
+            </PaperProvider>
+          </ThemeContext.Provider>
+        </AuthProvider>
+      </GestureHandlerRootView>
+    </DataContext.Provider>
   );
 };
 

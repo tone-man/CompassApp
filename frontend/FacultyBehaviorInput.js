@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   StyleSheet,
   Text,
@@ -13,11 +13,11 @@ import { Provider as PaperProvider, useTheme } from "react-native-paper";
 import Icon from "react-native-vector-icons/FontAwesome";
 import axios from "axios";
 import RNPickerSelect from "react-native-picker-select";
+import { ip, hostPort } from "./globals.js";
+import { DataContext } from "./DataContext.js";
 
-// CHANGE THIS AS YOU NEED FOR DEMO
-
-const hostIp = "10.0.0.140";
-const port = "5000";
+const hostIp = ip;
+const port = hostPort;
 
 export default function FacultyBehaviorInput() {
   // set states for student, behavior, date, studentsList, filteredStudents, behaviorList, filteredBehavior, dateError and behavior options
@@ -29,6 +29,7 @@ export default function FacultyBehaviorInput() {
   const [behaviorList, setBehaviorList] = useState([]);
   const [filteredBehavior, setFilteredBehavior] = useState([]);
   const [dateError, setDateError] = useState("");
+  const { refreshData, setRefreshData } = useContext(DataContext);
   const behaviorOptions = behaviorList.map((behavior) => ({
     label: behavior.behavior_name,
     value: behavior.behavior_id,
@@ -180,6 +181,7 @@ export default function FacultyBehaviorInput() {
             }
           );
           // alert user that data was saved successfully
+          setRefreshData(true);
           Alert.alert("Data saved successfully");
         } catch (error) {
           // alert user that data was not saved successfully
