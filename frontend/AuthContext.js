@@ -2,6 +2,10 @@ import React, { useState, createContext } from "react";
 import * as WebBrowser from "expo-web-browser";
 import * as Google from "expo-auth-session/providers/google";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
+
+const hostIp = "10.0.0.155";
+const port = "5000";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -58,10 +62,21 @@ export const AuthProvider = ({ children }) => {
         }
       );
       const userInfo = await userInfoResponse.json();
-      await AsyncStorage.setItem("@user", JSON.stringify(userInfo));
-      setUser(userInfo); // Set user state if user info is successfully fetched
+
+      const axiosUserData = await axios.get(
+        `http://${hostIp}:${port}/api/v1/users-email/${userInfo.email}`
+      );
+      
+      const userData = axiosUserData.data;
+
+      const combinedInfo = {...userInfo, ...userData};
+      console.log(combinedInfo);
+
+      await AsyncStorage.setItem("@user", JSON.stringify(combinedInfo));
+      setUser(combinedInfo); // Set user state if user info is successfully fetched
       setIsLoggedIn(true);
     } catch (e) {
+      console.log(e)
       // handle error
     }
   };

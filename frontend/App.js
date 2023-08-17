@@ -11,13 +11,12 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { DataContext } from "./DataContext";
 
 const Main = () => {
-  const { isLoggedIn, signIn } = useContext(AuthContext);
+  const { isLoggedIn, signIn, user } = useContext(AuthContext);
 
   if (!isLoggedIn) {
     return <LoginPage onLogin={signIn} />;
   }
-
-  return <StackNavigator />;
+  return <StackNavigator roleId={user.role_id} />;
 };
 
 const App = () => {

@@ -19,7 +19,8 @@ const Drawer = createDrawerNavigator();
 
 function CustomDrawerContent(props) {
   const { colors } = useTheme();
-
+  const roleId = props.roleId;
+  
   // 2. Create a function that will open the email app
   const handleBugReport = () => {
     const email = "compasslearningapplication@gmail.com"; // Replace with your email
@@ -32,6 +33,7 @@ function CustomDrawerContent(props) {
 
   return (
     <DrawerContentScrollView {...props}>
+      {roleId == 1 && (
       <DrawerItem
         icon={({ color, size }) => (
           <Icon name="google-analytics" size={size} color={color} />
@@ -39,6 +41,8 @@ function CustomDrawerContent(props) {
         label="Analytics"
         onPress={() => props.navigation.navigate("Analytics")}
       />
+      )}
+
       <DrawerItem
         icon={({ color, size }) => (
           <Icon name="qrcode-scan" size={size} color={color} />
@@ -60,7 +64,7 @@ function CustomDrawerContent(props) {
         label="Profile"
         onPress={() => props.navigation.navigate("Profile")}
       />
-
+      {roleId != 1 && (
       <DrawerItem
         icon={({ color, size }) => (
           <Icon name="table" size={size} color={color} />
@@ -68,6 +72,9 @@ function CustomDrawerContent(props) {
         label="Table"
         onPress={() => props.navigation.navigate("Edit Data")}
       />
+      )}
+
+      {roleId == 3 && (
       <DrawerItem
         icon={({ color, size }) => (
           <Icon name="account-multiple" size={size} color={color} />
@@ -75,6 +82,7 @@ function CustomDrawerContent(props) {
         label="Add/Remove Users"
         onPress={() => props.navigation.navigate("Add/Remove Users")}
       />
+      )}
       {/* add an option to report a bug */}
       <DrawerItem
         icon={({ color, size }) => (
@@ -87,11 +95,13 @@ function CustomDrawerContent(props) {
   );
 }
 
-export default function App() {
+export default function App(props) {
+  console.log(props.roleId);
+  const roleId = props.roleId;
   return (
     <Drawer.Navigator
       initialRouteName="Analytics"
-      drawerContent={(props) => <CustomDrawerContent {...props} />}
+      drawerContent={(props) => <CustomDrawerContent {...props} roleId ={roleId} />}
     >
       <Drawer.Screen name="Analytics" component={AnalyticsView} />
       <Drawer.Screen name="QR Code" component={QRcodeNavigation} />
@@ -99,6 +109,7 @@ export default function App() {
       <Drawer.Screen name="Profile" component={ProfileView} />
       <Drawer.Screen name="Edit Data" component={EditDataNavigator} />
       <Drawer.Screen name="Add/Remove Users" component={userTable} />
+
     </Drawer.Navigator>
   );
 }
