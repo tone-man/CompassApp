@@ -12,11 +12,10 @@ import {
 import { Provider as PaperProvider, useTheme } from "react-native-paper";
 import Icon from "react-native-vector-icons/FontAwesome";
 import axios from "axios";
+import { ip, hostPort } from "./globals.js";
 
-// CHANGE THIS AS YOU NEED FOR DEMO
-
-const hostIp = "10.0.0.140";
-const port = "5000";
+const hostIp = ip;
+const port = hostPort;
 
 export default function FacultyBehaviorInput() {
   // set states for student, mastery, date, studentsList, filteredStudents

@@ -11,11 +11,10 @@ import {
 } from "react-native";
 import axios from "axios";
 import { BarCodeScanner } from "expo-barcode-scanner";
+import { ip, hostPort } from "./globals.js";
 
-// CHANGE THIS AS YOU NEED FOR DEMO
-
-const hostIp = "10.0.0.140";
-const port = "5000";
+const hostIp = ip;
+const port = hostPort;
 
 export default function QRcodeScannerView() {
   const [hasPermission, setHasPermission] = useState(null);

@@ -16,11 +16,10 @@ import {
   MenuProvider,
 } from "react-native-popup-menu";
 import axios from "axios";
+import { ip, hostPort } from "./globals.js";
 
-// CHANGE THIS AS YOU NEED FOR DEMO
-
-const hostIp = "10.0.0.140";
-const port = "5000";
+const hostIp = ip;
+const port = hostPort;
 
 const TableView = () => {
   const defaultWidth = 100;

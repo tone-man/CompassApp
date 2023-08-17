@@ -16,9 +16,10 @@ import {
 import TableExample from "./table";
 import ProgressTracker from "./ProgressTracker";
 import { useTheme, ProgressBar, MD3Colors } from "react-native-paper";
+import { ip, hostPort } from "./globals.js";
 
-const hostIp = "10.0.0.140";
-const port = "5000";
+const hostIp = ip;
+const port = hostPort;
 
 const fetchData = async (id, user) => {
   let eventDates = [];
