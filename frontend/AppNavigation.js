@@ -98,9 +98,12 @@ function CustomDrawerContent(props) {
 export default function App(props) {
   console.log(props.roleId);
   const roleId = props.roleId;
+  const initialRoute = props.roleId === 1 ? 'Analytics' : 'QR Code';
+
   return (
     <Drawer.Navigator
-      initialRouteName="Analytics"
+    initialRouteName={initialRoute}
+      
       drawerContent={(props) => <CustomDrawerContent {...props} roleId ={roleId} />}
     >
       <Drawer.Screen name="Analytics" component={AnalyticsView} />
