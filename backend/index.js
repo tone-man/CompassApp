@@ -86,7 +86,9 @@ const db = new sqlite3.Database("database/CompassDatabase.db");
 const validateCreateUser = [
   body("name").trim().isLength({ min: 1 }).withMessage("Name is required"),
   body("email").trim().isEmail().withMessage("Invalid email format"),
-  body("userRole").isInt({ min: 1 }).withMessage("Role must be greater than 0"),
+  body("userRole")
+    .isInt({ min: 1, max: 3 })
+    .withMessage("Role must be greater than 0"),
 ];
 
 app.post(
@@ -106,7 +108,9 @@ app.post(
         return result;
       })
       .then((result) => {
-        res.status(201).json({ message: "User created successfully" });
+        res
+          .status(201)
+          .json({ id: result, message: "User created successfully" });
       })
       .catch((error) => {
         console.error("Error creating user:", error);

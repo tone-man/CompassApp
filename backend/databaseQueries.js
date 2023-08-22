@@ -190,7 +190,7 @@ function createStudent(
         if (err) {
           reject(err);
         } else {
-          resolve({ studentId: user_id });
+          resolve(user_id);
         }
       }
     );

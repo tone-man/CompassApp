@@ -7,6 +7,8 @@ import {
   StyleSheet,
   Text,
   Dimensions,
+  FlatList,
+  TouchableOpacity,
 } from "react-native";
 import { Table, Row } from "react-native-table-component";
 import {
@@ -36,6 +38,63 @@ const TableView = () => {
     new Array(headerData.length).fill(defaultWidth)
   );
 
+  // Student search related states and functions
+  const [student, setStudent] = useState("");
+  const [studentsList, setStudentsList] = useState([]);
+  const [filteredStudents, setFilteredStudents] = useState([]);
+
+  useEffect(() => {
+    fetchStudentNames();
+  }, []);
+
+  const fetchStudentNames = async () => {
+    try {
+      const response = await axios.get(
+        `http://${hostIp}:${port}/api/v1/students/`
+      );
+      setStudentsList(response.data.map((user) => user.name));
+    } catch (error) {
+      console.error("Error fetching student names:", error);
+    }
+  };
+
+  const fetchStudentId = async (studentName) => {
+    try {
+      const response = await axios.get(
+        `http://${hostIp}:${port}/api/v1/students`
+      );
+      const student = response.data.find((user) => user.name === studentName);
+      console.log("student", student);
+      return student.user_id;
+    } catch (error) {
+      console.error("Error fetching student id:", error);
+    }
+  };
+
+  const handleStudentChange = (text) => {
+    setStudent(text);
+    if (text.length > 0) {
+      const matchedStudents = studentsList.filter((s) =>
+        s.toLowerCase().includes(text.toLowerCase())
+      );
+      setFilteredStudents(matchedStudents);
+    } else {
+      setFilteredStudents([]);
+    }
+  };
+
+  const renderItem = ({ item }) => (
+    <TouchableOpacity
+      onPress={async () => {
+        setStudent(item);
+        console.log("item", JSON.stringify(await fetchStudentId(item)));
+        getLogs(await fetchStudentId(item));
+        setFilteredStudents([]);
+      }}
+    >
+      <Text>{item}</Text>
+    </TouchableOpacity>
+  );
   const calculateWidthOfContent = (content) => {
     // Placeholder function: should calculate and return the width of the content.
     return defaultWidth; // example default value
@@ -68,17 +127,17 @@ const TableView = () => {
     setColumnWidths(maxWidths);
   };
 
-  useEffect(() => {
+  const getLogs = async (studentID) => {
     adjustColumnWidths();
 
-    axios
+    await axios
       .get(
         "http://" +
           hostIp +
           ":" +
           port +
           "/api/v1/students/" +
-          1 +
+          studentID +
           "/behavior-logs"
       ) //TODO INSERT USERID
       .then((response) => {
@@ -89,9 +148,9 @@ const TableView = () => {
         setTableData(transformedData);
       })
       .catch((error) => {
-        console.error("Error fetching data:", error);
+        console.error("Error fetching data:", error.response.data);
       });
-  }, []);
+  };
 
   const renderEditableCell = (data, rowIndex, cellIndex) => (
     <TextInput
@@ -124,6 +183,21 @@ const TableView = () => {
   return (
     <MenuProvider>
       <ScrollView style={tableStyles.scrollContainer}>
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <TextInput
+            style={{ borderWidth: 1, padding: 10, flex: 1 }}
+            placeholder="Search for student"
+            value={student}
+            onChangeText={handleStudentChange}
+          />
+          {filteredStudents.length > 0 && (
+            <FlatList
+              data={filteredStudents}
+              renderItem={renderItem}
+              keyExtractor={(item) => item}
+            />
+          )}
+        </View>
         <ScrollView horizontal={true}>
           <View style={tableStyles.container}>
             <Table borderStyle={{ borderWidth: 1, borderColor: "#c8e1ff" }}>

@@ -23,13 +23,9 @@ const port = hostPort;
 
 const TableView = () => {
   const defaultWidth = 100;
-  const headerData = ["Skill", "Mastery", "Date"];
+  const headerData = ["Id", "Skill", "Mastery", "Date"];
   const [tableData, setTableData] = useState([
-    ["Homework", 0, "2023-08-15"],
-    ["Reading", 0, "2023-08-15"],
-    ["Writing", 0, "2023-08-15"],
-    ["Notetaking", 0, "2023-08-15"],
-    ["Growth Mindset", 0, "2023-08-15"],
+    ["-", "------", "-", "0000-00-00"],
   ]);
   const [columnWidths, setColumnWidths] = useState(
     new Array(headerData.length).fill(0)
@@ -72,6 +68,7 @@ const TableView = () => {
       ) //TODO INSERT USERID
       .then((response) => {
         const transformedData = response.data.map((entry) => [
+          entry.entry_id,
           entry.skill_id,
           entry.mastery_status,
           entry.date_of_event,

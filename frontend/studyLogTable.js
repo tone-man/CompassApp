@@ -25,7 +25,7 @@ const port = hostPort;
 const TableView = () => {
   const screenWidth = Dimensions.get("window").width;
   const defaultWidth = 100;
-  const headerData = ["Student ID", "Log In Time", "Log out Time"];
+  const headerData = ["Id", "Student ID", "Log In Time", "Log out Time"];
 
   const calculateWidthOfContent = (content) => {
     const estimatedWidth = content.length * 15 + 30;
@@ -35,9 +35,7 @@ const TableView = () => {
   const initialColumnWidths = headerData.map(calculateWidthOfContent);
 
   const [tableData, setTableData] = useState([
-    ["1", "2023-05-05 14:00:00", "2023-05-05 15:00:00"],
-    ["2", "2023-05-03 12:35:00", "2023-05-03 15:00:00"],
-    ["3", "2023-05-03 12:35:00", "2023-05-03 15:00:00"],
+    ["-", "-", "0000-00-00 00:00:00", "0000-00-00 00:00:00"],
   ]);
   const [columnWidths, setColumnWidths] = useState(initialColumnWidths);
 
@@ -83,6 +81,7 @@ const TableView = () => {
       ) //TODO INSERT USERID
       .then((response) => {
         const transformedData = response.data.map((entry) => [
+          entry.entry_id,
           entry.datetime_of_sign_in,
           entry.datetime_of_sign_out,
           entry.duration_of_study,

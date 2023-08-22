@@ -25,7 +25,7 @@ const port = hostPort;
 const TableView = () => {
   const screenWidth = Dimensions.get("window").width;
   const defaultWidth = 100;
-  const headerData = ["User ID", "Email", "Role ID"];
+  const headerData = ["User ID", "Name", "Email", "Role ID"];
 
   const calculateWidthOfContent = (content) => {
     const estimatedWidth = content.length * 15 + 30;
@@ -35,9 +35,7 @@ const TableView = () => {
   const initialColumnWidths = headerData.map(calculateWidthOfContent);
 
   const [tableData, setTableData] = useState([
-    ["1", "john.doe@example.com", "1"],
-    ["2", "dalymb@merrimack.edu", "2"],
-    ["3", "email@example.com", "3"],
+    ["-", "loading@example.com", "-"],
   ]);
   const [columnWidths, setColumnWidths] = useState(initialColumnWidths);
 
@@ -75,6 +73,7 @@ const TableView = () => {
       .get("http://" + hostIp + ":" + port + "/api/v1/users")
       .then((response) => {
         const transformedData = response.data.map((user) => [
+          user.user_id,
           user.name,
           user.email,
           user.role_id,
@@ -99,20 +98,42 @@ const TableView = () => {
     />
   );
 
-  const deleteRow = (indexToDelete) => {
-    const newTableData = tableData.filter(
-      (_, index) => index !== indexToDelete
-    );
-    setTableData(newTableData);
+  const deleteRow = async (id) => {
+    // Remove the row from the local state
+    const updatedTableData = tableData.filter((row) => row.id !== id);
+    setTableData(updatedTableData);
+
+    try {
+      // Send a DELETE request to the API to delete the row
+      await axios.delete(
+        "http://" + hostIp + ":" + port + "/api/v1/users/" + id
+      );
+      console.log("Row deleted successfully");
+    } catch (error) {
+      console.error("Error deleting row:", error);
+    }
   };
 
-  const addRowBelow = (index) => {
-    const newRow = ["New Behavior", 0, 0, 0, 0, 0, 0];
-    setTableData((prevData) => {
-      let newData = [...prevData];
-      newData.splice(index + 1, 0, newRow);
-      return newData;
-    });
+  const addRowBelow = async (index) => {
+    try {
+      const response = await axios.post(
+        "http://" + hostIp + ":" + port + "/api/v1/users/",
+        {
+          name: "New Student",
+          email: "email@example",
+          userRole: 1,
+        }
+      );
+      const addedRow = [response.id, "New Student", "email@example.com"]; // Assuming the API returns the added row
+      setTableData((prevData) => {
+        let newData = [...prevData];
+        newData.splice(index + 1, 0, addedRow);
+        return newData;
+      });
+      console.log("Row added successfully");
+    } catch (error) {
+      console.error("Error adding row:", error);
+    }
   };
 
   return (
