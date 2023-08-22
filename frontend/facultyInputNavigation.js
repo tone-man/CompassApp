@@ -13,7 +13,11 @@ function FacultyInputNavigation() {
     <Tab.Navigator
       tabBarOptions={{
         indicatorStyle: {
-          backgroundColor: colors.primary,
+          activeTintColor: "#000",
+          inactiveTintColor: "#fff",
+
+          tabBarActiveTintColor: colors.primary,
+          tabBarInactiveTintColor: "gray",
         }, // Customize the underline color here
       }}
     >

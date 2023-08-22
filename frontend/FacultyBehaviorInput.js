@@ -20,9 +20,8 @@ const hostIp = ip;
 const port = hostPort;
 
 export default function FacultyBehaviorInput() {
-  // set states for student, behavior, date, studentsList, filteredStudents, behaviorList, filteredBehavior, dateError and behavior options
-  const [student, setStudent] = useState("");
-  const [behavior, setBehavior] = useState("");
+  const [selectedStudents, setSelectedStudents] = useState([]);
+  const [selectedBehaviors, setSelectedBehaviors] = useState([]);
   const [date, setDate] = useState("");
   const [studentsList, setStudentsList] = useState([]);
   const [filteredStudents, setFilteredStudents] = useState([]);
@@ -30,10 +29,6 @@ export default function FacultyBehaviorInput() {
   const [filteredBehavior, setFilteredBehavior] = useState([]);
   const [dateError, setDateError] = useState("");
   const { refreshData, setRefreshData } = useContext(DataContext);
-  const behaviorOptions = behaviorList.map((behavior) => ({
-    label: behavior.behavior_name,
-    value: behavior.behavior_id,
-  }));
 
   useEffect(() => {
     fetchStudentNames();
@@ -42,21 +37,7 @@ export default function FacultyBehaviorInput() {
 
   const theme = useTheme();
 
-  const fetchIDFromName = async (name) => {
-    // fetch user ID from name from backend and return user ID if found or an error if not found
-    try {
-      const response = await axios.get(
-        "http://" + hostIp + ":" + port + "/api/v1/students/"
-      );
-      const user = response.data.find((user) => user.name === name);
-      return user.user_id;
-    } catch (error) {
-      console.error("Error fetching user ID:", error);
-    }
-  };
-
   const fetchStudentNames = async () => {
-    // fetch student names from backend and set studentsList to list of student names from backend or an error if not found
     try {
       const response = await axios.get(
         "http://" + hostIp + ":" + port + "/api/v1/students/"
@@ -66,36 +47,68 @@ export default function FacultyBehaviorInput() {
       console.error("Error fetching student names:", error);
     }
   };
+  const getBehaviorIdFromName = async (behaviorName) => {
+    try {
+      const response = await axios.get(
+        "http://" + hostIp + ":" + port + "/api/v1/behaviors/"
+      );
+      console.log("response.data: " + response.data);
+      // search the objects in the response object
+
+      const behavior = response.data.find(
+        (behavior) => behavior.behavior_name === behaviorName
+      );
+      console.log("Is the id of the behavior" + JSON.stringify(behavior) + "?");
+      return behavior.behavior_id;
+    } catch (error) {
+      console.error("Error fetching behavior ID:", error);
+      return null;
+    }
+  };
 
   const fetchBehaviorList = async () => {
-    // fetch behavior list from backend and set behaviorList to list of behaviors from backend or an error if not found
     try {
       const response = await axios.get(
         "http://" + hostIp + ":" + port + "/api/v1/behaviors"
       );
-      setBehaviorList(response.data);
+      setBehaviorList(response.data.map((b) => b.behavior_name));
     } catch (error) {
       console.error("Error fetching behavior list:", error);
     }
   };
 
-  const getBehaviorIdFromName = (behaviorName) => {
-    // get behavior ID from behavior name from behavior list and return behavior ID if found or null if not found
-    console.log("Behavior Name:", "'" + behaviorName + "'");
-    console.log("Behavior List:", behaviorList);
-
-    const behavior = behaviorList.find(
-      (behavior) => behavior.behavior_name === behaviorName
-    );
-
-    console.log("Found Behavior:", behavior);
-
-    return behavior ? behavior.behavior_id : null;
+  const fetchIDFromName = async (name) => {
+    try {
+      const response = await axios.get(
+        "http://" + hostIp + ":" + port + "/api/v1/students/"
+      );
+      const user = response.data.find((user) => user.name === name);
+      return user ? user.user_id : null;
+    } catch (error) {
+      console.error("Error fetching user ID:", error);
+      return null;
+    }
   };
 
-  const handleStudentChange = (text) => {
-    // set student to text and set filteredStudents to list of students that match text or an empty list if text is empty
-    setStudent(text);
+  const handleClearAll = () => {
+    setSelectedStudents([]);
+    setSelectedBehaviors([]);
+    setDate("");
+    setDateError("");
+  };
+
+  const handleStudentSelection = (student) => {
+    if (selectedStudents.includes(student)) {
+      setSelectedStudents((prev) =>
+        prev.filter((existingStudent) => existingStudent !== student)
+      );
+    } else {
+      setSelectedStudents((prev) => [...prev, student]);
+    }
+    setFilteredStudents([]);
+  };
+
+  const handleStudentSearch = (text) => {
     if (text !== "") {
       const filtered = studentsList.filter(
         (student) =>
@@ -108,9 +121,18 @@ export default function FacultyBehaviorInput() {
     }
   };
 
-  const handleBehaviorChange = (text) => {
-    // set behavior to text and set filteredBehavior to list of behaviors that match text or an empty list if text is empty
-    setBehavior(text);
+  const handleBehaviorSelection = (behaviorName) => {
+    if (selectedBehaviors.includes(behaviorName)) {
+      setSelectedBehaviors((prev) =>
+        prev.filter((existingBehavior) => existingBehavior !== behaviorName)
+      );
+    } else {
+      setSelectedBehaviors((prev) => [...prev, behaviorName]);
+    }
+    setFilteredBehavior([]);
+  };
+
+  const handleBehaviorSearch = (text) => {
     if (text !== "") {
       const filtered = behaviorList.filter(
         (behavior) =>
@@ -123,35 +145,9 @@ export default function FacultyBehaviorInput() {
     }
   };
 
-  const renderItem = ({ item }) => (
-    // render item for student or behavior list
-    <TouchableOpacity
-      onPress={() => {
-        setStudent(item);
-        setFilteredStudents([]);
-      }}
-    >
-      <Text>{item}</Text>
-    </TouchableOpacity>
-  );
-
-  const renderBehaviorItem = ({ item }) => (
-    // render item for behavior list
-    <TouchableOpacity
-      onPress={() => {
-        setBehavior(item);
-        setFilteredBehavior([]);
-      }}
-    >
-      <Text>{item}</Text>
-    </TouchableOpacity>
-  );
-
   const handleDateChange = (text) => {
-    // set date to text and set dateError to error message if date is not in the format YYYY-MM-DD or an empty string if date is in the format YYYY-MM-DD
     setDate(text);
     const dateFormatRegex = /^\d{4}-\d{2}-\d{2}$/;
-    //
     if (!dateFormatRegex.test(text)) {
       setDateError("Date must be in the format YYYY-MM-DD");
     } else {
@@ -160,90 +156,139 @@ export default function FacultyBehaviorInput() {
   };
 
   const handleSave = async () => {
-    // validation checks
     if (!date) {
       setDateError("Date is required");
     } else {
       setDateError("");
-      // fetch student ID from name and behavior ID from behavior name
-      const student_id = await fetchIDFromName(student);
-      const behavior_id = behavior;
+      for (let student of selectedStudents) {
+        for (let behavior of selectedBehaviors) {
+          try {
+            const student_id = await fetchIDFromName(student);
+            const behavior_id = await getBehaviorIdFromName(behavior);
+            // print behavior
+            console.log("behavior: " + behavior);
+            console.log("behavior_id: " + behavior_id);
 
-      if (student_id && behavior_id) {
-        try {
-          // post request to save data
-          await axios.post(
-            "http://" + hostIp + ":" + port + "/api/v1/behavior-logs",
-            {
-              userId: student_id,
-              behaviorId: behavior_id,
-              dateOfEvent: date,
+            if (student_id && behavior_id) {
+              await axios.post(
+                "http://" + hostIp + ":" + port + "/api/v1/behavior-logs",
+                {
+                  userId: student_id,
+                  behaviorId: behavior_id,
+                  dateOfEvent: date,
+                }
+              );
+            } else {
+              Alert.alert(
+                "Cannot find data for student or behavior. Please check again."
+              );
             }
-          );
-          // alert user that data was saved successfully
-          setRefreshData(true);
-          Alert.alert("Data saved successfully");
-        } catch (error) {
-          // alert user that data was not saved successfully
-          console.error("Error saving data:", error);
-          console.error(
-            "userId: " + student_id,
-            "behaviorId: " + behavior_id,
-            "dateOfEvent: " + date
-          );
-          Alert.alert("Error saving data");
+          } catch (error) {
+            console.error("Error saving data:", error.response.data);
+            Alert.alert("Error saving data");
+          }
         }
-      } else {
-        // alert user that student or skill was not found
-        Alert.alert(
-          "Cannot find data for student or skill. Please check again."
-        );
-        console.error(
-          "userId: " + student_id,
-          "skillId: " + behavior_id,
-          "dateOfEvent: " + date
-        );
       }
+      setSelectedStudents([]);
+      setSelectedBehaviors([]);
+      setRefreshData(true);
+      Alert.alert("Data saved successfully");
     }
   };
 
+  const removeStudent = (studentName) => {
+    setSelectedStudents((prev) =>
+      prev.filter((student) => student !== studentName)
+    );
+  };
+
+  const removeBehavior = (behaviorName) => {
+    setSelectedBehaviors((prev) =>
+      prev.filter((behavior) => behavior !== behaviorName)
+    );
+  };
+
+  const renderSelectedStudent = (student) => (
+    <View key={student} style={styles.selectedStudentContainer}>
+      <Text>{student}</Text>
+      <TouchableOpacity onPress={() => removeStudent(student)}>
+        <Icon name="times-circle" size={20} color="gray" />
+      </TouchableOpacity>
+    </View>
+  );
+
+  const renderSelectedBehavior = (behavior) => (
+    <View key={behavior} style={styles.selectedBehaviorContainer}>
+      <Text>{behavior}</Text>
+      <TouchableOpacity onPress={() => removeBehavior(behavior)}>
+        <Icon name="times-circle" size={20} color="gray" />
+      </TouchableOpacity>
+    </View>
+  );
+
+  const renderStudentItem = ({ item }) => (
+    <TouchableOpacity onPress={() => handleStudentSelection(item)}>
+      <Text
+        style={{ color: selectedStudents.includes(item) ? "red" : "black" }}
+      >
+        {item}
+      </Text>
+    </TouchableOpacity>
+  );
+
+  const renderBehaviorItem = ({ item }) => (
+    <TouchableOpacity onPress={() => handleBehaviorSelection(item)}>
+      <Text
+        style={{ color: selectedBehaviors.includes(item) ? "red" : "black" }}
+      >
+        {item}
+      </Text>
+    </TouchableOpacity>
+  );
+
   return (
-    // render form for faculty behavior input
     <PaperProvider theme={theme}>
       <View style={styles.container}>
         <View style={styles.formContainer}>
-          <Text>Student: *</Text>
+          <Text>Students: *</Text>
+          <View style={styles.selectedStudents}>
+            {selectedStudents.map((student) => renderSelectedStudent(student))}
+          </View>
           <View style={styles.inputContainer}>
             <TextInput
               style={styles.input}
-              placeholder="Search"
-              value={student}
-              onChangeText={handleStudentChange}
+              placeholder="Search and select students"
+              onChangeText={handleStudentSearch}
             />
-            {student !== "" && (
-              <TouchableOpacity
-                style={styles.clearButton}
-                onPress={() => setStudent("")}
-              >
-                <Icon name="times-circle" size={20} color="gray" />
-              </TouchableOpacity>
-            )}
             {filteredStudents.length > 0 && (
               <FlatList
                 data={filteredStudents}
-                renderItem={renderItem}
+                renderItem={renderStudentItem}
                 keyExtractor={(item) => item}
                 style={styles.suggestionList}
               />
             )}
           </View>
-          <Text>Behavior: *</Text>
-          <View style={styles.scrollSelect}>
-            <RNPickerSelect
-              value={behavior}
-              onValueChange={(value) => setBehavior(value)}
-              items={behaviorOptions}
+          <Text>Behaviors: *</Text>
+          <View style={styles.selectedBehaviors}>
+            {selectedBehaviors.map((behavior) =>
+              renderSelectedBehavior(behavior)
+            )}
+          </View>
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.input}
+              placeholder="Search and select behaviors"
+              onChangeText={handleBehaviorSearch}
             />
+            {filteredBehavior.length > 0 && (
+              <FlatList
+                data={filteredBehavior}
+                renderItem={renderBehaviorItem}
+                keyExtractor={(item) => item}
+                style={styles.suggestionList}
+              />
+            )}
           </View>
           <Text>Date: *</Text>
           <View style={styles.inputContainer}>
@@ -265,6 +310,7 @@ export default function FacultyBehaviorInput() {
           ]}
         >
           <Button color="white" title="SAVE" onPress={handleSave} />
+          <Button color="white" title="CLEAR ALL" onPress={handleClearAll} />
         </View>
       </View>
     </PaperProvider>
@@ -282,11 +328,6 @@ const styles = StyleSheet.create({
   inputContainer: {
     position: "relative",
   },
-  scrollSelect: {
-    position: "relative",
-    borderWidth: 1,
-    borderColor: "#bbb",
-  },
   input: {
     height: 40,
     paddingHorizontal: 10,
@@ -295,15 +336,11 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginBottom: 10,
   },
-  clearButton: {
-    position: "absolute",
-    right: 10,
-    top: 10,
-    zIndex: 1,
-  },
   buttonContainer: {
     alignItems: "center",
     paddingVertical: 10,
+    flexDirection: "row",
+    justifyContent: "space-around",
   },
   suggestionList: {
     maxHeight: 120,
@@ -317,5 +354,35 @@ const styles = StyleSheet.create({
   errorText: {
     color: "red",
     marginTop: 5,
+  },
+  selectedStudents: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginBottom: 10,
+  },
+  selectedStudentContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#e1e1e1",
+    borderRadius: 15,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    marginRight: 5,
+    marginBottom: 5,
+  },
+  selectedBehaviors: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginBottom: 10,
+  },
+  selectedBehaviorContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#e1e1e1",
+    borderRadius: 15,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    marginRight: 5,
+    marginBottom: 5,
   },
 });
