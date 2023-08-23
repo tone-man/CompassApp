@@ -37,13 +37,6 @@ This is an API for the Compass App, which provides access to students educationa
    npm install
    ```
 
-3. Set up the environment variables by creating a .env file and providing the required values: (???)
-
-   ```.env
-   PORT=3000
-   MONGODB_URI=mongodb://localhost/compass_app
-   ```
-
 4. Start the API
    ```shell
    npm start
