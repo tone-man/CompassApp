@@ -18,6 +18,7 @@ import {
 } from "react-native-popup-menu";
 import axios from "axios";
 import { ip, hostPort } from "./globals.js";
+import { resolveModuleName } from "typescript";
 
 const hostIp = ip;
 const port = hostPort;
@@ -38,6 +39,7 @@ const TableView = () => {
     ["-", "loading@example.com", "-"],
   ]);
   const [columnWidths, setColumnWidths] = useState(initialColumnWidths);
+  const [editedRows, setEditedRows] = useState([]);
 
   const adjustColumnWidths = () => {
     const totalWidth = columnWidths.reduce((sum, width) => sum + width, 0);
@@ -66,6 +68,23 @@ const TableView = () => {
     setColumnWidths(maxWidths);
   };
 
+  const handleCellChange = (rowIndex, cellIndex, newValue) => {
+    setTableData((prevTableData) => {
+      const updatedData = [...prevTableData];
+      updatedData[rowIndex][cellIndex] = newValue;
+      return updatedData;
+    });
+  };
+
+  const handleCellBlur = (rowIndex, cellIndex, oldValue) => {
+    const newValue = tableData[rowIndex][cellIndex];
+    console.log(oldValue, newValue)
+      setEditedRows((prevEditedRows) => [
+        ...prevEditedRows,
+        { rowIndex, cellIndex},
+      ]);
+  };
+
   useEffect(() => {
     adjustColumnWidths();
 
@@ -85,12 +104,34 @@ const TableView = () => {
       });
   }, []);
 
+  useEffect(() => {
+    // Update edited rows
+    editedRows.forEach(async (edit) => {
+      const { rowIndex, cellIndex } = edit;
+      const userId = tableData[rowIndex][0];
+      console.log();
+      try {
+        await axios.put(
+          `http://${hostIp}:${port}/api/v1/users/${userId}`,
+          {          
+            name: tableData[rowIndex][1],
+            email: tableData[rowIndex][2] 
+          } // Assuming headerData corresponds to API field names
+        );
+        console.log("Row updated successfully");
+      } catch (error) {
+        console.error("Error updating row:", error);
+      }
+    });
+  }, [editedRows]);
+
   const renderEditableCell = (data, rowIndex, cellIndex) => (
     <TextInput
       value={String(data)}
-      onChangeText={(newValue) =>
-        handleCellChange(tableData, rowIndex, cellIndex, newValue)
-      }
+      onChangeText={(newValue) => {
+        handleCellChange(rowIndex, cellIndex, newValue)
+      }}
+      onBlur={() => handleCellBlur(rowIndex, cellIndex, data)}
       style={{
         ...tableStyles.input,
         width: columnWidths[cellIndex] || defaultWidth,
@@ -124,8 +165,13 @@ const TableView = () => {
           userRole: 1,
         }
       );
-      console.log(JSON.stringify(response));
-      const addedRow = [response.data.id, "New Student", "email@example.com", 1]; // Assuming the API returns the added row
+
+      const addedRow = [
+        response.data.id,
+        "New Student",
+        "email@example.com",
+        1,
+      ]; // Assuming the API returns the added row
       setTableData((prevData) => {
         let newData = [...prevData];
         newData.splice(index + 1, 0, addedRow);
@@ -153,7 +199,7 @@ const TableView = () => {
                 textStyle={tableStyles.headerText}
               />
             </Table>
-            {tableData.map((rowData) => (
+            {tableData.map((rowData, rowIndex) => (
               <View style={tableStyles.outerRowContainer} key={rowData[0]}>
                 <Menu>
                   <MenuTrigger>
@@ -179,11 +225,10 @@ const TableView = () => {
                       }}
                       key={`${rowData[0]}_${cellIndex}`}
                     >
-                      {renderEditableCell(cellData, rowData[0], cellIndex)}
+                      {renderEditableCell(cellData, rowIndex, cellIndex)}
                     </View>
                   ))}
                 </View>
-
               </View>
             ))}
           </View>

@@ -176,17 +176,17 @@ app.get(
 // UPDATE USER INFO By Id
 
 const validateUpdateUser = [
-  param("id").isInt(),
+  param("userId").isInt(),
   body("name").trim().isLength({ min: 1 }).withMessage("Name is required"),
   body("email").trim().isEmail().withMessage("Invalid email format"),
 ];
 
 app.put(
-  route + "/users/:id",
+  route + "/users/:userId",
   validateUpdateUser,
   handleValidationErrors,
   (req, res) => {
-    const userId = req.params.id;
+    const userId = req.params.userId;
     const { email, name } = req.body;
 
     updateUser(db, userId, name, email)
@@ -1732,6 +1732,7 @@ function rollbackUpdateToBehaviorLog(params) {
 function handleValidationErrors(req, res, next) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    console.error(JSON.stringify(errors.array()));
     return res.status(400).json({ errors: errors.array() });
   }
   next();
