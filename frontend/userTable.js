@@ -78,11 +78,11 @@ const TableView = () => {
 
   const handleCellBlur = (rowIndex, cellIndex, oldValue) => {
     const newValue = tableData[rowIndex][cellIndex];
-    console.log(oldValue, newValue)
-      setEditedRows((prevEditedRows) => [
-        ...prevEditedRows,
-        { rowIndex, cellIndex},
-      ]);
+    console.log(oldValue, newValue);
+    setEditedRows((prevEditedRows) => [
+      ...prevEditedRows,
+      { rowIndex, cellIndex },
+    ]);
   };
 
   useEffect(() => {
@@ -113,11 +113,22 @@ const TableView = () => {
       try {
         await axios.put(
           `http://${hostIp}:${port}/api/v1/users/${userId}`,
-          {          
+          {
             name: tableData[rowIndex][1],
-            email: tableData[rowIndex][2] 
+            email: tableData[rowIndex][2],
           } // Assuming headerData corresponds to API field names
         );
+
+        if (cellIndex === 3) {
+          console.log();
+          await axios.put(
+            `http://${hostIp}:${port}/api/v1/user-roles/${userId}`,
+            {
+              newRoleId: tableData[rowIndex][3],
+            } // Assuming headerData corresponds to API field names
+          );
+          console.log("Role updated successfully");
+        }
         console.log("Row updated successfully");
       } catch (error) {
         console.error("Error updating row:", error);
@@ -129,7 +140,7 @@ const TableView = () => {
     <TextInput
       value={String(data)}
       onChangeText={(newValue) => {
-        handleCellChange(rowIndex, cellIndex, newValue)
+        handleCellChange(rowIndex, cellIndex, newValue);
       }}
       onBlur={() => handleCellBlur(rowIndex, cellIndex, data)}
       style={{
