@@ -83,7 +83,7 @@ const TableView = () => {
       .catch((error) => {
         console.error("Error fetching data:", error);
       });
-  }, [tableData]);
+  }, []);
 
   const renderEditableCell = (data, rowIndex, cellIndex) => (
     <TextInput
@@ -100,7 +100,7 @@ const TableView = () => {
 
   const deleteRow = async (id) => {
     // Remove the row from the local state
-    const updatedTableData = tableData.filter((row) => row.id !== id);
+    const updatedTableData = tableData.filter((row) => row[0] !== id);
     setTableData(updatedTableData);
 
     try {
@@ -124,6 +124,7 @@ const TableView = () => {
           userRole: 1,
         }
       );
+      console.log(JSON.stringify(response));
       const addedRow = [response.id, "New Student", "email@example.com"]; // Assuming the API returns the added row
       setTableData((prevData) => {
         let newData = [...prevData];
@@ -152,19 +153,19 @@ const TableView = () => {
                 textStyle={tableStyles.headerText}
               />
             </Table>
-            {tableData.map((rowData, rowIndex) => (
-              <View style={tableStyles.outerRowContainer} key={rowIndex}>
+            {tableData.map((rowData) => (
+              <View style={tableStyles.outerRowContainer} key={rowData[0]}>
                 <Menu>
                   <MenuTrigger>
                     <Text style={tableStyles.menuTrigger}>⋮</Text>
                   </MenuTrigger>
                   <MenuOptions>
-                    <MenuOption onSelect={() => addRowBelow(rowIndex)}>
+                    <MenuOption onSelect={() => addRowBelow(rowData[0])}>
                       <Text style={tableStyles.menuOptionText}>
                         Add Row Below
                       </Text>
                     </MenuOption>
-                    <MenuOption onSelect={() => deleteRow(rowIndex)}>
+                    <MenuOption onSelect={() => deleteRow(rowData[0])}>
                       <Text style={tableStyles.menuOptionText}>Delete Row</Text>
                     </MenuOption>
                   </MenuOptions>
@@ -176,12 +177,13 @@ const TableView = () => {
                         ...tableStyles.cellText,
                         width: columnWidths[cellIndex] || defaultWidth,
                       }}
-                      key={cellIndex}
+                      key={`${rowData[0]}_${cellIndex}`}
                     >
-                      {renderEditableCell(cellData, rowIndex, cellIndex)}
+                      {renderEditableCell(cellData, rowData[0], cellIndex)}
                     </View>
                   ))}
                 </View>
+
               </View>
             ))}
           </View>
