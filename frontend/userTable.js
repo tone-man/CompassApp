@@ -117,15 +117,15 @@ const TableView = () => {
   const addRowBelow = async (index) => {
     try {
       const response = await axios.post(
-        "http://" + hostIp + ":" + port + "/api/v1/users/",
+        "http://" + hostIp + ":" + port + "/api/v1/users",
         {
           name: "New Student",
-          email: "email@example",
+          email: "email@example.com",
           userRole: 1,
         }
       );
       console.log(JSON.stringify(response));
-      const addedRow = [response.id, "New Student", "email@example.com"]; // Assuming the API returns the added row
+      const addedRow = [response.data.id, "New Student", "email@example.com", 1]; // Assuming the API returns the added row
       setTableData((prevData) => {
         let newData = [...prevData];
         newData.splice(index + 1, 0, addedRow);
@@ -133,7 +133,7 @@ const TableView = () => {
       });
       console.log("Row added successfully");
     } catch (error) {
-      console.error("Error adding row:", error);
+      console.error("Error adding row:", JSON.stringify(error));
     }
   };
 
