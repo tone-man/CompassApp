@@ -708,8 +708,10 @@ app.post(
   (req, res) => {
     const { userId, behaviorId, dateOfEvent } = req.body;
     let baseStudyTime = 1200;
+    let entryId = 0;
     createBehaviorLog(db, userId, behaviorId, dateOfEvent)
-      .then(() => {
+      .then((result) => {
+        entryId = result.entryId;
         return getBaseStudyTime(db, userId);
       })
       .then((base) => {
@@ -720,7 +722,7 @@ app.post(
         updateStudentRequiredStudyTime(db, userId, baseStudyTime + sum);
       })
       .then((result) => {
-        res.status(201).json(result);
+        res.status(201).json({id: entryId, mossage: "Behavior Log Created Successfully."});
       })
       .catch((error) => {
         res.status(500).json({
