@@ -27,13 +27,8 @@ const port = hostPort;
 const TableView = () => {
   const screenWidth = Dimensions.get("window").width;
   const defaultWidth = 100;
-  const headerData = ["Behavior", "Date"];
-  const [tableData, setTableData] = useState([
-    ["Missed Class", "2023-08-15"],
-    ["Missed Coaching Meeting", "2023-08-15"],
-    ["Missed Assignment", "2023-08-15"],
-    ["Late Assignments", "2023-08-15"],
-  ]);
+  const headerData = ["Id", "Behavior", "Date"];
+  const [tableData, setTableData] = useState([]);
   const [columnWidths, setColumnWidths] = useState(
     new Array(headerData.length).fill(defaultWidth)
   );
@@ -142,6 +137,7 @@ const TableView = () => {
       ) //TODO INSERT USERID
       .then((response) => {
         const transformedData = response.data.map((behavior) => [
+          behavior.entry_id,
           behavior.behavior_id,
           behavior.date_of_event,
         ]); // Adjust property names
@@ -155,30 +151,95 @@ const TableView = () => {
   const renderEditableCell = (data, rowIndex, cellIndex) => (
     <TextInput
       value={String(data)}
-      onChangeText={(newValue) =>
-        handleCellChange(tableData, rowIndex, cellIndex, newValue)
-      }
+      onChangeText={(newValue) => {
+        handleCellChange(rowIndex, cellIndex, newValue);
+      }}
+      onBlur={() => handleCellBlur(rowIndex, cellIndex, data)}
       style={{
         ...tableStyles.input,
         width: columnWidths[cellIndex] || defaultWidth,
       }}
     />
   );
-  const deleteRow = (indexToDelete) => {
-    const newTableData = tableData.filter(
-      (_, index) => index !== indexToDelete
-    );
-    setTableData(newTableData);
+  const deleteRow = async (id) => {
+    // Remove the row from the local state
+    const updatedTableData = tableData.filter((row) => row[0] !== id);
+    setTableData(updatedTableData);
+
+    try {
+      // Send a DELETE request to the API to delete the row
+      await axios.delete(
+        "http://" + hostIp + ":" + port + "/api/v1/behavior-logs/" + id
+      );
+      console.log("Row deleted successfully");
+    } catch (error) {
+      console.error("Error deleting row:", error);
+    }
   };
 
-  const addRowBelow = (index) => {
-    const newRow = ["New Behavior", 0, 0, 0, 0, 0, 0];
-    setTableData((prevData) => {
-      let newData = [...prevData];
-      newData.splice(index + 1, 0, newRow);
-      return newData;
+  const addRowBelow = async (index) => {
+    try {
+      var id = await fetchStudentId(student);
+      const response = await axios.post(
+        "http://" + hostIp + ":" + port + "/api/v1/behavior-logs/",
+        {
+          userId: id,
+          behaviorId: 1,
+          dateOfEvent: "1970-01-01",
+        }
+      );
+      const addedRow = [response.data.id, "1", "1970-01-01", 1]; // Assuming the API returns the added row
+      setTableData((prevData) => {
+        let newData = [...prevData];
+        newData.splice(index + 1, 0, addedRow);
+        return newData;
+      });
+      console.log("Row added successfully");
+    } catch (error) {
+      console.error("Error adding row:", JSON.stringify(error));
+    }
+  };
+
+  const handleCellChange = (rowIndex, cellIndex, newValue) => {
+    setTableData((prevTableData) => {
+      const updatedData = [...prevTableData];
+      updatedData[rowIndex][cellIndex] = newValue;
+      return updatedData;
     });
   };
+
+  const handleCellBlur = (rowIndex, cellIndex, oldValue) => {
+    const newValue = tableData[rowIndex][cellIndex];
+    console.log(oldValue, newValue);
+    setEditedRows((prevEditedRows) => [
+      ...prevEditedRows,
+      { rowIndex, cellIndex },
+    ]);
+  };
+
+  const [editedRows, setEditedRows] = useState([]);
+
+  useEffect(() => {
+    // Update edited rows
+    editedRows.forEach(async (edit) => {
+      const { rowIndex, cellIndex } = edit;
+      const userId = tableData[rowIndex][0];
+      console.log();
+      try {
+        await axios.put(
+          `http://${hostIp}:${port}/api/v1/behavior-logs/${userId}`,
+          {
+            userId: tableData[rowIndex][1],
+            behaviorId: tableData[rowIndex][2],
+            dateOfEvent: tableData[rowIndex][3],
+          } // Assuming headerData corresponds to API field names
+        );
+        console.log("Row updated successfully");
+      } catch (error) {
+        console.error("Error updating row:", error);
+      }
+    });
+  }, [editedRows]);
 
   return (
     <MenuProvider>
@@ -212,18 +273,18 @@ const TableView = () => {
               />
             </Table>
             {tableData.map((rowData, rowIndex) => (
-              <View style={tableStyles.outerRowContainer} key={rowIndex}>
+              <View style={tableStyles.outerRowContainer} key={rowData[0]}>
                 <Menu>
                   <MenuTrigger>
                     <Text style={tableStyles.menuTrigger}>⋮</Text>
                   </MenuTrigger>
                   <MenuOptions>
-                    <MenuOption onSelect={() => addRowBelow(rowIndex)}>
+                    <MenuOption onSelect={() => addRowBelow(rowData[0])}>
                       <Text style={tableStyles.menuOptionText}>
                         Add Row Below
                       </Text>
                     </MenuOption>
-                    <MenuOption onSelect={() => deleteRow(rowIndex)}>
+                    <MenuOption onSelect={() => deleteRow(rowData[0])}>
                       <Text style={tableStyles.menuOptionText}>Delete Row</Text>
                     </MenuOption>
                   </MenuOptions>
@@ -235,7 +296,7 @@ const TableView = () => {
                         ...tableStyles.cellText,
                         width: columnWidths[cellIndex] || defaultWidth,
                       }}
-                      key={cellIndex}
+                      key={`${rowData[0]}_${cellIndex}`}
                     >
                       {renderEditableCell(cellData, rowIndex, cellIndex)}
                     </View>

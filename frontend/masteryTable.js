@@ -55,7 +55,9 @@ const TableView = () => {
     setColumnWidths(maxWidths);
   };
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    fetchStudentNames();
+  }, []);
 
   const getMasterTableData = async (studentID) => {
     calculateColumnWidths();

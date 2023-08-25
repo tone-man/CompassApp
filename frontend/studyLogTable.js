@@ -7,8 +7,11 @@ import {
   StyleSheet,
   Text,
   Dimensions,
+  FlatList,
+  TouchableOpacity,
 } from "react-native";
 import { Table, Row } from "react-native-table-component";
+import axios from "axios";
 import {
   Menu,
   MenuOptions,
@@ -16,7 +19,6 @@ import {
   MenuTrigger,
   MenuProvider,
 } from "react-native-popup-menu";
-import axios from "axios";
 import { ip, hostPort } from "./globals.js";
 
 const hostIp = ip;
@@ -26,59 +28,74 @@ const TableView = () => {
   const screenWidth = Dimensions.get("window").width;
   const defaultWidth = 100;
   const headerData = ["Id", "Student ID", "Log In Time", "Log out Time"];
-
-  const calculateWidthOfContent = (content) => {
-    const estimatedWidth = content.length * 15 + 30;
-    return Math.max(defaultWidth, estimatedWidth);
-  };
-
-  const initialColumnWidths = headerData.map(calculateWidthOfContent);
-
   const [tableData, setTableData] = useState([
     ["-", "-", "0000-00-00 00:00:00", "0000-00-00 00:00:00"],
   ]);
-  const [columnWidths, setColumnWidths] = useState(initialColumnWidths);
+  const [columnWidths, setColumnWidths] = useState(
+    headerData.map((header) => header.length * 15 + 30)
+  );
 
-  const adjustColumnWidths = () => {
-    const totalWidth = columnWidths.reduce((sum, width) => sum + width, 0);
-    if (totalWidth > screenWidth) {
-      calculateColumnWidths();
-    } else {
-      const evenWidth = screenWidth / headerData.length;
-      setColumnWidths(new Array(headerData.length).fill(evenWidth));
+  // Student search related states
+  const [student, setStudent] = useState("");
+  const [studentsList, setStudentsList] = useState([]);
+  const [filteredStudents, setFilteredStudents] = useState([]);
+
+  const fetchStudentNames = async () => {
+    try {
+      const response = await axios.get(
+        `http://${hostIp}:${port}/api/v1/students/`
+      );
+      setStudentsList(response.data.map((user) => user.name));
+    } catch (error) {
+      console.error("Error fetching student names:", error);
     }
   };
 
-  const calculateColumnWidths = () => {
-    let maxWidths = [...columnWidths];
-    headerData.forEach((header, index) => {
-      const width = calculateWidthOfContent(header);
-      maxWidths[index] = Math.max(maxWidths[index], width);
-    });
+  const handleStudentChange = (text) => {
+    setStudent(text);
+    const matchedStudents = studentsList.filter((s) =>
+      s.toLowerCase().includes(text.toLowerCase())
+    );
+    setFilteredStudents(matchedStudents);
+  };
 
-    tableData.forEach((row) => {
-      row.forEach((cell, index) => {
-        const width = calculateWidthOfContent(String(cell));
-        maxWidths[index] = Math.max(maxWidths[index], width);
-      });
-    });
+  const fetchStudentId = async (studentName) => {
+    try {
+      const response = await axios.get(
+        `http://${hostIp}:${port}/api/v1/students`
+      );
+      const student = response.data.find((user) => user.name === studentName);
+      console.log("student", student);
+      console.log("student ID", student.user_id);
+      return student.user_id;
+    } catch (error) {
+      console.error("Error fetching student id:", error);
+    }
+  };
 
-    setColumnWidths(maxWidths);
+  const handleStudentSelection = async (selected) => {
+    setStudent(selected);
+    setFilteredStudents([]);
+    const studentID = await fetchStudentId(selected);
+    await getTableData(studentID);
   };
 
   useEffect(() => {
-    adjustColumnWidths();
-
-    axios
+    fetchStudentNames();
+  }, []);
+  const getTableData = async (studentID) => {
+    fetchStudentNames();
+    console.log("Student ID:", studentID);
+    await axios
       .get(
         "http://" +
           hostIp +
           ":" +
           port +
           "/api/v1/students/" +
-          1 +
+          studentID +
           "/study-hour-logs"
-      ) //TODO INSERT USERID
+      )
       .then((response) => {
         const transformedData = response.data.map((entry) => [
           entry.entry_id,
@@ -87,11 +104,12 @@ const TableView = () => {
           entry.duration_of_study,
         ]); // Adjust property names
         setTableData(transformedData);
+        console.log("Table data:", tableData);
       })
       .catch((error) => {
         console.error("Error fetching data:", error);
       });
-  }, [tableData]);
+  };
 
   const renderEditableCell = (data, rowIndex, cellIndex) => (
     <TextInput
@@ -106,25 +124,29 @@ const TableView = () => {
     />
   );
 
-  const deleteRow = (indexToDelete) => {
-    const newTableData = tableData.filter(
-      (_, index) => index !== indexToDelete
-    );
-    setTableData(newTableData);
-  };
-
-  const addRowBelow = (index) => {
-    const newRow = ["New Behavior", 0, 0, 0, 0, 0, 0];
-    setTableData((prevData) => {
-      let newData = [...prevData];
-      newData.splice(index + 1, 0, newRow);
-      return newData;
-    });
-  };
-
   return (
     <MenuProvider>
       <ScrollView style={tableStyles.scrollContainer}>
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Search and select a student"
+            onChangeText={handleStudentChange}
+            value={student}
+          />
+          {student !== "" && filteredStudents.length > 0 && (
+            <FlatList
+              data={filteredStudents}
+              renderItem={({ item }) => (
+                <TouchableOpacity onPress={() => handleStudentSelection(item)}>
+                  <Text>{item}</Text>
+                </TouchableOpacity>
+              )}
+              keyExtractor={(item) => item}
+              style={styles.suggestionList}
+            />
+          )}
+        </View>
         <ScrollView horizontal={true}>
           <View style={tableStyles.container}>
             <Table borderStyle={{ borderWidth: 1, borderColor: "#c8e1ff" }}>
@@ -172,6 +194,7 @@ const TableView = () => {
             ))}
           </View>
         </ScrollView>
+
         <Button title="Export as CSV" onPress={() => exportCSV(tableData)} />
       </ScrollView>
     </MenuProvider>
@@ -179,7 +202,24 @@ const TableView = () => {
 };
 
 const tableStyles = StyleSheet.create({
-  // ... [Other Styles]
+  scrollContainer: {
+    flex: 1,
+  },
+  container: {
+    flexDirection: "column",
+  },
+  header: {
+    height: 50,
+    backgroundColor: "#f1f8ff",
+  },
+  headerText: {
+    textAlign: "center",
+    fontWeight: "100",
+  },
+  row: {
+    height: 40,
+    backgroundColor: "#e7f1ff",
+  },
   menuTrigger: {
     padding: 10,
     fontSize: 20,
@@ -197,6 +237,29 @@ const tableStyles = StyleSheet.create({
   rowContainer: {
     flexDirection: "row",
     flex: 1,
+  },
+});
+
+const styles = StyleSheet.create({
+  inputContainer: {
+    position: "relative",
+  },
+  input: {
+    height: 40,
+    paddingHorizontal: 10,
+    borderWidth: 1,
+    borderColor: "#bbb",
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  suggestionList: {
+    maxHeight: 120,
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#bbb",
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    paddingTop: 5,
   },
 });
 
