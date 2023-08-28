@@ -422,7 +422,7 @@ const validateCreateMastery = [
 ];
 
 app.post(
-  route + "/skill-mastery",
+  route + "/mastery-logs",
   validateCreateMastery,
   handleValidationErrors,
   (req, res) => {
@@ -430,7 +430,7 @@ app.post(
 
     createSkillMasteryLog(db, userId, skillId, masteryStatus, dateOfEvent)
       .then((result) => {
-        res.status(201).json({ entryId: result.entryId });
+        res.status(201).json({ id: result.entryId });
       })
       .catch((error) => {
         console.error("Error creating skill mastery log:", error);
