@@ -124,6 +124,93 @@ const TableView = () => {
     />
   );
 
+  const addRowBelow = async (index) => {
+    try {
+      var id = await fetchStudentId(student);
+      const response = await axios.post(
+        "http://" + hostIp + ":" + port + "/api/v1/study-hour-logs",
+        {
+          userId: id,
+          dateTimeOfLogIn: "1970-01-01 0:00:00",
+          dateTimeOfLogOut: "1970-01-01 0:01:00",
+          durationOfStudy: "1",
+        }
+      );
+      const addedRow = [
+        response.data.id,
+        "1970-01-01 0:00:00",
+        "1970-01-01 0:01:00",
+        "1",
+      ]; // Assuming the API returns the added row
+      setTableData((prevData) => {
+        let newData = [...prevData];
+        newData.splice(index + 1, 0, addedRow);
+        return newData;
+      });
+      console.log("Row added successfully");
+    } catch (error) {
+      console.error("Error adding row:", JSON.stringify(error));
+    }
+  };
+
+  const deleteRow = async (id) => {
+    // Remove the row from the local state
+    const updatedTableData = tableData.filter((row) => row[0] !== id);
+    setTableData(updatedTableData);
+
+    try {
+      // Send a DELETE request to the API to delete the row
+      await axios.delete(
+        "http://" + hostIp + ":" + port + "/api/v1/study-hour-logs/" + id
+      );
+      console.log("Row deleted successfully");
+    } catch (error) {
+      console.error("Error deleting row:", error);
+    }
+  };
+
+  const handleCellChange = (rowIndex, cellIndex, newValue) => {
+    setTableData((prevTableData) => {
+      const updatedData = [...prevTableData];
+      updatedData[rowIndex][cellIndex] = newValue;
+      return updatedData;
+    });
+  };
+
+  const handleCellBlur = (rowIndex, cellIndex, oldValue) => {
+    const newValue = tableData[rowIndex][cellIndex];
+    console.log(oldValue, newValue);
+    setEditedRows((prevEditedRows) => [
+      ...prevEditedRows,
+      { rowIndex, cellIndex },
+    ]);
+  };
+
+  const [editedRows, setEditedRows] = useState([]);
+
+  useEffect(() => {
+    // Update edited rows
+    editedRows.forEach(async (edit) => {
+      const { rowIndex, cellIndex } = edit;
+      const userId = tableData[rowIndex][0];
+      //console.log();
+      try {
+        await axios.put(
+          `http://${hostIp}:${port}/api/v1/study-hour-logs/${userId}`,
+          {
+            userId: tableData[rowIndex][0],
+            dateTimeOfLogIn: tableData[rowIndex][1],
+            dateTimeOfLogOut: tableData[rowIndex][2],
+            durationOfStudy: tableData[rowIndex][3],
+          } // Assuming headerData corresponds to API field names
+        );
+        console.log("Row updated successfully");
+      } catch (error) {
+        console.error("Error updating row:", error.response.data);
+      }
+    });
+  }, [editedRows]);
+
   return (
     <MenuProvider>
       <ScrollView style={tableStyles.scrollContainer}>
@@ -161,18 +248,18 @@ const TableView = () => {
               />
             </Table>
             {tableData.map((rowData, rowIndex) => (
-              <View style={tableStyles.outerRowContainer} key={rowIndex}>
+              <View style={tableStyles.outerRowContainer} key={rowData[0]}>
                 <Menu>
                   <MenuTrigger>
                     <Text style={tableStyles.menuTrigger}>⋮</Text>
                   </MenuTrigger>
                   <MenuOptions>
-                    <MenuOption onSelect={() => addRowBelow(rowIndex)}>
+                    <MenuOption onSelect={() => addRowBelow(rowData[0])}>
                       <Text style={tableStyles.menuOptionText}>
                         Add Row Below
                       </Text>
                     </MenuOption>
-                    <MenuOption onSelect={() => deleteRow(rowIndex)}>
+                    <MenuOption onSelect={() => deleteRow(rowData[0])}>
                       <Text style={tableStyles.menuOptionText}>Delete Row</Text>
                     </MenuOption>
                   </MenuOptions>

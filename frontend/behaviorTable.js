@@ -188,7 +188,7 @@ const TableView = () => {
           dateOfEvent: "1970-01-01",
         }
       );
-      const addedRow = [response.data.id, "1", "1970-01-01", 1]; // Assuming the API returns the added row
+      const addedRow = [response.data.id, "1", "1970-01-01"]; // Assuming the API returns the added row
       setTableData((prevData) => {
         let newData = [...prevData];
         newData.splice(index + 1, 0, addedRow);
@@ -224,19 +224,19 @@ const TableView = () => {
     editedRows.forEach(async (edit) => {
       const { rowIndex, cellIndex } = edit;
       const userId = tableData[rowIndex][0];
-      console.log();
+      //console.log();
       try {
         await axios.put(
           `http://${hostIp}:${port}/api/v1/behavior-logs/${userId}`,
           {
-            userId: tableData[rowIndex][1],
-            behaviorId: tableData[rowIndex][2],
-            dateOfEvent: tableData[rowIndex][3],
+            userId: tableData[rowIndex][0],
+            behaviorId: tableData[rowIndex][1],
+            dateOfEvent: tableData[rowIndex][2],
           } // Assuming headerData corresponds to API field names
         );
         console.log("Row updated successfully");
       } catch (error) {
-        console.error("Error updating row:", error);
+        console.error("Error updating row:", error.response.data);
       }
     });
   }, [editedRows]);
