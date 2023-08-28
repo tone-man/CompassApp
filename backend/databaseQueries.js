@@ -223,7 +223,7 @@ function createStudyLog(
         if (err) {
           reject(err);
         } else {
-          resolve({ entryId: this.lastID });
+          resolve(this.lastID);
         }
       }
     );

@@ -851,7 +851,7 @@ app.post(
   (req, res) => {
     const { userId, dateTimeOfLogIn, dateTimeOfLogOut, durationOfStudy } =
       req.body;
-
+    let entryId = 0;
     createStudyLog(
       db,
       userId,
@@ -859,15 +859,15 @@ app.post(
       dateTimeOfLogOut,
       durationOfStudy
     )
-      .then(() => {
+      .then((result) => {
+        entryId = result;
         return getSumStudentCompletedStudyTime(db, userId);
       })
       .then((sum) => {
-        console.log(sum);
         updateStudentCompletedStudyTime(db, userId, sum);
       })
       .then((result) => {
-        res.status(201).json({ result });
+        res.status(201).json({ id: entryId, result: result });
       })
       .catch((error) => {
         console.error("Error creating skill:", error);
