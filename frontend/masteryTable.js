@@ -59,6 +59,72 @@ const TableView = () => {
     fetchStudentNames();
   }, []);
 
+  const addRowBelow = async (index) => {
+    try {
+      var id = await fetchStudentId(student);
+      const response = await axios.post(
+        "http://" + hostIp + ":" + port + "/api/v1/mastery-logs",
+        {
+          userId: id,
+          skillId: 1,
+          masteryStatus: 0,
+          dateOfEvent: "1970-01-01",
+        }
+      );
+      const addedRow = [response.data.id, "1", "0", "1970-01-01"]; // Assuming the API returns the added row
+      setTableData((prevData) => {
+        let newData = [...prevData];
+        newData.splice(index + 1, 0, addedRow);
+        return newData;
+      });
+      console.log("Row added successfully");
+    } catch (error) {
+      console.error("Error adding row:", JSON.stringify(error));
+    }
+  };
+
+  const handleCellChange = (rowIndex, cellIndex, newValue) => {
+    setTableData((prevTableData) => {
+      const updatedData = [...prevTableData];
+      updatedData[rowIndex][cellIndex] = newValue;
+      return updatedData;
+    });
+  };
+
+  const handleCellBlur = (rowIndex, cellIndex, oldValue) => {
+    const newValue = tableData[rowIndex][cellIndex];
+    console.log(oldValue, newValue);
+    setEditedRows((prevEditedRows) => [
+      ...prevEditedRows,
+      { rowIndex, cellIndex },
+    ]);
+  };
+
+  const [editedRows, setEditedRows] = useState([]);
+
+  useEffect(() => {
+    // Update edited rows
+    editedRows.forEach(async (edit) => {
+      const { rowIndex, cellIndex } = edit;
+      const userId = tableData[rowIndex][0];
+      //console.log();
+      try {
+        await axios.put(
+          `http://${hostIp}:${port}/api/v1/mastery-logs/${userId}`,
+          {
+            userId: tableData[rowIndex][0],
+            skillId: tableData[rowIndex][1],
+            masteryStatus: tableData[rowIndex][2],
+            dateOfEvent: tableData[rowIndex][3],
+          } // Assuming headerData corresponds to API field names
+        );
+        console.log("Row updated successfully");
+      } catch (error) {
+        console.error("Error updating row:", error.response.data);
+      }
+    });
+  }, [editedRows]);
+
   const getMasterTableData = async (studentID) => {
     calculateColumnWidths();
     fetchStudentNames();
@@ -99,20 +165,20 @@ const TableView = () => {
     />
   );
 
-  const deleteRow = (indexToDelete) => {
-    const newTableData = tableData.filter(
-      (_, index) => index !== indexToDelete
-    );
-    setTableData(newTableData);
-  };
+  const deleteRow = async (id) => {
+    // Remove the row from the local state
+    const updatedTableData = tableData.filter((row) => row[0] !== id);
+    setTableData(updatedTableData);
 
-  const addRowBelow = (index) => {
-    const newRow = ["New Behavior", "0"];
-    setTableData((prevData) => {
-      let newData = [...prevData];
-      newData.splice(index + 1, 0, newRow);
-      return newData;
-    });
+    try {
+      // Send a DELETE request to the API to delete the row
+      await axios.delete(
+        "http://" + hostIp + ":" + port + "/api/v1/mastery-logs/" + id
+      );
+      console.log("Row deleted successfully");
+    } catch (error) {
+      console.error("Error deleting row:", error);
+    }
   };
 
   const [selectedStudent, setSelectedStudent] = useState(null);
@@ -219,18 +285,18 @@ const TableView = () => {
               />
             </Table>
             {tableData.map((rowData, rowIndex) => (
-              <View style={tableStyles.outerRowContainer} key={rowIndex}>
+              <View style={tableStyles.outerRowContainer} key={rowData[0]}>
                 <Menu>
                   <MenuTrigger>
                     <Text style={tableStyles.menuTrigger}>⋮</Text>
                   </MenuTrigger>
                   <MenuOptions>
-                    <MenuOption onSelect={() => addRowBelow(rowIndex)}>
+                    <MenuOption onSelect={() => addRowBelow(rowData[0])}>
                       <Text style={tableStyles.menuOptionText}>
                         Add Row Below
                       </Text>
                     </MenuOption>
-                    <MenuOption onSelect={() => deleteRow(rowIndex)}>
+                    <MenuOption onSelect={() => deleteRow(rowData[0])}>
                       <Text style={tableStyles.menuOptionText}>Delete Row</Text>
                     </MenuOption>
                   </MenuOptions>
