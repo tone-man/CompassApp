@@ -138,9 +138,9 @@ const TableView = () => {
       );
       const addedRow = [
         response.data.id,
+        id,
         "1970-01-01 0:00:00",
         "1970-01-01 0:01:00",
-        "1",
       ]; // Assuming the API returns the added row
       setTableData((prevData) => {
         let newData = [...prevData];
@@ -201,7 +201,7 @@ const TableView = () => {
             userId: tableData[rowIndex][0],
             dateTimeOfLogIn: tableData[rowIndex][1],
             dateTimeOfLogOut: tableData[rowIndex][2],
-            durationOfStudy: tableData[rowIndex][3],
+            durationOfStudy: dateTimeOfLogOut - dateTimeOfLogIn,
           } // Assuming headerData corresponds to API field names
         );
         console.log("Row updated successfully");
