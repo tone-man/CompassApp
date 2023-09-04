@@ -74,7 +74,7 @@ const TableView = () => {
       const addedRow = [response.data.id, "1", "0", "1970-01-01"]; // Assuming the API returns the added row
       setTableData((prevData) => {
         let newData = [...prevData];
-        newData.splice(index + 1, 0, addedRow);
+        newData.push(addedRow);
         return newData;
       });
       console.log("Row added successfully");

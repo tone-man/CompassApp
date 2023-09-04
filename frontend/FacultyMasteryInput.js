@@ -187,7 +187,7 @@ export default function FacultyMasteryInput() {
         try {
           // post request to backend
           await axios.post(
-            "http://" + hostIp + ":" + port + "/api/v1/skill-mastery",
+            "http://" + hostIp + ":" + port + "/api/v1/mastery-logs",
             {
               userId: student_id,
               skillId: skill_id,

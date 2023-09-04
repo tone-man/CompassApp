@@ -111,18 +111,45 @@ export default function QRcodeScannerView() {
   }
 
   if (scanned) {
-    return (
-      <View style={styles.container}>
-        <Text>Scanned Data:</Text>
-        <TouchableOpacity onPress={handlePress}>
-          <Text style={{ color: "blue", textDecorationLine: "underline" }}>
-            {data}
-          </Text>
-        </TouchableOpacity>
-        <Button title={"Tap to Scan Again"} onPress={() => setScanned(false)} />
-        <StatusBar style="auto" />
-      </View>
-    );
+    if (data === "Study Room Sign In") {
+      if (isScannedIn) {
+        return (
+          <View style={styles.container}>
+            <Text>Sign In Successful!</Text>
+
+            <Button
+              title={"Tap to Scan again to sign out"}
+              onPress={() => setScanned(false)}
+            />
+            <StatusBar style="auto" />
+          </View>
+        );
+      } else {
+        return (
+          <View style={styles.container}>
+            <Text>Sign Out Successful!</Text>
+
+            <Button
+              title={"Tap to Scan again to sign in"}
+              onPress={() => setScanned(false)}
+            />
+            <StatusBar style="auto" />
+          </View>
+        );
+      }
+    } else {
+      return (
+        <View style={styles.container}>
+          <Text>Not a valid QR code</Text>
+
+          <Button
+            title={"Tap to Scan again"}
+            onPress={() => setScanned(false)}
+          />
+          <StatusBar style="auto" />
+        </View>
+      );
+    }
   }
 
   return (

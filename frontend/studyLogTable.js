@@ -27,7 +27,7 @@ const port = hostPort;
 const TableView = () => {
   const screenWidth = Dimensions.get("window").width;
   const defaultWidth = 100;
-  const headerData = ["Id", "Student ID", "Log In Time", "Log out Time"];
+  const headerData = ["Id", "Log In Time", "Log out Time", "Duration"];
   const [tableData, setTableData] = useState([
     ["-", "-", "0000-00-00 00:00:00", "0000-00-00 00:00:00"],
   ]);
@@ -130,7 +130,6 @@ const TableView = () => {
       const response = await axios.post(
         "http://" + hostIp + ":" + port + "/api/v1/study-hour-logs",
         {
-          userId: id,
           dateTimeOfLogIn: "1970-01-01 0:00:00",
           dateTimeOfLogOut: "1970-01-01 0:01:00",
           durationOfStudy: "1",
@@ -144,7 +143,7 @@ const TableView = () => {
       ]; // Assuming the API returns the added row
       setTableData((prevData) => {
         let newData = [...prevData];
-        newData.splice(index + 1, 0, addedRow);
+        newData.push(addedRow);
         return newData;
       });
       console.log("Row added successfully");
