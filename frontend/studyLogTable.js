@@ -114,9 +114,10 @@ const TableView = () => {
   const renderEditableCell = (data, rowIndex, cellIndex) => (
     <TextInput
       value={String(data)}
-      onChangeText={(newValue) =>
-        handleCellChange(tableData, rowIndex, cellIndex, newValue)
-      }
+      onChangeText={(newValue) => {
+        handleCellChange(rowIndex, cellIndex, newValue);
+      }}
+      onBlur={() => handleCellBlur(rowIndex, cellIndex, data)}
       style={{
         ...tableStyles.input,
         width: columnWidths[cellIndex] || defaultWidth,
@@ -200,7 +201,7 @@ const TableView = () => {
             userId: tableData[rowIndex][0],
             dateTimeOfLogIn: tableData[rowIndex][1],
             dateTimeOfLogOut: tableData[rowIndex][2],
-            durationOfStudy: dateTimeOfLogOut - dateTimeOfLogIn,
+            durationOfStudy: tableData[rowIndex][3],
           } // Assuming headerData corresponds to API field names
         );
         console.log("Row updated successfully");

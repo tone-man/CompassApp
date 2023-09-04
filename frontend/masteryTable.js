@@ -155,9 +155,10 @@ const TableView = () => {
   const renderEditableCell = (data, rowIndex, cellIndex) => (
     <TextInput
       value={String(data)}
-      onChangeText={(newValue) =>
-        handleCellChange(tableData, rowIndex, cellIndex, newValue)
-      }
+      onChangeText={(newValue) => {
+        handleCellChange(rowIndex, cellIndex, newValue);
+      }}
+      onBlur={() => handleCellBlur(rowIndex, cellIndex, data)}
       style={{
         ...tableStyles.input,
         width: columnWidths[cellIndex] || defaultWidth,

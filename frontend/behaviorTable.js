@@ -37,6 +37,7 @@ const TableView = () => {
   const [student, setStudent] = useState("");
   const [studentsList, setStudentsList] = useState([]);
   const [filteredStudents, setFilteredStudents] = useState([]);
+  const [studentID, setStudentID] = useState(0);
 
   useEffect(() => {
     fetchStudentNames();
@@ -66,8 +67,9 @@ const TableView = () => {
     }
   };
 
-  const handleStudentChange = (text) => {
+  const handleStudentChange = async (text) => {
     setStudent(text);
+    setStudentID(await fetchStudentId(text));
     if (text.length > 0) {
       const matchedStudents = studentsList.filter((s) =>
         s.toLowerCase().includes(text.toLowerCase())
@@ -82,8 +84,7 @@ const TableView = () => {
     <TouchableOpacity
       onPress={async () => {
         setStudent(item);
-        console.log("item", JSON.stringify(await fetchStudentId(item)));
-        getLogs(await fetchStudentId(item));
+
         setFilteredStudents([]);
       }}
     >
@@ -179,7 +180,6 @@ const TableView = () => {
 
   const addRowBelow = async (index) => {
     try {
-      var id = await fetchStudentId(student);
       const response = await axios.post(
         "http://" + hostIp + ":" + port + "/api/v1/behavior-logs/",
         {
@@ -223,15 +223,14 @@ const TableView = () => {
     // Update edited rows
     editedRows.forEach(async (edit) => {
       const { rowIndex, cellIndex } = edit;
-      const userId = tableData[rowIndex][0];
       //console.log();
       try {
         await axios.put(
           `http://${hostIp}:${port}/api/v1/behavior-logs/${userId}`,
           {
-            userId: tableData[rowIndex][0],
-            behaviorId: tableData[rowIndex][1],
-            dateOfEvent: tableData[rowIndex][2],
+            userId: studentID,
+            behaviorId: tableData[rowIndex][2],
+            dateOfEvent: tableData[rowIndex][3],
           } // Assuming headerData corresponds to API field names
         );
         console.log("Row updated successfully");
