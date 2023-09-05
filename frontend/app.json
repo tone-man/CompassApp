@@ -25,6 +25,12 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "cf15d9b4-d5bb-4b48-bde4-92a3556a3cfc"
+      }
+    },
+    "owner": "compasslearningapplication"
   }
 }
