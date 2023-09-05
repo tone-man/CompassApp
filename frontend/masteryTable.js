@@ -319,7 +319,7 @@ const TableView = () => {
             ))}
           </View>
         </ScrollView>
-        <Button title="Export as CSV" onPress={() => exportCSV(tableData)} />
+        {/* <Button title="Export as CSV" onPress={() => exportCSV(tableData)} /> */}
       </ScrollView>
     </MenuProvider>
   );
