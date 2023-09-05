@@ -37,7 +37,6 @@ const TableView = () => {
   const [student, setStudent] = useState("");
   const [studentsList, setStudentsList] = useState([]);
   const [filteredStudents, setFilteredStudents] = useState([]);
-  const [studentID, setStudentID] = useState(0);
 
   useEffect(() => {
     fetchStudentNames();
@@ -67,9 +66,8 @@ const TableView = () => {
     }
   };
 
-  const handleStudentChange = async (text) => {
+  const handleStudentChange = (text) => {
     setStudent(text);
-    setStudentID(await fetchStudentId(text));
     if (text.length > 0) {
       const matchedStudents = studentsList.filter((s) =>
         s.toLowerCase().includes(text.toLowerCase())
@@ -84,7 +82,8 @@ const TableView = () => {
     <TouchableOpacity
       onPress={async () => {
         setStudent(item);
-
+        console.log("item", JSON.stringify(await fetchStudentId(item)));
+        getLogs(await fetchStudentId(item));
         setFilteredStudents([]);
       }}
     >
@@ -162,6 +161,7 @@ const TableView = () => {
       }}
     />
   );
+
   const deleteRow = async (id) => {
     // Remove the row from the local state
     const updatedTableData = tableData.filter((row) => row[0] !== id);
@@ -180,6 +180,7 @@ const TableView = () => {
 
   const addRowBelow = async (index) => {
     try {
+      var id = await fetchStudentId(student);
       const response = await axios.post(
         "http://" + hostIp + ":" + port + "/api/v1/behavior-logs/",
         {
@@ -188,7 +189,7 @@ const TableView = () => {
           dateOfEvent: "1970-01-01",
         }
       );
-      const addedRow = [response.data.id, "1", "1970-01-01"]; // Assuming the API returns the added row
+      const addedRow = [response.data.id, 1, "1970-01-01"]; // Assuming the API returns the added row
       setTableData((prevData) => {
         let newData = [...prevData];
         newData.push(addedRow);
@@ -223,14 +224,15 @@ const TableView = () => {
     // Update edited rows
     editedRows.forEach(async (edit) => {
       const { rowIndex, cellIndex } = edit;
+      const id = await fetchStudentId(student);
       //console.log();
       try {
         await axios.put(
-          `http://${hostIp}:${port}/api/v1/behavior-logs/${userId}`,
+          `http://${hostIp}:${port}/api/v1/behavior-logs/${id}`,
           {
-            userId: studentID,
-            behaviorId: tableData[rowIndex][2],
-            dateOfEvent: tableData[rowIndex][3],
+            userId: id,
+            behaviorId: tableData[rowIndex][1],
+            dateOfEvent: tableData[rowIndex][2],
           } // Assuming headerData corresponds to API field names
         );
         console.log("Row updated successfully");

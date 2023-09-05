@@ -192,13 +192,13 @@ const TableView = () => {
     // Update edited rows
     editedRows.forEach(async (edit) => {
       const { rowIndex, cellIndex } = edit;
-      const userId = tableData[rowIndex][0];
+      const id = await fetchStudentId(student);
       //console.log();
       try {
         await axios.put(
-          `http://${hostIp}:${port}/api/v1/study-hour-logs/${userId}`,
+          `http://${hostIp}:${port}/api/v1/study-hour-logs/${id}`,
           {
-            userId: tableData[rowIndex][0],
+            userId: id,
             dateTimeOfLogIn: tableData[rowIndex][1],
             dateTimeOfLogOut: tableData[rowIndex][2],
             durationOfStudy: tableData[rowIndex][3],

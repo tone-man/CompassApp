@@ -157,7 +157,7 @@ const TableExample = () => {
         </DataTable.Cell>
         <DataTable.Cell numeric>
           <Text style={stylesConfig.tableCellText}>
-            {missedAssignments - lateAssignments}
+            {Math.max(missedAssignments - lateAssignments, 0)}
           </Text>
         </DataTable.Cell>
       </DataTable.Row>

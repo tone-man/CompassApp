@@ -106,13 +106,13 @@ const TableView = () => {
     // Update edited rows
     editedRows.forEach(async (edit) => {
       const { rowIndex, cellIndex } = edit;
-      const userId = tableData[rowIndex][0];
+      const id = await fetchStudentId(student);
       //console.log();
       try {
         await axios.put(
-          `http://${hostIp}:${port}/api/v1/mastery-logs/${userId}`,
+          `http://${hostIp}:${port}/api/v1/mastery-logs/${id}`,
           {
-            userId: tableData[rowIndex][0],
+            userId: id,
             skillId: tableData[rowIndex][1],
             masteryStatus: tableData[rowIndex][2],
             dateOfEvent: tableData[rowIndex][3],
