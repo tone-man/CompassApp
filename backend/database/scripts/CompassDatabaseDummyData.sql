@@ -7,7 +7,12 @@ INSERT INTO users (name, email) VALUES
   ('Michael Johnson', 'michael.johnson@example.com'),
   ('Antonio Craveiro', 'craveiroa@merrimack.edu'),
   ('Michael Daly', 'michaelbriandaly@gmail.com'),
-  ('Michael Mascolo', 'mascolom@merrimack.edu');
+  ('Michael Mascolo', 'mascolom@merrimack.edu'),
+  ('Diana Marginean', 'margineand@merrimack.edu'),
+  ('Kristina Micalizzi', 'micalizzik@merrimack.edu'),
+  ('Brian Zager', 'zagerb@merrimack.edu'),
+  ('Lizzie Linn', 'linnl@merrimack.edu'),
+  ('Kelley Bateman', ' batemank@merrimack.edu');
 
 
 INSERT INTO user_roles (role_name) VALUES
@@ -22,7 +27,12 @@ INSERT INTO user_roles_mapping (user_id, role_id) VALUES
   (4, 1),
   (5, 1),
   (6, 3),
-  (7, 3);
+  (7, 3),
+  (8, 2),
+  (9, 2),
+  (10, 2),
+  (11, 2),
+  (12, 2);
 
 INSERT INTO student_behaviors (behavior_name) VALUES
   ('Missed Class'),
