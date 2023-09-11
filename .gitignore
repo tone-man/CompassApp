@@ -24,5 +24,3 @@ web-build/
 *.bkp
 *.dtmp
 backend/database/CompassDatabase.db
-frontend/globals.js
-frontend/globals.js

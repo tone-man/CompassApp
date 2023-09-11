@@ -1,2 +1,4 @@
-export const hostPort = 5000;
-export const ip = "192.168.4.63";
+const hostPort = 5007;
+const ip = "192.168.4.63";
+
+module.exports = { hostPort, ip };
